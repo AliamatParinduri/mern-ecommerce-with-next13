@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - '27017:27017'
+    container_name: app_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    volumes:
+      - db-data:/data/db
+    networks:
+      - network-data
+    restart: always
+
+  server:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    container_name: app_server
+    ports:
+      - '5000:5000'
+    volumes:
+      - .:/app/server
+      - /app/server/node_modules
+    depends_on:
+      - mongodb
+    networks:
+      - network-data
+    restart: always
+    env_file:
+      - ./.env
+
+volumes:
+  db-data:
+
+networks:
+  network-data:
