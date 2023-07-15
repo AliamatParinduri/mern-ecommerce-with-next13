@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 
 import { LoginDTO, LoginSchema, RegisterDTO, RegisterSchema } from '@/dto'
 import { AuthService } from '@/services'
-import { logger, validate } from '@/utils'
+import { UnprocessableEntityError, generateToken, logger, validate } from '@/utils'
 
 class AuthController {
   authService = new AuthService()
@@ -15,8 +15,9 @@ class AuthController {
 
       const result = await this.authService.register(body as RegisterDTO)
 
-      logger.info('Success Registration new user')
-      return res.status(200).json({ message: 'Success Registration new user', data: result })
+      const message = 'Success Registration new user'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
     } catch (err: any) {
       next(err)
     }
@@ -30,8 +31,14 @@ class AuthController {
 
       const result = await this.authService.login(body as LoginDTO)
 
-      logger.info('Success login')
-      return res.status(200).json({ message: 'Success login', data: result })
+      const token = generateToken({ _id: result._id, ...body }, { expiresIn: '1d' })
+      if (!token) {
+        throw new UnprocessableEntityError('failed to generate token')
+      }
+
+      const message = 'Success login'
+      logger.info(message)
+      return res.status(200).json({ message, token, data: result })
     } catch (err: any) {
       next(err)
     }

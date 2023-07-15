@@ -6,6 +6,7 @@ export interface UserDTO extends Document {
   fullName: string
   username: string
   email: string
+  noHP: string
   password: string
   userPic: string
   isAdmin: boolean
@@ -19,5 +20,6 @@ export const UserValidate = Joi.object({
   username: Joi.string().min(3).max(20).alphanum().required(),
   email: Joi.string().email({ minDomainSegments: 2, tlds: false }).required(),
   password: Joi.string().min(8).max(20).required(),
+  noHP: Joi.string().min(11).max(13).required(),
   userPic: Joi.string()
 })

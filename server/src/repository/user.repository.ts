@@ -19,6 +19,7 @@ class UserRepository {
         fullName: payload.fullName,
         username: payload.username,
         email: payload.email,
+        noHP: payload.noHP,
         password: payload.password
       })
     } catch (err: any) {

@@ -10,6 +10,7 @@ export interface LoginDTO extends Document {
 export interface RegisterDTO extends LoginDTO {
   fullName: string
   email: string
+  noHP: string
 }
 
 export const LoginValidate = {
@@ -21,8 +22,9 @@ export const LoginSchema = Joi.object(LoginValidate)
 
 export const RegisterSchema = Joi.object({
   fullName: Joi.string().pattern(new RegExp('^[a-zA-Z ]{3,75}$')).required(),
-  ...LoginValidate,
   email: Joi.string()
     .email({ minDomainSegments: 2, tlds: { allow: false } })
-    .required()
+    .required(),
+  ...LoginValidate,
+  noHP: Joi.string().min(11).max(13).required()
 })
