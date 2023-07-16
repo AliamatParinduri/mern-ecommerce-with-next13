@@ -12,6 +12,18 @@ class UserService {
     // }
     return result
   }
+
+  updateProfilePicture = async (file: Express.Multer.File, userId: string) => {
+    const ext = file.mimetype.split('/')[1]
+    const fileName = `${file.fieldname}-${Date.now()}.${ext}`
+
+    const result = await this.userRepository.updateProfilePicture(fileName, userId)
+
+    // if (result.length < 1) {
+    //   throw new NotFoundError('Users Not Found')
+    // }
+    return result
+  }
 }
 
 export default UserService

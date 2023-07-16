@@ -15,7 +15,7 @@ export interface UserDTO extends Document {
   wishlist: []
 }
 
-export const UserValidate = Joi.object({
+export const UserSchema = Joi.object({
   fullName: Joi.string().pattern(new RegExp('^[a-zA-Z ]{3,75}$')).required(),
   username: Joi.string().min(3).max(20).alphanum().required(),
   email: Joi.string().email({ minDomainSegments: 2, tlds: false }).required(),

@@ -13,7 +13,7 @@ export interface AddressDTO extends Document {
   isPrimary: boolean
 }
 
-export const AddressValidate = Joi.object({
+export const AddressSchema = Joi.object({
   userId: Joi.string(),
   fullAddress: Joi.string().required(),
   homeNumber: Joi.string().required(),

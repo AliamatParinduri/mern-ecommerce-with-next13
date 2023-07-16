@@ -4,11 +4,11 @@ import { UserDTO } from '@/dto'
 
 const UserSchema = new Schema(
   {
-    fullName: { type: String, trim: true },
-    username: { type: String, trim: true },
-    email: { type: String, trim: true },
-    password: { type: String, trim: true },
-    noHP: { type: String, trim: true },
+    fullName: { type: String, trim: true, required: true },
+    username: { type: String, trim: true, required: true },
+    email: { type: String, trim: true, required: true },
+    password: { type: String, trim: true, required: true },
+    noHP: { type: String, trim: true, required: true },
     userPic: { type: String, default: 'user-default.png', trim: true },
     isAdmin: { type: Boolean, default: false },
     isActive: { type: Boolean, default: false },

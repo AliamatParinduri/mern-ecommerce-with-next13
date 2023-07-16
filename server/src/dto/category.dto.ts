@@ -7,6 +7,7 @@ export interface CategoryDTO extends Document {
   subCategory: []
 }
 
-export const CategoryValidate = Joi.object({
-  category: Joi.string().pattern(new RegExp('^[a-zA-Z ]{3,75}$')).required()
+export const CategorySchema = Joi.object({
+  category: Joi.string().min(3).pattern(new RegExp('^[a-zA-Z ]{3,75}$')).required(),
+  subCategory: Joi.array()
 })

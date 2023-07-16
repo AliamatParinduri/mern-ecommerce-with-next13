@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { LoginDTO, LoginSchema, RegisterDTO, RegisterSchema } from '@/dto'
+import { CategorySchema, LoginDTO, LoginSchema, RegisterDTO } from '@/dto'
 import { AuthService } from '@/services'
 import { UnprocessableEntityError, generateToken, logger, validate } from '@/utils'
 
@@ -11,7 +11,7 @@ class AuthController {
     try {
       const body = req.body
 
-      validate(body, RegisterSchema)
+      validate(body, CategorySchema)
 
       const result = await this.authService.register(body as RegisterDTO)
 
@@ -31,9 +31,9 @@ class AuthController {
 
       const result = await this.authService.login(body as LoginDTO)
 
-      const token = generateToken({ _id: result._id, ...body }, { expiresIn: '1d' })
+      const token = generateToken({ _id: result._id, isAdmin: result.isAdmin, ...body }, { expiresIn: '1d' })
       if (!token) {
-        throw new UnprocessableEntityError('failed to generate token')
+        throw new UnprocessableEntityError('Failed to generate token')
       }
 
       const message = 'Success login'

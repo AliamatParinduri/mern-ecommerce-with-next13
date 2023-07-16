@@ -6,17 +6,18 @@ import { CategoryDTO } from './category.dto'
 export interface ProductDTO extends Document {
   nmProduct: string
   category: CategoryDTO
+  subCategory: string
+  details: []
   price: number
   stock: number
-  sizes: []
+  size: []
   colors: []
   pic: string
 }
 
-export const ProductValidate = Joi.object({
-  nmProduct: Joi.string().pattern(new RegExp('^[a-zA-Z ]{3,75}$')).required(),
-  categoryId: Joi.string().required(),
-  price: Joi.number().required(),
-  stock: Joi.number().required(),
-  pic: Joi.required()
+export const ProductSchema = Joi.object({
+  nmProduct: Joi.string().pattern(new RegExp('^[a-zA-Z 0-9]{3,75}$')).required(),
+  subCategory: Joi.string().pattern(new RegExp('^[a-zA-Z 0-9]{3,75}$')).required(),
+  category: Joi.string().required(),
+  details: Joi.required()
 })

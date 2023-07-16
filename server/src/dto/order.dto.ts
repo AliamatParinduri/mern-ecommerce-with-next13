@@ -19,7 +19,7 @@ export interface OrderDTO extends Document {
   totalPrice: number
 }
 
-export const OrderValidate = Joi.object({
+export const OrderSchema = Joi.object({
   userId: Joi.string(),
   addressId: Joi.string().required(),
   products: Joi.required(),

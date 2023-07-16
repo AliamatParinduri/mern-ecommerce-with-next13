@@ -6,8 +6,9 @@ const storage = multer.diskStorage({
     cb(null, 'src/public/assets')
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname)
+    const ext = file.mimetype.split('/')[1]
+    cb(null, `${file.fieldname}-${Date.now()}.${ext}`)
   }
 })
 
-exports.upload = multer({ storage })
+export const upload = multer({ storage })
