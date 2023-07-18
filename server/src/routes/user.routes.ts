@@ -9,7 +9,11 @@ class UserRoutes extends BaseRoutes {
     const userController = new UserController()
 
     this.router.get('/', userController.getUsers)
-    this.router.post('/updateProfileImage', requireLogin, upload.single('image'), userController.updateProfileImage)
+    this.router.get('/:id', requireLogin, userController.getUserById)
+    this.router.put('/:id/updateProfileImage', requireLogin, upload.single('image'), userController.updateProfileImage)
+    this.router.put('/:id', requireLogin, userController.updateUser)
+    this.router.delete('/:id/updateProfileImage', requireLogin, userController.deleteProfileImage)
+    this.router.delete('/:id', requireLogin, userController.deleteUser)
   }
 }
 

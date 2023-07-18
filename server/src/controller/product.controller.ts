@@ -10,10 +10,11 @@ class ProductController {
   createProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const body = req.body
+      const files = req.files
 
       validate(body, ProductSchema)
 
-      const result = await this.productService.createProduct(body as ProductDTO)
+      const result = await this.productService.createProduct(body as ProductDTO, files as Express.Multer.File[])
 
       const message = 'Success create data product'
       logger.info(message)

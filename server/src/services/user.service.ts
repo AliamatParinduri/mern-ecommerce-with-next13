@@ -1,27 +1,59 @@
 import { UserDTO } from '@/dto'
 import { UserRepository } from '@/repository'
+import { NotFoundError } from '@/utils'
 
 class UserService {
   userRepository = new UserRepository()
 
-  getUsers = async (search: string, user: UserDTO) => {
-    const result = await this.userRepository.getUsers()
+  getUsers = async (page: number, limit: number) => {
+    const result = await this.userRepository.getUsers(page, limit)
 
-    // if (result.length < 1) {
-    //   throw new NotFoundError('Users Not Found')
-    // }
+    if (!result) {
+      throw new NotFoundError('Users Not Found')
+    }
     return result
   }
 
-  updateProfilePicture = async (file: Express.Multer.File, userId: string) => {
-    const ext = file.mimetype.split('/')[1]
-    const fileName = `${file.fieldname}-${Date.now()}.${ext}`
+  getUserById = async (id: string) => {
+    const result = await this.userRepository.findById(id)
 
-    const result = await this.userRepository.updateProfilePicture(fileName, userId)
+    if (!result) {
+      throw new NotFoundError('Users Not Found')
+    }
+    return result
+  }
 
-    // if (result.length < 1) {
-    //   throw new NotFoundError('Users Not Found')
-    // }
+  updateUser = async (id: string, payload: UserDTO) => {
+    const user = await this.userRepository.findById(id)
+
+    if (!user) {
+      throw new NotFoundError('Users Not Found')
+    }
+
+    const result = await this.userRepository.updateUser(user, payload)
+
+    return result
+  }
+
+  updateProfilePicture = async (fileName: string, userId: string) => {
+    const user = await this.userRepository.findById(userId)
+    if (!user) {
+      throw new NotFoundError('User Not Found')
+    }
+
+    const result = await this.userRepository.updateProfilePicture(user, fileName)
+
+    return result
+  }
+
+  deleteUser = async (id: string) => {
+    const result = await this.userRepository.deleteUser(id)
+
+    console.log(result)
+
+    if (!result) {
+      throw new NotFoundError('Users Not Found')
+    }
     return result
   }
 }

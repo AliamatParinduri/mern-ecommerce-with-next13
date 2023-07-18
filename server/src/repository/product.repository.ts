@@ -4,13 +4,13 @@ import { Product } from '@/models'
 import { InternalServerError, logger } from '@/utils'
 
 class ProductRepository {
-  createProduct = async (payload: ProductDTO) => {
+  createProduct = async (payload: ProductDTO, pic: string[]) => {
     try {
       return await Product.create({
         nmProduct: payload.nmProduct,
         category: payload.category,
         subCategory: payload.subCategory,
-        pic: 'testing',
+        pic,
         details: payload.details
       })
     } catch (err: any) {

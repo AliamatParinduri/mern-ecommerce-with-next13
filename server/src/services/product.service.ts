@@ -14,8 +14,17 @@ class ProductService {
   //   return result
   // }
 
-  createProduct = async (payload: ProductDTO) => {
-    const result = await this.productRepository.createProduct(payload)
+  createProduct = async (payload: ProductDTO, files: Express.Multer.File[]) => {
+    if (typeof payload.details === 'string') {
+      payload.details = JSON.parse(payload.details)
+    }
+
+    const productImages = files.map((file) => {
+      const ext = file.mimetype.split('/')[1]
+      return `${file.fieldname}-${Date.now()}.${ext}`
+    })
+
+    const result = await this.productRepository.createProduct(payload, productImages)
 
     if (!result) {
       throw new UnprocessableEntityError('Failed create data category')

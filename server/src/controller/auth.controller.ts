@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { CategorySchema, LoginDTO, LoginSchema, RegisterDTO } from '@/dto'
+import { RegisterSchema, LoginDTO, LoginSchema, RegisterDTO } from '@/dto'
 import { AuthService } from '@/services'
 import { UnprocessableEntityError, generateToken, logger, validate } from '@/utils'
 
@@ -11,13 +11,13 @@ class AuthController {
     try {
       const body = req.body
 
-      validate(body, CategorySchema)
+      validate(body, RegisterSchema)
 
       const result = await this.authService.register(body as RegisterDTO)
 
       const message = 'Success Registration new user'
       logger.info(message)
-      return res.status(200).json({ message, data: result })
+      return res.status(201).json({ message, data: result })
     } catch (err: any) {
       next(err)
     }

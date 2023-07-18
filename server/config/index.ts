@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-const images = 'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg'
+const images = 'user-default.png'
 
 export const PORT = process.env.PORT ?? 8000
 export const DefaultPicture = process.env.DefaultPicture ?? images
