@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
 
 import { UserService } from '@/services'
-import { UnprocessableEntityError, logger } from '@/utils'
+import { UnprocessableEntityError, logger, validate } from '@/utils'
 import { DefaultPicture } from '@config/index'
+import { UserSchema } from '@/dto'
 
 class UserController {
   userService = new UserService()
@@ -10,9 +11,38 @@ class UserController {
   getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { page = 1, limit = 10 } = req.query
-      const result = await this.userService.getUsers(page as number, limit as number)
+      const result = await this.userService.getUsers(req, page as number, limit as number)
 
       const message = 'Success get user data'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
+  getCarts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
+      const { page = 1, limit = 10 } = req.query
+
+      const result = await this.userService.getCarts(id, page as number, limit as number)
+
+      const message = 'Success get user carts'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
+  getWishlists = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
+      const { page = 1, limit = 10 } = req.query
+      const result = await this.userService.getWishlists(id, page as number, limit as number)
+
+      const message = 'Success get user wishlists'
       logger.info(message)
       return res.status(200).json({ message, data: result })
     } catch (err: any) {
@@ -36,12 +66,71 @@ class UserController {
   updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params
-      const data = req.body
-      const result = await this.userService.updateUser(id, data)
+      const body = req.body
+
+      validate(body, UserSchema)
+
+      const result = await this.userService.updateUser(id, body)
 
       const message = 'Success update user data'
       logger.info(message)
       return res.status(200).json({ message, data: result })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
+  addToCart = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
+      const body = req.body
+
+      const result = await this.userService.addToCart(body.product, body.qty, id)
+      if (!result) {
+        throw new UnprocessableEntityError('Failed add product to cart')
+      }
+
+      const message = 'Success add product to cart'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
+  removeFromCart = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
+      const body = req.body
+
+      const result = await this.userService.removeFromCart(body.product, id)
+      if (!result) {
+        throw new UnprocessableEntityError('Failed remove product from cart')
+      }
+
+      const message = 'Success remove product from cart'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
+  productWishlist = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
+      const body = req.body
+
+      const result = await this.userService.productWishlist(body.product, id)
+      if (!result.productWishlist) {
+        throw new UnprocessableEntityError(
+          `Failed ${result.message} product ${result.message === 'add' ? 'to' : 'from'} wishlist`
+        )
+      }
+
+      const message = `Success ${result.message} product ${result.message === 'add' ? 'to' : 'from'} wishlist`
+      logger.info(message)
+      return res.status(200).json({ message, data: result.productWishlist })
     } catch (err: any) {
       next(err)
     }
@@ -75,7 +164,7 @@ class UserController {
 
       const result = await this.userService.updateProfilePicture(DefaultPicture, id)
       if (!result) {
-        throw new UnprocessableEntityError('Failed update profile picture')
+        throw new UnprocessableEntityError('Failed delete profile picture')
       }
 
       const message = 'Success delete profile picture'

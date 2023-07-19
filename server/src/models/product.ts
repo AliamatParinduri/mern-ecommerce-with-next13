@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose'
 
 import { ProductDTO } from '@/dto'
 
-const ProductSchema = new Schema(
+export const ProductSchema = new Schema(
   {
     nmProduct: { type: String, trim: true },
     category: { type: Schema.Types.ObjectId, ref: 'Category', trim: true, required: true },

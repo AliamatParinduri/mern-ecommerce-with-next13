@@ -2,15 +2,16 @@
 import fs from 'fs'
 import path from 'path'
 
-import { RegisterDTO, UserDTO } from '@/dto'
+import { ProductDTO, RegisterDTO, UserDTO } from '@/dto'
 import { User } from '@/models'
-import { InternalServerError, logger } from '@/utils'
+import { Cart, InternalServerError, Wishlist, logger } from '@/utils'
 import { DefaultPicture } from '@config/index'
 
 class UserRepository {
-  getUsers = async (page: number, limit: number) => {
+  getUsers = async (keyword: any, page: number, limit: number) => {
     try {
-      const users = await User.find()
+      const users = await User.find(keyword)
+        .find()
         .limit(limit * 1)
         .skip((page - 1) * limit)
         .exec()
@@ -24,6 +25,48 @@ class UserRepository {
       }
     } catch (err: any) {
       logger.error('ERR = get users ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
+  getCarts = async (user: UserDTO, page: number, limit: number) => {
+    try {
+      const carts = user.cart
+      // .find()
+      // .limit(limit * 1)
+      // .skip((page - 1) * limit)
+      // .exec()
+
+      const count = carts.length
+
+      return {
+        carts,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page
+      }
+    } catch (err: any) {
+      logger.error('ERR = get carts ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
+  getWishlists = async (user: UserDTO, page: number, limit: number) => {
+    try {
+      const wishlists = user.wishlist
+      // .find()
+      // .limit(limit * 1)
+      // .skip((page - 1) * limit)
+      // .exec()
+
+      const count = wishlists.length
+
+      return {
+        wishlists,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page
+      }
+    } catch (err: any) {
+      logger.error('ERR = get wishlists ', err.message)
       throw new InternalServerError(err.message)
     }
   }
@@ -70,6 +113,59 @@ class UserRepository {
       return await user.save()
     } catch (err: any) {
       logger.error('ERR = update user data ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
+  addToCart = async (user: UserDTO, product: ProductDTO, qty: number) => {
+    try {
+      const cartIndex = user.cart.findIndex((cart) => cart.product.equals(product._id))
+
+      if (cartIndex >= 0) {
+        user.cart[cartIndex].qty += qty
+      } else {
+        const newProductToCart = {
+          product,
+          qty
+        }
+        user.cart.push(newProductToCart)
+      }
+
+      return await user.save()
+    } catch (err: any) {
+      logger.error('ERR = Add to cart ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
+  removeFromCart = async (user: any, product: ProductDTO) => {
+    try {
+      const newCart = user.cart.filter((cart: Cart) => String(cart.product) !== String(product._id))
+      user.cart = newCart
+
+      return await user.save()
+    } catch (err: any) {
+      logger.error('ERR = Remove from cart ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
+  productWishlist = async (user: any, product: ProductDTO) => {
+    try {
+      const isProductExist = user.wishlist.findIndex((wishlist: Wishlist) => wishlist.product.equals(product._id))
+      let message
+
+      if (isProductExist >= 0) {
+        message = 'remove'
+        user.wishlist = user.wishlist.filter((wishlist: Wishlist) => String(wishlist.product) !== String(product._id))
+      } else {
+        message = 'add'
+        user.wishlist.push({ product })
+      }
+
+      return { message, productWishlist: await user.save() }
+    } catch (err: any) {
+      logger.error('ERR = update product wishlist ', err.message)
       throw new InternalServerError(err.message)
     }
   }
