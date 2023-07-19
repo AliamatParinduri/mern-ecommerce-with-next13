@@ -63,23 +63,6 @@ class UserController {
     }
   }
 
-  updateUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { id } = req.params
-      const body = req.body
-
-      validate(body, UserSchema)
-
-      const result = await this.userService.updateUser(id, body)
-
-      const message = 'Success update user data'
-      logger.info(message)
-      return res.status(200).json({ message, data: result })
-    } catch (err: any) {
-      next(err)
-    }
-  }
-
   addToCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params
@@ -131,6 +114,23 @@ class UserController {
       const message = `Success ${result.message} product ${result.message === 'add' ? 'to' : 'from'} wishlist`
       logger.info(message)
       return res.status(200).json({ message, data: result.productWishlist })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
+  updateUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
+      const body = req.body
+
+      validate(body, UserSchema)
+
+      const result = await this.userService.updateUser(id, body)
+
+      const message = 'Success update user data'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
     } catch (err: any) {
       next(err)
     }
