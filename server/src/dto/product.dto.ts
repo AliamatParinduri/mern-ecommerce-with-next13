@@ -12,7 +12,7 @@ export interface ProductDTO extends Document {
   stock: number
   size: []
   colors: []
-  pic: string
+  pic: string[]
 }
 
 export const ProductSchema = Joi.object({

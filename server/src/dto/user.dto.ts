@@ -1,6 +1,7 @@
 /* eslint-disable prefer-regex-literals */
 import Joi from 'joi'
 import { Document } from 'mongoose'
+import { ProductDTO } from './product.dto'
 
 export interface UserDTO extends Document {
   fullName: string
@@ -11,8 +12,17 @@ export interface UserDTO extends Document {
   userPic: string
   isAdmin: boolean
   isActive: boolean
-  cart: []
-  wishlist: []
+  cart: [
+    {
+      product: ProductDTO
+      qty: number
+    }
+  ]
+  wishlist: [
+    {
+      product: ProductDTO
+    }
+  ]
 }
 
 export const UserSchema = Joi.object({

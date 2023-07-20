@@ -6,6 +6,27 @@ import { comparePassword, generatePassword } from '@/utils/hashing'
 class AuthService {
   userRepository = new UserRepository()
 
+  verifyAccount = async (userId: string) => {
+    const userExists = await this.userRepository.findById(userId)
+
+    if (!userExists) {
+      throw new UnprocessableEntityError('User not found')
+    }
+
+    userExists.isActive = true
+    return await userExists.save()
+  }
+
+  forgotPassword = async (email: string) => {
+    const userExists = await this.userRepository.findOne({ email })
+
+    if (!userExists) {
+      throw new UnprocessableEntityError('User not found')
+    }
+
+    return userExists
+  }
+
   register = async (payload: RegisterDTO) => {
     const emailExists = await this.userRepository.findOne({ email: payload.email })
     const userExists = await this.userRepository.findOne({ username: payload.username })
