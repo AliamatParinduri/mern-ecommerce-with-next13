@@ -1,39 +1,48 @@
 'use client'
 
 /* eslint-disable react/no-unescaped-entities */
+import { Metadata } from 'next'
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { useFormik } from 'formik'
 
 import bgLeft from 'public/image/auth-left-shape.png'
 import bgRight from 'public/image/auth-right-shape.png'
-import InputType from '@/components/input-type'
-import LoginWithSosmed from '@/components/login-with-sosmed'
+import InputType from '@/components/InputType'
+import LoginWithSosmed from '@/components/LoginWithSosmed'
+import { RegisterDTO } from '@/validations/shared'
+import { RegisterSchema } from '@/validations/userValidation'
+import Button from '@/components/Button'
+
+export const metadata: Metadata = {
+  title: 'Register Page',
+}
 
 export default function Register() {
-  const [fullName, setFullName] = useState('')
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [noHP, setNoHP] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const [buttonClick, setButtonClick] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault()
+  const initialValues: RegisterDTO = {
+    fullName: '',
+    username: '',
+    email: '',
+    noHP: '',
+    password: '',
+    confirmPassword: '',
+  }
 
-    if (password !== confirmPassword) {
-      return alert('password not match')
-    }
-
+  const handleSubmit = async () => {
+    setIsLoading(true)
     const payload = {
-      fullName,
-      username,
-      email,
-      noHP,
-      password,
+      fullName: formik.values.fullName,
+      username: formik.values.username,
+      email: formik.values.email,
+      noHP: formik.values.noHP,
+      password: formik.values.password,
     }
     try {
       const {
@@ -42,11 +51,20 @@ export default function Register() {
         'http://localhost:5000/api/v1/auth/register',
         payload
       )
+      alert(message)
+      setIsLoading(false)
       router.push('/')
-    } catch (e) {
-      alert('gagal')
+    } catch (e: any) {
+      setIsLoading(false)
+      alert(e.response.data.description)
     }
   }
+
+  const formik = useFormik({
+    initialValues,
+    onSubmit: handleSubmit,
+    validationSchema: RegisterSchema,
+  })
 
   return (
     <main className='flex min-h-screen items-center justify-between overflow-hidden bg-white'>
@@ -70,46 +88,96 @@ export default function Register() {
             Let's create forms and collect submissions
           </span>
           <LoginWithSosmed />
-          <form onSubmit={handleSubmit} className='flex flex-col gap-5'>
+          <form onSubmit={formik.handleSubmit} className='flex flex-col gap-5'>
             <InputType
               type='text'
               title='Full Name'
               placeholder='Full Name'
-              setInputType={setFullName}
+              formik={formik}
+              name='fullName'
+              error={formik.errors.fullName}
+              buttonClick={buttonClick}
             />
+            {formik.errors.fullName && buttonClick && (
+              <span className='text-sm text-red-500 -mt-3 text-start'>
+                {formik.errors.fullName}
+              </span>
+            )}
             <InputType
               type='text'
               title='Username'
               placeholder='Enter your username'
-              setInputType={setUsername}
+              formik={formik}
+              name='username'
+              error={formik.errors.username}
+              buttonClick={buttonClick}
             />
+            {formik.errors.username && buttonClick && (
+              <span className='text-sm text-red-500 -mt-3 text-start'>
+                {formik.errors.username}
+              </span>
+            )}
             <InputType
               type='email'
               title='Email'
               placeholder='Enter your email'
-              setInputType={setEmail}
+              formik={formik}
+              name='email'
+              error={formik.errors.email}
+              buttonClick={buttonClick}
             />
+            {formik.errors.email && buttonClick && (
+              <span className='text-sm text-red-500 -mt-3 text-start'>
+                {formik.errors.email}
+              </span>
+            )}
             <InputType
               type='text'
               title='No Handphone'
               placeholder='No Handphone'
-              setInputType={setNoHP}
+              formik={formik}
+              name='noHP'
+              error={formik.errors.noHP}
+              buttonClick={buttonClick}
             />
+            {formik.errors.noHP && buttonClick && (
+              <span className='text-sm text-red-500 -mt-3 text-start'>
+                {formik.errors.noHP}
+              </span>
+            )}
             <InputType
               type='password'
               title='Password'
               placeholder='Enter your password'
-              setInputType={setPassword}
+              formik={formik}
+              name='password'
+              error={formik.errors.password}
+              buttonClick={buttonClick}
             />
+            {formik.errors.password && buttonClick && (
+              <span className='text-sm text-red-500 -mt-3 text-start'>
+                {formik.errors.password}
+              </span>
+            )}
             <InputType
               type='password'
               title='Confirm Password'
               placeholder='Enter your confirm password'
-              setInputType={setConfirmPassword}
+              formik={formik}
+              name='confirmPassword'
+              error={formik.errors.confirmPassword}
+              buttonClick={buttonClick}
             />
-            <button className='flex gap-2 justify-center items-center bg-slate-900 py-3 rounded-lg text-white'>
-              Register
-            </button>
+            {formik.errors.confirmPassword && buttonClick && (
+              <span className='text-sm text-red-500 -mt-3 text-start'>
+                {formik.errors.confirmPassword}
+              </span>
+            )}
+            <Button
+              title='Register'
+              isLoading={isLoading}
+              setButtonClick={setButtonClick}
+            />
             <Link href='/' className='text-blue-500 font-semibold'>
               I have an account
             </Link>
