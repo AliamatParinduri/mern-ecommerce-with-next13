@@ -10,6 +10,7 @@ class AuthRoutes extends BaseRoutes {
     this.router.post('/register', authController.register)
     this.router.post('/login', authController.login)
     this.router.post('/forgotPassword', authController.forgotPassword)
+    this.router.put('/:id/createNewPassword', authController.createNewPassword)
   }
 }
 

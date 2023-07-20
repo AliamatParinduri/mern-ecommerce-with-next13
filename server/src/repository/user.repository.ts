@@ -185,6 +185,16 @@ class UserRepository {
     }
   }
 
+  createNewPassword = async (user: UserDTO, newPassword: string) => {
+    try {
+      user.password = newPassword
+      return await user.save()
+    } catch (err: any) {
+      logger.error('ERR = Create new password user ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
   deleteUser = async (userId: string) => {
     try {
       return await User.findByIdAndRemove(userId)
