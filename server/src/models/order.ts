@@ -18,7 +18,10 @@ const OrderSchema = new Schema(
       trim: true
     },
     ongkir: { type: Number, default: 0, trim: true },
-    totalPrice: { type: Number, trim: true, required: true }
+    totalPrice: { type: Number, trim: true, required: true },
+    paymentType: { type: String, trim: true, required: true },
+    paymentStatus: { type: String, enum: ['New Order', 'Pending', 'Approved', 'Rejected'], trim: true, required: true },
+    status: { type: String, enum: ['Pending', 'Process', 'On Going', 'Done', 'Cancel'], trim: true, required: true }
   },
   { timestamps: true }
 )

@@ -17,6 +17,9 @@ export interface OrderDTO extends Document {
   ]
   ongkir: number
   totalPrice: number
+  paymentType: string
+  paymentStatus: string
+  status: string
 }
 
 export const OrderSchema = Joi.object({
@@ -24,5 +27,8 @@ export const OrderSchema = Joi.object({
   addressId: Joi.string().required(),
   products: Joi.required(),
   ongkir: Joi.number().required(),
-  totalPrice: Joi.number().required()
+  totalPrice: Joi.number().required(),
+  paymentType: Joi.string().required(),
+  paymentStatus: Joi.string().required(),
+  status: Joi.string().required()
 })
