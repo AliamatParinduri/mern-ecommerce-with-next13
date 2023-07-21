@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #383636;
+  border-radius: 50%;
+  animation: spinner 1.5s linear infinite;
+  -webkit-animation: spinner 1.5s linear infinite;
+}
+
+.JSSUM:before {
+  content: '';
+  width: 100%;
+  height: 2px;
+  background-color: rgb(234, 239, 245);
+  position: absolute;
+  top: 50%;
+  left: 0px;
+}
+
+.JSSUM {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: -0.02em;
+  color: rgb(149, 159, 178);
+  width: 100%;
+  text-align: center;
+  margin: 12px 0px;
+  position: relative;
+}
+
+.JSSUM:after {
+  content: '';
+  width: 130px;
+  height: 22px;
+  background: rgb(255, 255, 255);
+  position: absolute;
+  top: 0px;
+  left: calc(50% - 65px);
+}
+
+.JSSUM span {
+  position: relative;
+  z-index: 3;
+}
