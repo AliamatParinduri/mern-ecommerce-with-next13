@@ -6,8 +6,11 @@ class AuthRoutes extends BaseRoutes {
   async routes() {
     const authController = new AuthController()
 
+    this.router.get('/:id/verifyAccount', authController.verifyAccount)
     this.router.post('/register', authController.register)
     this.router.post('/login', authController.login)
+    this.router.post('/forgotPassword', authController.forgotPassword)
+    this.router.put('/:id/createNewPassword', authController.createNewPassword)
   }
 }
 

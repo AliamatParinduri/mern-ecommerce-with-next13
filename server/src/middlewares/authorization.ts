@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { UnauthorizedError, logger, verifyToken } from '@/utils'
+import { UnauthorizedError, UserToken, logger, verifyToken } from '@/utils'
 
-export const requireLogin = async (req: Request, res: Response, next: NextFunction) => {
+export const CheckToken = async (req: Request, next: NextFunction) => {
   try {
     const accessToken = req.headers.authorization
 
@@ -21,15 +21,31 @@ export const requireLogin = async (req: Request, res: Response, next: NextFuncti
       throw new UnauthorizedError('unAuthorized!')
     }
 
-    const user = verifyToken(token)
+    const user: UserToken = verifyToken(token)
     if (!user) {
       logger.error('ERR = Auth - user not found')
       throw new UnauthorizedError('user not found!')
     }
 
-    res.locals.user = user
-    next()
+    return user
   } catch (err) {
     next(err)
   }
+}
+
+export const requireLogin = async (req: Request, res: Response, next: NextFunction) => {
+  const user = await CheckToken(req, next)
+  res.locals.user = user
+  next()
+}
+
+export const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  const user = await CheckToken(req, next)
+
+  if (!user!.isAdmin) {
+    logger.error(`ERR = Auth - Access Denied, you're not admin!`)
+    next({ statusCode: 401, message: 'Unauthorized', description: `Access Denied, you're not admin!` })
+  }
+  res.locals.user = user
+  next()
 }
