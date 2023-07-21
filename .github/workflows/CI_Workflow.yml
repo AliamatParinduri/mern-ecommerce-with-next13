@@ -25,3 +25,10 @@ jobs:
       run: |
         npm i
         npm test
+
+    - name : Test Admin Frontend Service
+      working-directory: ./admin-front
+      run: |
+        npm i
+        npm test
+        npm run build --if-present
