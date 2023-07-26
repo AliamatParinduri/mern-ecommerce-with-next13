@@ -1,18 +1,18 @@
 'use client'
 
 /* eslint-disable react/no-unescaped-entities */
+import { useState } from 'react'
 import { Metadata } from 'next'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-
-import InputType from '@/components/InputType'
 import axios from 'axios'
 import { useFormik } from 'formik'
-import { NewPasswordSchema } from '@/validations/userValidation'
-import { useState } from 'react'
+
+import InputType from '@/components/InputType'
 import Button from '@/components/Button'
 import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
+import { NewPasswordSchema } from '@/validations/userValidation'
 
 export const metadata: Metadata = {
   title: 'Create New Password',
@@ -47,7 +47,7 @@ export default function ForgotPassword({ params: { id } }: Props) {
       )
       alert(message)
       setIsLoading(false)
-      router.push('/')
+      router.push('/login')
     } catch (e: any) {
       setIsLoading(false)
       alert(e.response.data.description)

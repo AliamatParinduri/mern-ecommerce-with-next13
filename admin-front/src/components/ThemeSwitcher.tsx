@@ -4,17 +4,19 @@ import { MdOutlineDarkMode, MdOutlineLightMode } from 'react-icons/md'
 import { useTheme } from 'next-themes'
 
 const ThemeSwitcher = ({ size = 32 }: { size?: number }) => {
-  let userMode
-  let systemMode
+  // let userMode
+  // let systemMode
+  const userMode = localStorage.getItem('theme')
+  const systemMode = window.matchMedia('(prefers-color-scheme: dark)').matches
   const { theme = userMode, setTheme } = useTheme()
 
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    if (typeof window !== undefined) {
-      userMode = localStorage.getItem('theme')
-      systemMode = window.matchMedia('(prefers-color-scheme: dark)').matches
-    }
+    // if (typeof window !== undefined) {
+    //   userMode = localStorage.getItem('theme')
+    //   systemMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    // }
     setMounted(true)
   }, [])
 

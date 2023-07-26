@@ -10,11 +10,11 @@ import { useFormik } from 'formik'
 
 import InputType from '@/components/InputType'
 import LoginWithSosmed from '@/components/LoginWithSosmed'
-import { RegisterDTO } from '@/validations/shared'
-import { RegisterSchema } from '@/validations/userValidation'
 import Button from '@/components/Button'
 import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
+import { RegisterDTO } from '@/validations/shared'
+import { RegisterSchema } from '@/validations/userValidation'
 
 export const metadata: Metadata = {
   title: 'Register Page',
@@ -52,7 +52,7 @@ export default function Register() {
       )
       alert(message)
       setIsLoading(false)
-      router.push('/')
+      router.push('/login')
     } catch (e: any) {
       setIsLoading(false)
       alert(e.response.data.description)
@@ -90,7 +90,6 @@ export default function Register() {
             placeholder='Full Name'
             formik={formik}
             name='fullName'
-            error={formik.errors.fullName}
             buttonClick={buttonClick}
           />
           <ErrorInputMessage
@@ -103,7 +102,6 @@ export default function Register() {
             placeholder='Enter your username'
             formik={formik}
             name='username'
-            error={formik.errors.username}
             buttonClick={buttonClick}
           />
           <ErrorInputMessage
@@ -116,7 +114,6 @@ export default function Register() {
             placeholder='Enter your email'
             formik={formik}
             name='email'
-            error={formik.errors.email}
             buttonClick={buttonClick}
           />
           <ErrorInputMessage
@@ -129,7 +126,6 @@ export default function Register() {
             placeholder='No Handphone'
             formik={formik}
             name='noHP'
-            error={formik.errors.noHP}
             buttonClick={buttonClick}
           />
           <ErrorInputMessage
@@ -142,7 +138,6 @@ export default function Register() {
             placeholder='Enter your password'
             formik={formik}
             name='password'
-            error={formik.errors.password}
             buttonClick={buttonClick}
           />
           <ErrorInputMessage
@@ -155,7 +150,6 @@ export default function Register() {
             placeholder='Enter your confirm password'
             formik={formik}
             name='confirmPassword'
-            error={formik.errors.confirmPassword}
             buttonClick={buttonClick}
           />
           <ErrorInputMessage

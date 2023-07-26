@@ -3,24 +3,27 @@ export type LoginDTO = {
   password: string
 }
 
-export type RegisterDTO = {
+export type RegisterDTO = LoginDTO & {
   fullName: string
-  username: string
   email: string
   noHP: string
-  password: string
   confirmPassword: string
 }
 
-export type userDTO = {
-  fullName: string
-  username: string
-  email: string
-  noHP: string
-  password: string
+export type userDTO = RegisterDTO & {
   userPic: string
   isAdmin: boolean
   isActive: boolean
   cart: []
   wishlist: []
+}
+
+export type userLogin = userDTO & {
+  token: string
+}
+
+export type CategoriesDTO = {
+  _id?: string
+  category: string
+  subCategory: string[]
 }

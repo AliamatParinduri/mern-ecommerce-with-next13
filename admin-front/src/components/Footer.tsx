@@ -6,8 +6,8 @@ const Footer = () => {
     <footer className='bg-light-500 dark:bg-inherit'>
       <div className='container flex flex-col items-center justify-between py-4 space-y-4 sm:space-y-0 sm:flex-row'>
         <p className='text-sm text-gray-600 dark:text-gray-300'>
-          © Copyright {new Date().getFullYear()}, Made with
-          <span className='MuiBox-root css-1y557pg'>❤️</span> by
+          © Copyright {new Date().getFullYear()}, Made with{' '}
+          <span className='MuiBox-root css-1y557pg'>❤️</span> by{' '}
           <a target='_blank' className='css-1los9e9' href='#'>
             Aliamat Parinduri
           </a>

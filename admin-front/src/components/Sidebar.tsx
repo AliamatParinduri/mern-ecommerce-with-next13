@@ -1,21 +1,32 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import { FaHome } from 'react-icons/fa'
+import { FaHome, FaFileInvoiceDollar, FaFileImage } from 'react-icons/fa'
+import { BiCategoryAlt } from 'react-icons/bi'
 
 const sidebarItems = [
   {
     text: 'Title 1',
     menu: [
       {
-        text: 'Menu 1',
-        link: 'menu-one',
-        icon: <FaHome />,
+        text: 'Categories',
+        link: 'categories',
+        icon: <BiCategoryAlt />,
       },
       {
-        text: 'Menu 2',
-        link: 'menu-two',
-        icon: <FaHome />,
+        text: 'Products',
+        link: 'products',
+        icon: <FaFileImage />,
+      },
+    ],
+  },
+  {
+    text: 'Transactions',
+    menu: [
+      {
+        text: 'Orders',
+        link: 'orders',
+        icon: <FaFileInvoiceDollar />,
       },
     ],
   },
@@ -30,14 +41,14 @@ const Sidebar = () => {
   }, [pathname])
 
   return (
-    <aside className='min-h-screen hidden md:block w-72 overscroll-contain bg-light-500 dark:bg-boxDark-500'>
+    <aside className='min-h-screen hidden md:block w-72 overscroll-contain border-r-2 dark:border-r-0 bg-light-500 dark:bg-boxDark-500'>
       <div className='py-3 px-5 fixed mb-10'>E-commerce</div>
-      <div className='fixed w-56 mt-12 h-screen px-5 overflow-y-auto '>
+      <div className='fixed w-56 mt-12 h-screen px-5 overflow-y-auto'>
         <div className='flex flex-col justify-between flex-1 mt-6'>
           <nav className='-mx-3'>
             <Link
               className={`flex items-center px-3 py-2 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-boxDark-400 dark:hover:text-gray-200 hover:text-gray-700 mb-3 ${
-                active === '' || active === 'dashboard'
+                pathname === '/' || active === 'dashboard'
                   ? 'bg-ActiveMenu-500 text-white'
                   : ''
               }`}

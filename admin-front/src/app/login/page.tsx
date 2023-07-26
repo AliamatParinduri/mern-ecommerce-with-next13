@@ -15,11 +15,13 @@ import Button from '@/components/Button'
 import { LoginSchema } from '@/validations/userValidation'
 import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
+import { UserState, userContextType } from '@/context/userContext'
 
 export default function Login() {
   const [buttonClick, setButtonClick] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { setUser }: userContextType = UserState()
 
   const handleSubmit = async () => {
     setIsLoading(true)
@@ -36,7 +38,8 @@ export default function Login() {
       alert(message)
       setIsLoading(false)
       localStorage.setItem('userInfo', JSON.stringify({ ...data, token }))
-      router.push('/dashboard')
+      setUser({ ...data, token })
+      router.push('/')
     } catch (e: any) {
       setIsLoading(false)
       alert(e.response.data.description)
@@ -69,7 +72,6 @@ export default function Login() {
             placeholder='Enter your username'
             formik={formik}
             name='username'
-            error={formik.errors.username}
             buttonClick={buttonClick}
           />
           <ErrorInputMessage
@@ -82,7 +84,6 @@ export default function Login() {
             placeholder='Enter your Password'
             formik={formik}
             name='password'
-            error={formik.errors.password}
             buttonClick={buttonClick}
           />
           <ErrorInputMessage

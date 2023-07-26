@@ -1,12 +1,12 @@
 'use client'
 
-import { userDTO } from '@/validations/shared'
+import { userLogin } from '@/validations/shared'
 import { useRouter } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 export type userContextType = {
-  user?: userDTO
-  setUser?: () => void
+  user?: userLogin
+  setUser?: any
 }
 
 const UserContext = createContext({})
@@ -18,14 +18,15 @@ const UserProvider = (props: any) => {
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo')!)
 
+    console.log('load user to context')
+    console.log(userInfo)
+
     if (!userInfo) {
-      router.push('/')
+      router.push('/login')
     } else {
-      setUser({
-        ...userInfo.data,
-        token: userInfo.token,
-      })
+      setUser({ ...userInfo })
     }
+    console.log(user)
   }, [router])
 
   return (

@@ -1,18 +1,18 @@
 'use client'
 
 /* eslint-disable react/no-unescaped-entities */
+import { useState } from 'react'
 import { Metadata } from 'next'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-
-import InputType from '@/components/InputType'
 import axios from 'axios'
 import { useFormik } from 'formik'
-import { ForgotPasswordSchema } from '@/validations/userValidation'
-import { useState } from 'react'
+
+import InputType from '@/components/InputType'
 import Button from '@/components/Button'
 import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
+import { ForgotPasswordSchema } from '@/validations/userValidation'
 
 export const metadata: Metadata = {
   title: 'Forgot Password Page',
@@ -31,13 +31,13 @@ export default function ForgotPassword() {
     setIsLoading(true)
     try {
       const {
-        data: { data, token, message },
+        data: { message },
       } = await axios.post(`http://localhost:5000/api/v1/auth/forgotPassword`, {
         email: formik.values.email,
       })
       alert(message)
       setIsLoading(false)
-      router.push('/')
+      router.push('/login')
     } catch (e: any) {
       setIsLoading(false)
       alert(e.response.data.description)
@@ -66,7 +66,6 @@ export default function ForgotPassword() {
             placeholder='Enter your email address'
             formik={formik}
             name='email'
-            error={formik.errors.email}
             buttonClick={buttonClick}
           />
           <ErrorInputMessage
@@ -78,7 +77,7 @@ export default function ForgotPassword() {
             isLoading={isLoading}
             setButtonClick={setButtonClick}
           />
-          <Link href='/' className='text-blue-500 font-semibold'>
+          <Link href='/login' className='text-blue-500 font-semibold'>
             I think, I remember my password
           </Link>
         </form>

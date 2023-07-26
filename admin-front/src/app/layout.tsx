@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-sync-scripts */
-import UserProvider from '@/context/userContext'
-import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+
+import './globals.css'
 import Providers from './providers'
+import UserProvider from '@/context/userContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,9 +21,9 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className={inter.className}>
-        <Providers>
-          <UserProvider>{children}</UserProvider>
-        </Providers>
+        <UserProvider>
+          <Providers>{children}</Providers>
+        </UserProvider>
       </body>
     </html>
   )
