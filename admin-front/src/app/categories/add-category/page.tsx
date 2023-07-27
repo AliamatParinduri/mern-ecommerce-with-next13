@@ -5,6 +5,7 @@ import axios from 'axios'
 import Layout from '@/components/Layout'
 import { useRouter } from 'next/navigation'
 import { useFormik } from 'formik'
+import { FaArrowLeft } from 'react-icons/fa'
 
 import InputType from '@/components/InputType'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
@@ -63,7 +64,10 @@ const AddCategories = () => {
   return (
     <Layout>
       <div className='flex flex-col'>
-        <div className='flex justify-between items-center'>
+        <div className='flex justify-start gap-3 items-center'>
+          <div className='flex items-start mt-3 cursor-pointer h-full'>
+            <FaArrowLeft size={18} onClick={() => router.back()} />
+          </div>
           <div className='flex flex-col gap-1 '>
             <span className='text-2xl font-semibold tracking-wide'>
               Create Category
@@ -84,7 +88,6 @@ const AddCategories = () => {
                   placeholder='Enter your Category'
                   formik={formik}
                   name='category'
-                  error={formik.errors.category}
                   buttonClick={buttonClick}
                 />
                 <ErrorInputMessage
@@ -97,7 +100,6 @@ const AddCategories = () => {
                   placeholder='Enter your Sub Category'
                   formik={formik}
                   name='subCategory'
-                  error={formik.errors.subCategory}
                   buttonClick={buttonClick}
                 />
                 <ErrorInputMessage

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useFormik } from 'formik'
 import { useRouter } from 'next/navigation'
+import { FaArrowLeft } from 'react-icons/fa'
 
 import Layout from '@/components/Layout'
 import Loading from '@/components/Loading'
@@ -99,7 +100,10 @@ const EditCategories = ({ params: { id } }: Props) => {
       )}
       {!isLoading && (
         <div className='flex flex-col'>
-          <div className='flex justify-between items-center'>
+          <div className='flex justify-start gap-3 items-center'>
+            <div className='flex items-start mt-3 cursor-pointer h-full'>
+              <FaArrowLeft size={18} onClick={() => router.back()} />
+            </div>
             <div className='flex flex-col gap-1 '>
               <span className='text-2xl font-semibold tracking-wide'>
                 Update Category

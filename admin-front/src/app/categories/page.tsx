@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
 import Link from 'next/link'
 import { FaPlus } from 'react-icons/fa'
@@ -63,7 +63,40 @@ const Categories = () => {
     fetchCategories()
   }, [user])
 
-  const title = ['CATEGORY', 'SUB CATEGORY', 'ACTION']
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Category',
+        accessor: 'category',
+      },
+      {
+        Header: 'Sub Category',
+        accessor: 'subCategory',
+      },
+      {
+        Header: 'Action',
+        accessor: 'Action',
+        Cell: ({ row }: any) => (
+          <div className='flex items-center gap-2'>
+            <Link
+              href={`categories/${row.original._id}/edit-category`}
+              className='font-medium text-white no-underline bg-ActiveMenu-500 px-3 py-1.5 rounded'
+            >
+              Edit
+            </Link>
+            <Link
+              href='#'
+              onClick={() => handleDelete(row.original._id)}
+              className='font-medium text-white no-underline bg-red-500 px-3 py-1.5 rounded'
+            >
+              Delete
+            </Link>
+          </div>
+        ),
+      },
+    ],
+    []
+  )
 
   return (
     <Layout>
@@ -92,49 +125,17 @@ const Categories = () => {
             </Link>
           </div>
           <div className='mt-8'>
-            <Datatable title={title}>
-              <tbody>
-                {categories.length === 0 && (
-                  <tr className='text-center bg-white border-b dark:bg-boxDark-500 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'>
-                    <th className='py-3' colSpan={title.length}>
-                      no data
-                    </th>
-                  </tr>
-                )}
-                {categories.length > 0 &&
-                  categories.map((category, i) => (
-                    <tr
-                      key={i}
-                      className='bg-white border-b dark:bg-boxDark-500 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
-                    >
-                      <th
-                        scope='row'
-                        className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'
-                      >
-                        {category.category}
-                      </th>
-                      <td className='px-6 py-4'>
-                        {category.subCategory.toString()}
-                      </td>
-                      <td className='flex items-center px-6 py-4 gap-2'>
-                        <Link
-                          href={`categories/${category._id}/edit-category`}
-                          className='font-medium text-white no-underline bg-green-500 px-3 py-1.5 rounded'
-                        >
-                          Edit
-                        </Link>
-                        <Link
-                          href='#'
-                          onClick={() => handleDelete(category._id)}
-                          className='font-medium text-white no-underline bg-red-500 px-3 py-1.5 rounded'
-                        >
-                          Delete
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </Datatable>
+            <div className='relative overflow-x-auto shadow-md sm:rounded-lg bg-white dark:bg-boxDark-500'>
+              <Datatable
+                columns={columns}
+                data={categories.map((category: any) => {
+                  return {
+                    ...category,
+                    subCategory: category.subCategory.toString(),
+                  }
+                })}
+              />
+            </div>
           </div>
         </div>
       )}

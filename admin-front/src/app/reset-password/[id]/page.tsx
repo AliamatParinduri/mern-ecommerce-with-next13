@@ -76,7 +76,6 @@ export default function ForgotPassword({ params: { id } }: Props) {
             placeholder='Enter your password'
             formik={formik}
             name='password'
-            error={formik.errors.password}
             buttonClick={buttonClick}
           />
           <ErrorInputMessage
@@ -89,7 +88,6 @@ export default function ForgotPassword({ params: { id } }: Props) {
             placeholder='Enter your confirm password'
             formik={formik}
             name='confirmPassword'
-            error={formik.errors.confirmPassword}
             buttonClick={buttonClick}
           />
           <ErrorInputMessage
