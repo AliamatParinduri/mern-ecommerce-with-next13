@@ -1,10 +1,25 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import { FaHome, FaFileInvoiceDollar, FaFileImage } from 'react-icons/fa'
+import {
+  FaHome,
+  FaFileInvoiceDollar,
+  FaFileImage,
+  FaUsers,
+} from 'react-icons/fa'
 import { BiCategoryAlt } from 'react-icons/bi'
 
 const sidebarItems = [
+  {
+    text: 'Users',
+    menu: [
+      {
+        text: 'Users',
+        link: 'users',
+        icon: <FaUsers />,
+      },
+    ],
+  },
   {
     text: 'Title 1',
     menu: [
@@ -38,7 +53,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     setActive(pathname.substring(1))
-  }, [pathname])
+  }, [])
 
   return (
     <aside className='min-h-screen hidden md:block w-72 overscroll-contain border-r-2 dark:border-r-0 bg-light-500 dark:bg-boxDark-500'>
@@ -48,7 +63,7 @@ const Sidebar = () => {
           <nav className='-mx-3'>
             <Link
               className={`flex items-center px-3 py-2 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-boxDark-400 dark:hover:text-gray-200 hover:text-gray-700 mb-3 ${
-                pathname === '/' || active === 'dashboard'
+                (pathname === '/' && active === '') || active === 'dashboard'
                   ? 'bg-ActiveMenu-500 text-white'
                   : ''
               }`}

@@ -1,16 +1,17 @@
 export type LoginDTO = {
   username: string
-  password: string
+  password?: string
 }
 
 export type RegisterDTO = LoginDTO & {
   fullName: string
   email: string
   noHP: string
-  confirmPassword: string
+  confirmPassword?: string
 }
 
 export type userDTO = RegisterDTO & {
+  _id?: string
   userPic: string
   isAdmin: boolean
   isActive: boolean

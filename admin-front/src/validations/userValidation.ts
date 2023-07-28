@@ -27,10 +27,7 @@ export const RegisterSchema = yup.object().shape({
     .required('This is Required, Please Enter your Full Name')
     .min(3)
     .max(75)
-    .matches(
-      /^[a-zA-Z ]{3,75}$/,
-      'Full Name must be at least 3 characters long'
-    ),
+    .matches(/^[a-zA-Z ]{3,75}$/, 'Please enter alphabets only'),
   username: yup
     .string()
     .min(3)
@@ -64,6 +61,35 @@ export const RegisterSchema = yup.object().shape({
     .string()
     .oneOf([yup.ref('password'), ''], 'Password mismatch')
     .required('This is Required, Please Enter your Confirm Password'),
+})
+
+export const RegisterUserByAdminSchema = yup.object().shape({
+  fullName: yup
+    .string()
+    .required('This is Required, Please Enter your Full Name')
+    .min(3)
+    .max(75)
+    .matches(/^[a-zA-Z ]{3,75}$/, 'Please enter alphabets only'),
+  username: yup
+    .string()
+    .min(3)
+    .max(20)
+    .matches(
+      /^[a-zA-Z 0-9]{3,75}$/,
+      'username can contain uppercase, lowercase and numbers'
+    )
+    .required('This is Required, Please Enter your Username'),
+  email: yup
+    .string()
+    .email('This shows when you input an invalid email address')
+    .required('This is Required, Please Enter your Email'),
+  noHP: yup
+    .string()
+    .matches(
+      /^[0-9]{11,13}$/,
+      'No Handphone must be greater than or equal to 11 and less than or equal to 13'
+    )
+    .required('This is Required, Please Enter your Phone Number'),
 })
 
 export const ForgotPasswordSchema = yup.object().shape({

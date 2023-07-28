@@ -6,6 +6,7 @@ type Props = {
   placeholder: string
   formik?: any
   name: string
+  readonly?: boolean
   buttonClick?: boolean
 }
 
@@ -15,6 +16,7 @@ const InputType = ({
   placeholder,
   formik,
   name,
+  readonly = false,
   buttonClick,
 }: Props) => {
   return (
@@ -24,6 +26,7 @@ const InputType = ({
         value={formik.values[name.toString()]}
         type={type}
         placeholder={placeholder}
+        readOnly={readonly}
         onChange={(e) => formik.setFieldValue(e.target.name, e.target.value)}
         name={name}
         className={`ring ${

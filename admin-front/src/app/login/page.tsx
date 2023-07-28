@@ -16,6 +16,7 @@ import { LoginSchema } from '@/validations/userValidation'
 import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { UserState, userContextType } from '@/context/userContext'
+import { BaseURLV1 } from '@/config/api'
 
 export default function Login() {
   const [buttonClick, setButtonClick] = useState(false)
@@ -33,7 +34,7 @@ export default function Login() {
 
       const {
         data: { data, token, message },
-      } = await axios.post('http://localhost:5000/api/v1/auth/login', payload)
+      } = await axios.post(`${BaseURLV1}/auth/login`, payload)
 
       alert(message)
       setIsLoading(false)

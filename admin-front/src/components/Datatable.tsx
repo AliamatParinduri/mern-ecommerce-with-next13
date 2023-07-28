@@ -136,12 +136,13 @@ const Datatable = ({ columns, data }: Props) => {
           Go to page:{' '}
           <input
             type='number'
+            min={1}
             placeholder='Ex: 1'
             onChange={(e) => {
               const page = e.target.value ? Number(e.target.value) - 1 : 0
               gotoPage(page)
             }}
-            className='py-1 pl-3 w-28 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+            className='py-1 pl-3 w-28 text-sm text-gray-900 border border-gray-300 rounded-lg  bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
           />
         </span>
         <div className='flex gap-2'>

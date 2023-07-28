@@ -12,13 +12,25 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
       </div>
       <div className='flex w-full mt-8'>
         <div className='min-h-screen hidden md:flex w-2/5 relative'>
-          <Image src={bgLeft} alt='bg left' className='absolute top-20' />
+          <Image
+            src={bgLeft}
+            alt='bg left'
+            className='absolute top-20'
+            placeholder='blur'
+            blurDataURL={'public/image/auth-left-shape.png'}
+          />
         </div>
         <div className='min-h-screen flex items-center w-full justify-center my-4'>
           {children}
         </div>
         <div className='min-h-screen hidden md:flex w-2/5 relative'>
-          <Image src={bgRight} alt='bg Right' className='absolute top-20' />
+          <Image
+            src={bgRight}
+            alt='bg Right'
+            className='absolute top-20'
+            placeholder='blur'
+            blurDataURL={'public/image/auth-right-shape.png'}
+          />
         </div>
       </div>
     </main>

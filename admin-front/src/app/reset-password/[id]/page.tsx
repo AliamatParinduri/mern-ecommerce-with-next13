@@ -13,6 +13,7 @@ import Button from '@/components/Button'
 import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { NewPasswordSchema } from '@/validations/userValidation'
+import { BaseURLV1 } from '@/config/api'
 
 export const metadata: Metadata = {
   title: 'Create New Password',
@@ -39,12 +40,9 @@ export default function ForgotPassword({ params: { id } }: Props) {
     try {
       const {
         data: { data, token, message },
-      } = await axios.put(
-        `http://localhost:5000/api/v1/auth/${id}/createNewPassword`,
-        {
-          password: formik.values.password,
-        }
-      )
+      } = await axios.put(`${BaseURLV1}/auth/${id}/createNewPassword`, {
+        password: formik.values.password,
+      })
       alert(message)
       setIsLoading(false)
       router.push('/login')

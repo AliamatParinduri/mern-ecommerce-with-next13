@@ -13,6 +13,7 @@ import Button from '@/components/Button'
 import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { ForgotPasswordSchema } from '@/validations/userValidation'
+import { BaseURLV1 } from '@/config/api'
 
 export const metadata: Metadata = {
   title: 'Forgot Password Page',
@@ -32,7 +33,7 @@ export default function ForgotPassword() {
     try {
       const {
         data: { message },
-      } = await axios.post(`http://localhost:5000/api/v1/auth/forgotPassword`, {
+      } = await axios.post(`${BaseURLV1}/auth/forgotPassword`, {
         email: formik.values.email,
       })
       alert(message)

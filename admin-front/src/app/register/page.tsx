@@ -15,6 +15,7 @@ import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { RegisterDTO } from '@/validations/shared'
 import { RegisterSchema } from '@/validations/userValidation'
+import { BaseURLV1 } from '@/config/api'
 
 export const metadata: Metadata = {
   title: 'Register Page',
@@ -46,10 +47,7 @@ export default function Register() {
     try {
       const {
         data: { data, token, message },
-      } = await axios.post(
-        'http://localhost:5000/api/v1/auth/register',
-        payload
-      )
+      } = await axios.post(`${BaseURLV1}/auth/register`, payload)
       alert(message)
       setIsLoading(false)
       router.push('/login')
