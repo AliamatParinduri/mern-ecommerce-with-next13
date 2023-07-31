@@ -30,5 +30,6 @@ export const RegisterSchema = Joi.object({
     .email({ minDomainSegments: 2, tlds: { allow: false } })
     .required(),
   ...LoginValidate,
+  isActive: Joi.boolean(),
   noHP: Joi.string().min(11).max(13).required()
 })

@@ -1,7 +1,8 @@
+import { Request } from 'express'
+
 import { UserDTO } from '@/dto'
 import { ProductRepository, UserRepository } from '@/repository'
-import { NotFoundError } from '@/utils'
-import { Request } from 'express'
+import { NotFoundError, UnprocessableEntityError } from '@/utils'
 
 class UserService {
   userRepository = new UserRepository()
@@ -66,6 +67,18 @@ class UserService {
   }
 
   updateUser = async (id: string, payload: UserDTO) => {
+    const emailExists = await this.userRepository.findOne({
+      _id: { $ne: id },
+      email: payload.email
+    })
+    const userExists = await this.userRepository.findOne({
+      _id: { $ne: id },
+      username: payload.username
+    })
+    if (emailExists || userExists) {
+      throw new UnprocessableEntityError(`${emailExists ? 'Email' : 'Username'} already exists`)
+    }
+
     const user = await this.userRepository.findById(id)
 
     if (!user) {

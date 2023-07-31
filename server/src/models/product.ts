@@ -14,16 +14,8 @@ export const ProductSchema = new Schema(
           price: { type: Number, trim: true, required: true },
           stock: { type: Number, trim: true, required: true },
           size: { type: String, trim: true, required: true },
-          colors: {
-            type: [
-              {
-                color: { type: String, trim: true },
-                hexColor: { type: String, trim: true }
-              }
-            ],
-            default: [],
-            trim: true
-          }
+          color: { type: String, trim: true },
+          hexColor: { type: String, trim: true }
         }
       ],
       default: [],
