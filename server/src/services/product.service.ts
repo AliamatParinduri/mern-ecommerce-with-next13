@@ -24,6 +24,13 @@ class ProductService {
   }
 
   createProduct = async (payload: ProductDTO, files: Express.Multer.File[]) => {
+    const productExists = await this.productRepository.findOne({
+      nmProduct: payload.nmProduct
+    })
+    if (productExists) {
+      throw new UnprocessableEntityError(`Product name already exists`)
+    }
+
     if (typeof payload.details === 'string') {
       payload.details = JSON.parse(payload.details)
     }
@@ -41,6 +48,14 @@ class ProductService {
   }
 
   updateProduct = async (productId: string, payload: ProductDTO, files: Express.Multer.File[]) => {
+    const productExists = await this.productRepository.findOne({
+      _id: { $ne: productId },
+      nmProduct: payload.nmProduct
+    })
+    if (productExists) {
+      throw new UnprocessableEntityError(`Product name already exists`)
+    }
+
     if (typeof payload.details === 'string') {
       payload.details = JSON.parse(payload.details)
     }
