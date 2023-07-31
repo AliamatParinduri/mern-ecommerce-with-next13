@@ -153,8 +153,6 @@ const Datatable = ({ columns, data, title }: Props) => {
             placeholder='Ex: 1'
             onChange={(e) => {
               if (e.target.value > pageOptions.length) {
-                console.log(e.target.value > pageOptions.length)
-
                 e.target.value = '1'
               }
               const page = e.target.value ? Number(e.target.value) - 1 : 0

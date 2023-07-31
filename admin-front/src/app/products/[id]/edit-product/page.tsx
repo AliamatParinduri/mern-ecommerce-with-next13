@@ -99,9 +99,7 @@ const EditProduct = ({ params: { id } }: Props) => {
 
       const { data } = await axios.get(`${BaseURLV1}/category`, config)
 
-      console.log(data.data)
       setCategories(data.data)
-      console.log(categories)
 
       const { data: dt } = await axios.get(`${BaseURLV1}/product/${id}`, config)
 
@@ -137,7 +135,6 @@ const EditProduct = ({ params: { id } }: Props) => {
 
   const handleDeleteImage = async (id: string, image: any) => {
     try {
-      console.log(productImages)
 
       const config = {
         headers: {

@@ -85,7 +85,7 @@ const AddCategory = () => {
                 <InputType
                   type='text'
                   title='Category'
-                  placeholder='Enter your Category'
+                  placeholder='Ex: Handphone'
                   formik={formik}
                   name='category'
                   buttonClick={buttonClick}
@@ -97,7 +97,7 @@ const AddCategory = () => {
                 <InputType
                   type='text'
                   title='Sub Category'
-                  placeholder='Enter your Sub Category'
+                  placeholder='Ex: Samsung,Iphone,Vivo'
                   formik={formik}
                   name='subCategory'
                   buttonClick={buttonClick}
