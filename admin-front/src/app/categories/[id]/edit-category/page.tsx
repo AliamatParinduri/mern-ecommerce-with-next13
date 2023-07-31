@@ -14,13 +14,13 @@ import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { CategorySchema } from '@/validations/categoryValidation'
-import { CategoriesDTO } from '@/validations/shared'
+import { CategoriesDTO, ucWords } from '@/validations/shared'
 
 type Props = {
   params: { id: string }
 }
 
-const EditCategories = ({ params: { id } }: Props) => {
+const EditCategory = ({ params: { id } }: Props) => {
   const [buttonClick, setButtonClick] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { user }: userContextType = UserState()
@@ -34,7 +34,7 @@ const EditCategories = ({ params: { id } }: Props) => {
   const handleSubmit = async () => {
     setIsLoading(true)
     try {
-      const category = formik.values.category
+      const category = ucWords(formik.values.category)
       const subCategory = formik.values.subCategory.toString().split(',')
 
       const config = {
@@ -66,7 +66,7 @@ const EditCategories = ({ params: { id } }: Props) => {
     validationSchema: CategorySchema,
   })
 
-  const handleData = async () => {
+  const getCategoryById = async () => {
     setIsLoading(true)
     try {
       const config = {
@@ -83,12 +83,12 @@ const EditCategories = ({ params: { id } }: Props) => {
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
-      return false
+      alert(e.response.data.description)
     }
   }
 
   useEffect(() => {
-    handleData()
+    getCategoryById()
   }, [])
 
   return (
@@ -157,4 +157,4 @@ const EditCategories = ({ params: { id } }: Props) => {
   )
 }
 
-export default EditCategories
+export default EditCategory

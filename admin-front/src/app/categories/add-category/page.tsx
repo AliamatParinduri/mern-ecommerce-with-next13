@@ -13,9 +13,9 @@ import Button from '@/components/Button'
 import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { CategorySchema } from '@/validations/categoryValidation'
-import { CategoriesDTO } from '@/validations/shared'
+import { CategoriesDTO, ucWords } from '@/validations/shared'
 
-const AddCategories = () => {
+const AddCategory = () => {
   const [buttonClick, setButtonClick] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { user }: userContextType = UserState()
@@ -24,7 +24,7 @@ const AddCategories = () => {
   const handleSubmit = async () => {
     setIsLoading(true)
     try {
-      const category = formik.values.category
+      const category = ucWords(formik.values.category)
       const subCategory = formik.values.subCategory.toString().split(',')
 
       const config = {
@@ -120,4 +120,4 @@ const AddCategories = () => {
   )
 }
 
-export default AddCategories
+export default AddCategory

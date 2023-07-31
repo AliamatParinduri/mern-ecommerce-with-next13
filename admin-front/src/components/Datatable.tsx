@@ -14,12 +14,13 @@ import { GlobalFilter } from './GlobalFilter'
 type Props = {
   columns: any
   data: any
+  title: string
 }
 
 const btnClasses =
   'flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-boxDark-500 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
 
-const Datatable = ({ columns, data }: Props) => {
+const Datatable = ({ columns, data, title }: Props) => {
   let initialState: object = {
     pageSize: 10,
     pageIndex: 0,
@@ -79,6 +80,7 @@ const Datatable = ({ columns, data }: Props) => {
           preGlobalFilteredRows={preGlobalFilteredRows}
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
+          title={title}
         />
       </div>
       <table
@@ -101,6 +103,16 @@ const Datatable = ({ columns, data }: Props) => {
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
+          {page.length < 1 && (
+            <tr>
+              <td
+                colSpan={columns.length}
+                className='py-4 text-center border-b border-slate-50/10'
+              >
+                No Data
+              </td>
+            </tr>
+          )}
           {page.map((row: any) => {
             prepareRow(row)
             return (
@@ -129,16 +141,22 @@ const Datatable = ({ columns, data }: Props) => {
         <span>
           Page{' '}
           <strong>
-            {pageIndex + 1} of {pageOptions.length}
+            {pageOptions.length > 0 ? pageIndex + 1 : 0} of {pageOptions.length}
           </strong>{' '}
         </span>
         <span>
           Go to page:{' '}
           <input
             type='number'
-            min={1}
+            min={pageOptions.length > 0 ? 1 : 0}
+            max={pageOptions.length}
             placeholder='Ex: 1'
             onChange={(e) => {
+              if (e.target.value > pageOptions.length) {
+                console.log(e.target.value > pageOptions.length)
+
+                e.target.value = '1'
+              }
               const page = e.target.value ? Number(e.target.value) - 1 : 0
               gotoPage(page)
             }}

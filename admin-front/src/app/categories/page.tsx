@@ -134,6 +134,7 @@ const Categories = () => {
                     subCategory: category.subCategory.toString(),
                   }
                 })}
+                title='Categories'
               />
             </div>
           </div>

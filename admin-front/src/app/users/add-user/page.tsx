@@ -24,7 +24,7 @@ const AddUser = () => {
     const payload = {
       fullName: formik.values.fullName,
       username: formik.values.username,
-      email: formik.values.email,
+      email: formik.values.email.toLowerCase(),
       noHP: formik.values.noHP,
       password: 'Testing123.',
       isActive: true,

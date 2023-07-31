@@ -1,7 +1,7 @@
 'use client'
 
 import { userLogin } from '@/validations/shared'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 export type userContextType = {
@@ -14,20 +14,20 @@ const UserContext = createContext({})
 const UserProvider = (props: any) => {
   const [user, setUser] = useState()
   const router = useRouter()
+  const pathname = usePathname()
 
-  useEffect(() => {
+  const userLogin = () => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo')!)
-
-    console.log('load user to context')
-    console.log(userInfo)
-
     if (!userInfo) {
       router.push('/login')
     } else {
       setUser({ ...userInfo })
     }
-    console.log(user)
-  }, [router])
+  }
+
+  useEffect(() => {
+    userLogin()
+  }, [pathname])
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

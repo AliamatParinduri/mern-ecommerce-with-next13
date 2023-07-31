@@ -47,7 +47,7 @@ const EditUser = ({ params: { id } }: Props) => {
       const payload = {
         fullName: formik.values.fullName,
         username: formik.values.username,
-        email: formik.values.email,
+        email: formik.values.email.toLowerCase(),
         noHP: formik.values.noHP,
       }
 
