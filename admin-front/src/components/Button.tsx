@@ -11,7 +11,7 @@ const Button = ({ title, isLoading, setButtonClick }: Props) => {
     <button
       onClick={() => setButtonClick(true)}
       type='submit'
-      className='flex gap-2 justify-center items-center bg-slate-900 py-3 rounded-lg text-white'
+      className='flex gap-2 justify-center items-center bg-ActiveMenu-500 py-3 rounded-lg text-white'
       disabled={isLoading}
     >
       {isLoading ? <Loading /> : title}

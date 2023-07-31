@@ -1,14 +1,12 @@
 'use client'
 
 import { Fragment } from 'react'
-import Login from './login/page'
-
-/* eslint-disable react/no-unescaped-entities */
+import Dashboard from './dashboard/page'
 
 export default function Page() {
   return (
     <Fragment>
-      <Login />
+      <Dashboard />
     </Fragment>
   )
 }
