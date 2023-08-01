@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -7,6 +8,64 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        dark: {
+          100: '#d4d4d9',
+          200: '#a9aab3',
+          300: '#7e7f8e',
+          400: '#535568',
+          500: '#282a42',
+          600: '#202235',
+          700: '#181928',
+          800: '#10111a',
+          900: '#08080d',
+          1000: '#000',
+        },
+        boxDark: {
+          100: '#d6d6dc',
+          200: '#acadb8',
+          300: '#838595',
+          400: '#595c71',
+          500: '#30334e',
+          600: '#26293e',
+          700: '#1d1f2f',
+          800: '#13141f',
+          900: '#0a0a10',
+        },
+        light: {
+          100: '#fdfdfe',
+          200: '#fcfcfd',
+          300: '#fafafb',
+          400: '#f9f9fa',
+          500: '#f7f7f9',
+          600: '#c6c6c7',
+          700: '#949495',
+          800: '#636364',
+          900: '#313132',
+        },
+        textLight: {
+          100: '#fdfdfe',
+          200: '#fcfcfd',
+          300: '#fafafb',
+          400: '#f9f9fa',
+          500: '#f7f7f9',
+          600: '#c6c6c7',
+          700: '#949495',
+          800: '#636364',
+          900: '#313132',
+        },
+        ActiveMenu: {
+          100: '#e4e5ff',
+          200: '#c9cbff',
+          300: '#aeb2ff',
+          400: '#9398ff',
+          500: '#787eff',
+          600: '#6065cc',
+          700: '#484c99',
+          800: '#303266',
+          900: '#181933',
+        },
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
