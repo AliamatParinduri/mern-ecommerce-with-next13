@@ -56,7 +56,7 @@ const Sidebar = () => {
   }, [])
 
   return (
-    <aside className='bg-light-500 dark:bg-boxDark-500 text-blue-100 w-72 space-y-6 py-7 px-2 absolute border-r-2 dark:border-r-0 inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out'>
+    <aside className='bg-light-500 dark:bg-boxDark-500 text-blue-100 w-56 lg:w-64 space-y-6 py-7 px-2 fixed border-r-2 dark:border-r-0 inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition duration-100 ease-in-out z-3'>
       <a
         href='#'
         className='text-black dark:text-white flex items-center space-x-2 justify-center'

@@ -1,8 +1,20 @@
 'use client'
 
+import { useEffect } from 'react'
+
 import Layout from '@/components/Layout'
+import { isUserLogin } from '@/validations/shared'
+import { useRouter } from 'next/navigation'
+import { UserState, userContextType } from '@/context/userContext'
 
 const Dashboard = () => {
+  let { user }: userContextType = UserState()
+  const router = useRouter()
+
+  useEffect(() => {
+    isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
+  }, [])
+
   return (
     <Layout>
       Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nobis libero

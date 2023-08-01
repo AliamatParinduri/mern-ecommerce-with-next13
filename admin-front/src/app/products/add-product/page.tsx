@@ -170,7 +170,7 @@ const AddProduct = () => {
                         onChange={(e) => handleCategory(e)}
                         className={`text-gray-900 border rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ring-1 py-2 px-4 `}
                       >
-                        <option value='' disabled selected={true}>
+                        <option value='#' disabled selected={true}>
                           --- Choose your Category ---
                         </option>
                         {categories.map((dt: any) => (
@@ -191,7 +191,7 @@ const AddProduct = () => {
                         onChange={(e) => setSubCategory(e.target.value)}
                         className={`text-gray-900 border rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ring-1 py-2 px-4 `}
                       >
-                        <option value='' disabled selected={true}>
+                        <option value='#' disabled selected={true}>
                           --- Choose your Sub Category ---
                         </option>
                         {subCategories.length > 0 &&
@@ -256,9 +256,7 @@ const AddProduct = () => {
                     />
                   </div>
                   <div className='flex w-1/5 flex-col gap-2'>
-                    <span className='text-transparent'>
-                      Add Details Products
-                    </span>
+                    <span className='text-transparent'>A</span>
                     <button
                       type='button'
                       onClick={handleDetailProduct}
