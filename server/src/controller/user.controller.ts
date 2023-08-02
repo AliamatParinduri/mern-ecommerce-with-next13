@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express'
 import { UserService } from '@/services'
 import { UnprocessableEntityError, logger, validate } from '@/utils'
 import { DefaultPicture } from '@config/index'
-import { UserSchema } from '@/dto'
+import { UserUpdateSchema } from '@/dto'
 
 class UserController {
   userService = new UserService()
@@ -124,7 +124,7 @@ class UserController {
       const { id } = req.params
       const body = req.body
 
-      validate(body, UserSchema)
+      validate(body, UserUpdateSchema)
 
       const result = await this.userService.updateUser(id, body)
 

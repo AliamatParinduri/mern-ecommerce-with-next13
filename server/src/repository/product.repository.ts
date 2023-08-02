@@ -10,6 +10,7 @@ class ProductRepository {
   getProducts = async (page: number, limit: number) => {
     try {
       const products = await Product.find()
+        .populate('category')
         .limit(limit * 1)
         .skip((page - 1) * limit)
         .exec()

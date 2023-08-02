@@ -34,6 +34,24 @@ export const SendEmail = (userId: string, info: string) => {
   `
 }
 
+export const containsDuplicates = (array: string[]) => {
+  if (array.length !== new Set(array).size) {
+    return true
+  }
+
+  return false
+}
+
+export const ucWords = (text: string) => {
+  const words = text.split(' ')
+
+  for (let i = 0; i < words.length; i++) {
+    words[i] = words[i][0].toUpperCase() + words[i].substr(1)
+  }
+
+  return words.join(' ')
+}
+
 export const HeaderEmail = () => {
   return `
 <!DOCTYPE html>

@@ -4,6 +4,15 @@ import { Category } from '@/models'
 import { InternalServerError, logger } from '@/utils'
 
 class CategoryRepository {
+  getCategories = async () => {
+    try {
+      return await Category.find()
+    } catch (err: any) {
+      logger.error('ERR = Get Categories ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
   createCategory = async (payload: CategoryDTO) => {
     try {
       return await Category.create({

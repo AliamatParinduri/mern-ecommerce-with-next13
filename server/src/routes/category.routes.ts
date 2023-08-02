@@ -6,6 +6,7 @@ class CategoryRoutes extends BaseRoutes {
   async routes() {
     const categoryController = new CategoryController()
 
+    this.router.get('/', requireAdmin, categoryController.getCategories)
     this.router.post('/', requireAdmin, categoryController.createCategory)
     this.router.get('/:id', requireAdmin, categoryController.getCategoryById)
     this.router.put('/:id', requireAdmin, categoryController.updateCategory)
