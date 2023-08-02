@@ -2,7 +2,6 @@
 
 /* eslint-disable react/no-unescaped-entities */
 import { useState } from 'react'
-import { Metadata } from 'next'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import axios from 'axios'
@@ -14,10 +13,6 @@ import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { ForgotPasswordSchema } from '@/validations/userValidation'
 import { BaseURLV1 } from '@/config/api'
-
-export const metadata: Metadata = {
-  title: 'Forgot Password Page',
-}
 
 export default function ForgotPassword() {
   const [buttonClick, setButtonClick] = useState(false)
