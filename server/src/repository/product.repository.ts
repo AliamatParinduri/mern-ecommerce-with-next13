@@ -7,12 +7,13 @@ import { Product } from '@/models'
 import { InternalServerError, logger } from '@/utils'
 
 class ProductRepository {
-  getProducts = async (page: number, limit: number) => {
+  getProducts = async (keyword: any, page: number, limit: number, sort: any) => {
     try {
-      const products = await Product.find()
+      const products = await Product.find(keyword)
         .populate('category')
         .limit(limit * 1)
         .skip((page - 1) * limit)
+        .sort(sort)
         .exec()
 
       const count = await Product.count()

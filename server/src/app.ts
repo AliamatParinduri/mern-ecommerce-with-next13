@@ -9,7 +9,11 @@ import routes from './routes'
 
 const app: Application = express()
 
-app.use(helmet())
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false
+  })
+)
 app.use(express.json())
 app.use(express.urlencoded({ limit: '30mb', extended: true }))
 app.use(cors())
