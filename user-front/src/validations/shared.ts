@@ -48,17 +48,39 @@ export const ucWords = (text: string) => {
   return words.join(' ')
 }
 
-export const isUserLogin = (user: any) => {
-  let userLogin
-  if (!user) {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo')!)
-    if (userInfo) {
-      userLogin = userInfo
-    } else {
-      return undefined
-    }
-  } else {
-    userLogin = user
+export const sortPriceList = (prices: any) => {
+  if (prices.length <= 1) {
+    return formatRupiah(prices[0].price, 'Rp. ')
   }
-  return userLogin
+
+  const sorter = (a: { price: number }, b: { price: number }) => {
+    return +a.price - +b.price
+  }
+  const sortbyPrice = prices.sort(sorter)
+  return `${formatRupiah(prices[0].price, 'Rp. ')} - ${formatRupiah(
+    prices[sortbyPrice.length - 1].price,
+    'Rp. '
+  )}`
+}
+
+export function formatRupiah(angka: string, prefix: string) {
+  let separator
+  const number_string = angka.toString().replace(/[^,\d]/g, '')
+  const split = number_string.split(',')
+  const sisa = split[0].length % 3
+  let rupiah = split[0].substr(0, sisa)
+  const ribuan = split[0].substr(sisa).match(/\d{3}/gi)
+
+  // tambahkan titik jika yang di input sudah menjadi angka ribuan
+  if (ribuan) {
+    separator = sisa ? '.' : ''
+    rupiah += separator + ribuan.join('.')
+  }
+
+  rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah
+  return prefix == undefined ? rupiah : rupiah ? 'Rp. ' + rupiah : ''
+}
+
+export function onlyGetNumberValue(value: string) {
+  return Number(value.replace(/[^0-9]/g, ''))
 }

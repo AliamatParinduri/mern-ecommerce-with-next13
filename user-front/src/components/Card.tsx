@@ -16,13 +16,14 @@ import {
 } from '@mui/icons-material'
 import { BaseURLProduct, BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
+import { sortPriceList } from '@/validations/shared'
 
 type Props = {
   product: any
 }
 
 const CardComponent = ({ product }: Props) => {
-  const { user }: userContextType = UserState()
+  const { user, setUser }: userContextType = UserState()
 
   const handleWishlish = async (productId: string) => {
     try {
@@ -58,6 +59,17 @@ const CardComponent = ({ product }: Props) => {
         config
       )
 
+      const newUserCart = {
+        ...user,
+        cart: data.data.cart,
+      }
+
+      localStorage.setItem('userLogin', JSON.stringify(newUserCart))
+
+      setUser({
+        ...newUserCart,
+      })
+
       alert('success Add to Cart')
     } catch (e: any) {
       return false
@@ -68,12 +80,14 @@ const CardComponent = ({ product }: Props) => {
     <Card sx={{ maxWidth: 345 }}>
       <Box position='relative'>
         <CardMedia
+          crossOrigin='anonymous'
           component='img'
           height='194'
           image={`${BaseURLProduct}/${product.pic[0]}`}
           alt='Paella dish'
         />
-        <IconButton
+        <Box
+          p={1}
           sx={{
             position: 'absolute',
             top: 0,
@@ -102,26 +116,23 @@ const CardComponent = ({ product }: Props) => {
             checkedIcon={<Favorite sx={{ color: 'red', fontSize: '26px' }} />}
             onClick={() => handleWishlish(product._id)}
           />
-        </IconButton>
+        </Box>
       </Box>
       <CardContent>
         <Typography gutterBottom variant='headline' component='h2'>
           {product.nmProduct}
         </Typography>
         <Typography mb={2} component='p'>
-          {`${product.category.category}/${product.subCategory}`}
+          {`${product.category.category} / ${product.subCategory}`}
         </Typography>
         <Box
           display='flex'
           justifyContent='space-between'
+          alignItems='center'
           justifyItems='center'
         >
           <Typography gutterBottom component='h4'>
-            Rp.{' '}
-            {product.details.length > 1
-              ? `${product.details[0].price} -
-                ${product.details[1].price}`
-              : product.details[0].price}
+            {sortPriceList(product.details)}
           </Typography>
           <IconButton onClick={() => handleAddToCart(product._id)}>
             <ShoppingCartCheckoutOutlined />

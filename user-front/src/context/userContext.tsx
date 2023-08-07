@@ -15,6 +15,15 @@ const UserProvider = (props: any) => {
   const [user, setUser] = useState()
   const navigate = useNavigate()
 
+  useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem('userLogin')!)
+    if (!userInfo) {
+      navigate('/login')
+    } else {
+      setUser({ ...userInfo })
+    }
+  }, [navigate])
+
   return (
     <UserContext.Provider value={{ user, setUser }}>
       {props.children}

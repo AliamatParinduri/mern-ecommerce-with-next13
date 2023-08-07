@@ -27,7 +27,7 @@ import { useNavigate } from 'react-router-dom'
 const pages = [
   { title: 'Home', link: '/dashboard' },
   { title: 'All Product', link: '/all-product' },
-  { title: 'Profile', link: '/profile' },
+  { title: 'Orders', link: '/orders' },
 ]
 const settings = ['Profile', 'Logout']
 
@@ -163,9 +163,8 @@ const Navbar = () => {
               </IconButton>
               {user && (
                 <IconButton>
-                  {/* <ShoppingBagOutlined /> */}
                   <Badge
-                    badgeContent={user!.cart.length}
+                    badgeContent={user ? user!.cart.length : 0}
                     color='error'
                     sx={{ borderRadius: '100%' }}
                   >
