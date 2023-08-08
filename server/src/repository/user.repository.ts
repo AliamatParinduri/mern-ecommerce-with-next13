@@ -4,7 +4,7 @@ import path from 'path'
 
 import { ProductDTO, RegisterDTO, UserDTO } from '@/dto'
 import { User } from '@/models'
-import { Cart, InternalServerError, Wishlist, logger } from '@/utils'
+import { InternalServerError, Wishlist, logger } from '@/utils'
 import { DefaultPicture } from '@config/index'
 
 class UserRepository {
@@ -117,20 +117,25 @@ class UserRepository {
     }
   }
 
-  addToCart = async (user: UserDTO, product: ProductDTO, qty: number) => {
+  addToCart = async (user: UserDTO, product: ProductDTO, detailsId: string, qty: number) => {
     try {
-      const cartIndex = user.cart.findIndex((cart) => cart.product.equals(product._id))
+      const detailsInProductCart = user.cart.find(
+        (cart: any) => cart.product.equals(product._id) && cart.details._id.equals(detailsId)
+      )
 
-      if (cartIndex >= 0) {
-        user.cart[cartIndex].qty += qty
-      } else {
+      if (!detailsInProductCart) {
+        const newDetails = [...product.details]
         const newProductToCart = {
           product,
+          details: newDetails[0],
           qty
         }
         user.cart.push(newProductToCart)
+        return await user.save()
       }
 
+      const cartIndex = user.cart.findIndex((product: any) => product.details._id.equals(detailsId))
+      user.cart[cartIndex].qty += qty
       return await user.save()
     } catch (err: any) {
       logger.error('ERR = Add to cart ', err.message)
@@ -138,9 +143,12 @@ class UserRepository {
     }
   }
 
-  removeFromCart = async (user: any, product: ProductDTO) => {
+  removeFromCart = async (user: any, product: ProductDTO, detailsId: string) => {
     try {
-      const newCart = user.cart.filter((cart: Cart) => String(cart.product) !== String(product._id))
+      const newCart = user.cart.filter(
+        (cart: any) => String(cart.product) !== String(product._id) || String(cart.details._id) !== String(detailsId)
+      )
+
       user.cart = newCart
 
       return await user.save()
@@ -160,7 +168,7 @@ class UserRepository {
         user.wishlist = user.wishlist.filter((wishlist: Wishlist) => String(wishlist.product) !== String(product._id))
       } else {
         message = 'add'
-        user.wishlist.push({ product })
+        user.wishlist.push({ product: product._id })
       }
 
       return { message, productWishlist: await user.save() }
