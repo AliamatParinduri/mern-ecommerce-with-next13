@@ -208,9 +208,10 @@ const AllProduct = () => {
   }, [user, sort])
 
   return (
-    <Box p={2} display='flex' flexDirection='column' gap={4}>
+    <Box p={2} display='flex' flexDirection='column' gap={2}>
       <Box
-        my={2}
+        mt={1}
+        mb={2}
         p={1}
         display='flex'
         justifyContent='space-between'

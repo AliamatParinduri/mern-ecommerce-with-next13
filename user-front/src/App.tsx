@@ -8,6 +8,8 @@ import Signup from './pages/Signup'
 import AllProduct from './pages/AllProduct'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import Cart from './pages/Cart'
+import ProductDetails from './pages/ProductDetails'
 
 function App() {
   const [theme, colorMode]: any = useMode()
@@ -22,6 +24,8 @@ function App() {
               <Route path='/' element={<Navigate to='/dashboard' replace />} />
               <Route path='/dashboard' element={<Dashboard />} />
               <Route path='/all-product' element={<AllProduct />} />
+              <Route path='/product/:id/details' element={<ProductDetails />} />
+              <Route path='/cart' element={<Cart />} />
               <Route path='/login' element={<Login />} />
               <Route path='/signup' element={<Signup />} />
               <Route path='/forgot-password' element={<ForgotPassword />} />

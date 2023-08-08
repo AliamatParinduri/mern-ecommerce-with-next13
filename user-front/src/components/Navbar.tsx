@@ -162,7 +162,7 @@ const Navbar = () => {
                 )}
               </IconButton>
               {user && (
-                <IconButton>
+                <IconButton onClick={() => navigate('/cart')}>
                   <Badge
                     badgeContent={user ? user!.cart.length : 0}
                     color='error'

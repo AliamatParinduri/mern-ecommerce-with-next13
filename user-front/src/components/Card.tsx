@@ -2,21 +2,17 @@ import axios from 'axios'
 import {
   Box,
   Card,
-  IconButton,
   CardMedia,
   CardContent,
   Typography,
   Checkbox,
 } from '@mui/material'
 
-import {
-  Favorite,
-  FavoriteBorder,
-  ShoppingCartCheckoutOutlined,
-} from '@mui/icons-material'
+import { Favorite, FavoriteBorder } from '@mui/icons-material'
 import { BaseURLProduct, BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { sortPriceList } from '@/validations/shared'
+import { useNavigate } from 'react-router-dom'
 
 type Props = {
   product: any
@@ -24,8 +20,11 @@ type Props = {
 
 const CardComponent = ({ product }: Props) => {
   const { user, setUser }: userContextType = UserState()
+  const navigate = useNavigate()
 
-  const handleWishlish = async (productId: string) => {
+  const handleWishlish = async (e: any, productId: string) => {
+    e.stopPropagation()
+
     try {
       const config = {
         headers: {
@@ -39,45 +38,28 @@ const CardComponent = ({ product }: Props) => {
         config
       )
 
+      const newUserWishlist = {
+        ...user,
+        wishlist: data.data.wishlist,
+      }
+
+      localStorage.setItem('userLogin', JSON.stringify(newUserWishlist))
+
+      setUser({
+        ...newUserWishlist,
+      })
+
       alert('success update wishlist')
     } catch (e: any) {
       return false
     }
   }
 
-  const handleAddToCart = async (productId: string) => {
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user!.token}`,
-        },
-      }
-
-      const { data } = await axios.put(
-        `${BaseURLV1}/users/${user!._id}/addToCart`,
-        { product: productId, qty: 1 },
-        config
-      )
-
-      const newUserCart = {
-        ...user,
-        cart: data.data.cart,
-      }
-
-      localStorage.setItem('userLogin', JSON.stringify(newUserCart))
-
-      setUser({
-        ...newUserCart,
-      })
-
-      alert('success Add to Cart')
-    } catch (e: any) {
-      return false
-    }
-  }
-
   return (
-    <Card sx={{ maxWidth: 345 }}>
+    <Card
+      sx={{ maxWidth: 345, cursor: 'pointer' }}
+      onClick={() => navigate(`/product/${product._id}/details`)}
+    >
       <Box position='relative'>
         <CardMedia
           crossOrigin='anonymous'
@@ -85,6 +67,11 @@ const CardComponent = ({ product }: Props) => {
           height='194'
           image={`${BaseURLProduct}/${product.pic[0]}`}
           alt='Paella dish'
+          sx={{
+            backgroundRepeat: 'no-repeat',
+            objectFit: 'contain',
+            background: 'white',
+          }}
         />
         <Box
           p={1}
@@ -114,7 +101,7 @@ const CardComponent = ({ product }: Props) => {
                 : false
             }
             checkedIcon={<Favorite sx={{ color: 'red', fontSize: '26px' }} />}
-            onClick={() => handleWishlish(product._id)}
+            onClick={(e) => handleWishlish(e, product._id)}
           />
         </Box>
       </Box>
@@ -131,12 +118,12 @@ const CardComponent = ({ product }: Props) => {
           alignItems='center'
           justifyItems='center'
         >
-          <Typography gutterBottom component='h4'>
+          <Typography gutterBottom component='h4' fontWeight='bold'>
             {sortPriceList(product.details)}
           </Typography>
-          <IconButton onClick={() => handleAddToCart(product._id)}>
-            <ShoppingCartCheckoutOutlined />
-          </IconButton>
+          <Typography gutterBottom component='h4'>
+            Terjual 0
+          </Typography>
         </Box>
       </CardContent>
     </Card>
