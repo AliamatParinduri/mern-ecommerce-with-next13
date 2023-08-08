@@ -62,6 +62,19 @@ class ProductRepository {
     }
   }
 
+  findDetailsProduct = async (detailsId: string) => {
+    try {
+      return await Product.findOne({
+        details: {
+          $elemMatch: { _id: detailsId }
+        }
+      })
+    } catch (err: any) {
+      logger.error('ERR = Find user by id ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
   updateProduct = async (category: ProductDTO, payload: ProductDTO, productImages: string[]) => {
     try {
       category.nmProduct = payload.nmProduct
