@@ -4,6 +4,7 @@ import { categoryRoutes } from './category.routes'
 import { userRoutes } from './user.routes'
 import { productRoutes } from './product.routes'
 import { addressRoutes } from './address.routes'
+import { ratingRoutes } from './rating.routes'
 import { orderRoutes } from './order.routes'
 
 const routes = (app: Application) => {
@@ -12,6 +13,7 @@ const routes = (app: Application) => {
   app.use('/api/v1/category', categoryRoutes)
   app.use('/api/v1/product', productRoutes)
   app.use('/api/v1/order', orderRoutes)
+  app.use('/api/v1/rating', ratingRoutes)
   app.use('/api/v1/users', userRoutes)
 }
 

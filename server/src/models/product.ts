@@ -8,13 +8,14 @@ export const ProductSchema = new Schema(
     category: { type: Schema.Types.ObjectId, ref: 'Category', trim: true, required: true },
     subCategory: { type: String, trim: true, required: true },
     pic: { type: [], default: [], trim: true },
-    rating: { type: String, default: '0', trim: true, required: true },
     details: {
       type: [
         {
           price: { type: Number, trim: true, required: true },
           stock: { type: Number, trim: true, required: true },
           size: { type: String, trim: true, required: true },
+          rating: { type: String, default: '0', trim: true, required: true },
+          totalRating: { type: String, default: '0', trim: true, required: true },
           color: { type: String, trim: true },
           hexColor: { type: String, trim: true }
         }

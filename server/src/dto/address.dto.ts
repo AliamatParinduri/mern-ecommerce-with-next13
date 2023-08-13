@@ -4,7 +4,7 @@ import { Document } from 'mongoose'
 import { UserDTO } from './user.dto'
 
 export interface AddressDTO extends Document {
-  user: UserDTO
+  userId: UserDTO
   fullAddress: Text
   kecamatan: string
   kabKot: string
@@ -13,7 +13,7 @@ export interface AddressDTO extends Document {
 }
 
 export const AddressSchema = Joi.object({
-  userId: Joi.string(),
+  userId: Joi.string().required(),
   fullAddress: Joi.string().required(),
   kecamatan: Joi.string().required(),
   kabKot: Joi.string().required(),

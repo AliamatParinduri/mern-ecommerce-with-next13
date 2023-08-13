@@ -4,7 +4,7 @@ import { AddressDTO } from '@/dto'
 
 const AddressSchema = new Schema(
   {
-    user: { type: Schema.Types.ObjectId, ref: 'User', trim: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', trim: true },
     fullAddress: { type: String, trim: true, required: true },
     kecamatan: { type: String, trim: true, required: true },
     kabKot: { type: String, trim: true, required: true },

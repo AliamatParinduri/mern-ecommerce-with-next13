@@ -18,6 +18,16 @@ const OrderSchema = new Schema(
       ref: 'Address',
       trim: true
     },
+    paymentStatus: {
+      type: String,
+      enum: ['UnPaid', 'Pain'],
+      default: 'UnPaid'
+    },
+    paymentOrder: {
+      type: String,
+      enum: ['Process', 'Sending', 'Done'],
+      default: 'Process'
+    },
     discount: { type: Number, default: 0 },
     ongkir: { type: Number, default: 0, trim: true },
     totalPrice: { type: Number, trim: true, required: true }

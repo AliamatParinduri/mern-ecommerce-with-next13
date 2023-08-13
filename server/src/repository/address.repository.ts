@@ -17,7 +17,7 @@ class AddressRepository {
   createAddress = async (payload: AddressDTO) => {
     try {
       return await Address.create({
-        user: payload.user,
+        userId: payload.userId,
         fullAddress: payload.fullAddress,
         kecamatan: payload.kecamatan,
         kabKot: payload.kabKot,
