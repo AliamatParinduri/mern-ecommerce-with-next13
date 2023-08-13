@@ -88,7 +88,7 @@ class UserRepository {
 
   findOne = async (attr: object) => {
     try {
-      return await User.findOne(attr)
+      return await User.findOne(attr).populate('cart.product').populate('wishlist.product')
     } catch (err: any) {
       logger.error('ERR = Find one product ', err.message)
       throw new InternalServerError(err.message)
@@ -97,7 +97,7 @@ class UserRepository {
 
   findById = async (userId: string) => {
     try {
-      return await User.findById(userId)
+      return await User.findById(userId).populate('cart.product').populate('wishlist.product')
     } catch (err: any) {
       logger.error('ERR = Find user by id ', err.message)
       throw new InternalServerError(err.message)
@@ -123,11 +123,12 @@ class UserRepository {
         (cart: any) => cart.product.equals(product._id) && cart.details._id.equals(detailsId)
       )
 
+      const newDetails: any = [...product.details]
       if (!detailsInProductCart) {
-        const newDetails = [...product.details]
         const newProductToCart = {
           product,
           details: newDetails[0],
+          subTotal: newDetails[0].price * qty,
           qty
         }
         user.cart.push(newProductToCart)
@@ -135,6 +136,8 @@ class UserRepository {
       }
 
       const cartIndex = user.cart.findIndex((product: any) => product.details._id.equals(detailsId))
+
+      user.cart[cartIndex].subTotal += newDetails[0].price * qty
       user.cart[cartIndex].qty += qty
       return await user.save()
     } catch (err: any) {
@@ -146,7 +149,8 @@ class UserRepository {
   removeFromCart = async (user: any, product: ProductDTO, detailsId: string) => {
     try {
       const newCart = user.cart.filter(
-        (cart: any) => String(cart.product) !== String(product._id) || String(cart.details._id) !== String(detailsId)
+        (cart: any) =>
+          String(cart.product._id) !== String(product._id) || String(cart.details._id) !== String(detailsId)
       )
 
       user.cart = newCart
@@ -168,7 +172,7 @@ class UserRepository {
         user.wishlist = user.wishlist.filter((wishlist: Wishlist) => String(wishlist.product) !== String(product._id))
       } else {
         message = 'add'
-        user.wishlist.push({ product: product._id })
+        user.wishlist.push({ product })
       }
 
       return { message, productWishlist: await user.save() }

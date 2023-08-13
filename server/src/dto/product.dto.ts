@@ -8,6 +8,8 @@ export interface ProductDTO extends Document {
   category: CategoryDTO
   subCategory: string
   details: []
+  rating: string
+  description: string
   price: number
   stock: number
   size: []
@@ -19,5 +21,6 @@ export const ProductSchema = Joi.object({
   nmProduct: Joi.string().pattern(new RegExp('^[a-zA-Z 0-9]{3,75}$')).required(),
   subCategory: Joi.string().pattern(new RegExp('^[a-zA-Z 0-9]{3,75}$')).required(),
   category: Joi.string().required(),
-  details: Joi.required()
+  details: Joi.required(),
+  description: Joi.required()
 })

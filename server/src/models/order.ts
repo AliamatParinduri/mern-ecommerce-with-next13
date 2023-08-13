@@ -10,13 +10,15 @@ const OrderSchema = new Schema(
       type: [
         {
           product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
-          qty: { type: Number, default: 0 },
-          discount: { type: Number, default: 0 }
+          details: { type: Object, trim: true },
+          subTotal: { type: Number, trim: true, default: 0 },
+          qty: { type: Number, default: 0 }
         }
       ],
       ref: 'Address',
       trim: true
     },
+    discount: { type: Number, default: 0 },
     ongkir: { type: Number, default: 0, trim: true },
     totalPrice: { type: Number, trim: true, required: true }
   },

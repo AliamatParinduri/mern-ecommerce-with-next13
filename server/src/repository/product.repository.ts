@@ -34,6 +34,8 @@ class ProductRepository {
       return await Product.create({
         nmProduct: payload.nmProduct,
         category: payload.category,
+        description: payload.description,
+        rating: 0,
         subCategory: payload.subCategory,
         pic,
         details: payload.details
@@ -82,6 +84,8 @@ class ProductRepository {
       category.subCategory = payload.subCategory
       category.details = payload.details
       category.price = payload.price
+      category.description = payload.description
+      category.rating = payload.rating
       category.stock = payload.stock
       category.size = payload.size
       category.colors = payload.colors

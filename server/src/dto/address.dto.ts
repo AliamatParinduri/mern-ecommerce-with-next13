@@ -6,7 +6,6 @@ import { UserDTO } from './user.dto'
 export interface AddressDTO extends Document {
   user: UserDTO
   fullAddress: Text
-  homeNumber: string
   kecamatan: string
   kabKot: string
   provinsi: string
@@ -16,7 +15,6 @@ export interface AddressDTO extends Document {
 export const AddressSchema = Joi.object({
   userId: Joi.string(),
   fullAddress: Joi.string().required(),
-  homeNumber: Joi.string().required(),
   kecamatan: Joi.string().required(),
   kabKot: Joi.string().required(),
   provinsi: Joi.string().required(),
