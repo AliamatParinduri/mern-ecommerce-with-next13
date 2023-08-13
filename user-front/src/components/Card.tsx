@@ -94,8 +94,7 @@ const CardComponent = ({ product }: Props) => {
             }
             checked={
               user!.wishlist.findIndex(
-                (wishlist: { product: string }) =>
-                  wishlist.product === product._id
+                (wishlist: any) => wishlist.product._id === product._id
               ) >= 0
                 ? true
                 : false
