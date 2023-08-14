@@ -63,6 +63,16 @@ export const sortPriceList = (prices: any) => {
   )}`
 }
 
+export const countTotalOrder = (details: any) => {
+  let total = 0
+
+  for (const detail of details) {
+    total += detail.totalOrder
+  }
+
+  return total
+}
+
 export function formatRupiah(angka: string, prefix: string) {
   let separator
   const number_string = angka.toString().replace(/[^,\d]/g, '')

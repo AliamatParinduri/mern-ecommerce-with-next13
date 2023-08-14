@@ -27,7 +27,7 @@ import { useNavigate } from 'react-router-dom'
 const pages = [
   { title: 'Home', link: '/dashboard' },
   { title: 'All Product', link: '/all-product' },
-  { title: 'Orders', link: '/orders' },
+  { title: 'My Orders', link: '/orders' },
 ]
 const settings = ['Profile', 'Logout']
 

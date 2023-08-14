@@ -10,6 +10,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Cart from './pages/Cart'
 import ProductDetails from './pages/ProductDetails'
+import Orders from './pages/Order'
 
 function App() {
   const [theme, colorMode]: any = useMode()
@@ -26,6 +27,7 @@ function App() {
               <Route path='/all-product' element={<AllProduct />} />
               <Route path='/product/:id/details' element={<ProductDetails />} />
               <Route path='/cart' element={<Cart />} />
+              <Route path='/orders' element={<Orders />} />
               <Route path='/login' element={<Login />} />
               <Route path='/signup' element={<Signup />} />
               <Route path='/forgot-password' element={<ForgotPassword />} />

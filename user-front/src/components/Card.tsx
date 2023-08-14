@@ -11,7 +11,7 @@ import {
 import { Favorite, FavoriteBorder } from '@mui/icons-material'
 import { BaseURLProduct, BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
-import { sortPriceList } from '@/validations/shared'
+import { countTotalOrder, sortPriceList } from '@/validations/shared'
 import { useNavigate } from 'react-router-dom'
 
 type Props = {
@@ -121,7 +121,7 @@ const CardComponent = ({ product }: Props) => {
             {sortPriceList(product.details)}
           </Typography>
           <Typography gutterBottom component='h4'>
-            Terjual 0
+            {'Sold ' + countTotalOrder(product.details)}
           </Typography>
         </Box>
       </CardContent>
