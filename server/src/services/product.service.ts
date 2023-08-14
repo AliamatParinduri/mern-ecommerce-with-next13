@@ -83,7 +83,7 @@ class ProductService {
         break
 
       default:
-        sort = {}
+        sort = { createdAt: 'desc' }
         break
     }
 

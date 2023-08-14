@@ -169,7 +169,9 @@ class UserRepository {
 
       if (isProductExist >= 0) {
         message = 'remove'
-        user.wishlist = user.wishlist.filter((wishlist: Wishlist) => String(wishlist.product) !== String(product._id))
+        user.wishlist = user.wishlist.filter(
+          (wishlist: Wishlist) => String(wishlist.product._id) !== String(product._id)
+        )
       } else {
         message = 'add'
         user.wishlist.push({ product })
