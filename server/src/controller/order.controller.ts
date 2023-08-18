@@ -9,7 +9,7 @@ class OrderController {
 
   getOrders = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.orderService.getAddress()
+      const result = await this.orderService.getOrders(req)
 
       const message = 'Success get data order'
       logger.info(message)

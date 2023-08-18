@@ -15,7 +15,8 @@ export const ProductSchema = new Schema(
           stock: { type: Number, trim: true, required: true },
           size: { type: String, trim: true, required: true },
           rating: { type: String, default: '0', trim: true, required: true },
-          totalRating: { type: String, default: '0', trim: true, required: true },
+          totalRating: { type: Number, default: 0, trim: true, required: true },
+          totalOrder: { type: Number, default: 0, trim: true, required: true },
           color: { type: String, trim: true },
           hexColor: { type: String, trim: true }
         }
