@@ -15,6 +15,7 @@ export interface UserDTO extends Document {
   cart: [
     {
       product: ProductDTO
+      subTotal: number
       qty: number
     }
   ]
@@ -29,7 +30,26 @@ export const UserSchema = Joi.object({
   fullName: Joi.string().pattern(new RegExp('^[a-zA-Z ]{3,75}$')).required(),
   username: Joi.string().min(3).max(20).alphanum().required(),
   email: Joi.string().email({ minDomainSegments: 2, tlds: false }).required(),
-  password: Joi.string().min(8).max(20).required(),
+  password: Joi.string()
+    .min(8)
+    .max(20)
+    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})'))
+    .required(),
   noHP: Joi.string().min(11).max(13).required(),
+  isActive: Joi.boolean(),
+  userPic: Joi.string()
+})
+
+export const UserUpdateSchema = Joi.object({
+  fullName: Joi.string().pattern(new RegExp('^[a-zA-Z ]{3,75}$')).required(),
+  username: Joi.string().min(3).max(20).alphanum().required(),
+  email: Joi.string().email({ minDomainSegments: 2, tlds: false }).required(),
+  password: Joi.string()
+    .min(8)
+    .max(20)
+    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})'))
+    .required(),
+  noHP: Joi.string().min(11).max(13).required(),
+  isActive: Joi.boolean(),
   userPic: Joi.string()
 })

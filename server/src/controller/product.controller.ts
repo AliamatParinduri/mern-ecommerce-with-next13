@@ -10,7 +10,7 @@ class ProductController {
   getProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { page = 1, limit = 10 } = req.query
-      const result = await this.productService.getProducts(page as number, limit as number)
+      const result = await this.productService.getProducts(req, page as number, limit as number)
 
       const message = 'Success get product data'
       logger.info(message)

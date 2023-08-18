@@ -86,6 +86,23 @@ class AuthController {
       next(err)
     }
   }
+
+  createNewPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
+      const { password } = req.body
+
+      const user = await this.authService.createNewPassword(id, password)
+
+      await this.sendEmail(user._id, user.email, 'forgot password', next)
+
+      const message = 'Success create new password user'
+      logger.info(message)
+      return res.status(200).json({ message })
+    } catch (err: any) {
+      next(err)
+    }
+  }
 }
 
 export default AuthController

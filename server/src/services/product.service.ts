@@ -1,3 +1,5 @@
+import { Request } from 'express'
+
 import { ProductDTO } from '@/dto'
 import { ProductRepository } from '@/repository'
 import { UnprocessableEntityError } from '@/utils'
@@ -5,8 +7,87 @@ import { UnprocessableEntityError } from '@/utils'
 class ProductService {
   productRepository = new ProductRepository()
 
-  getProducts = async (page: number, limit: number) => {
-    const result = await this.productRepository.getProducts(page, limit)
+  getProducts = async (req: Request, page: number, limit: number) => {
+    const categories = req.query.categories
+    const subCategory = req.query.subCategory
+    const price = req.query.price as string
+    const displayOrder = req.query.displayOrder
+    let categoryRegex: any[] = []
+
+    const splitCategory = categories?.toString().split('-')
+    if (splitCategory) {
+      for (const categoryId of splitCategory) {
+        categoryRegex = [...categoryRegex, { category: categoryId }]
+      }
+    }
+
+    const keywordCategories = categories
+      ? {
+          $or: [...categoryRegex]
+        }
+      : {}
+
+    const keywordSubCategory = subCategory
+      ? {
+          $or: [{ subCategory: { $regex: subCategory, $options: 'i' } }]
+        }
+      : {}
+
+    let keywordPrice
+    if (price) {
+      const splitPrice = price.split('-')
+
+      if (splitPrice) {
+        keywordPrice = {
+          $or: [
+            {
+              details: {
+                $gte: { price: splitPrice[0] },
+                $lte: { price: splitPrice[1] }
+              }
+            }
+          ]
+        }
+      } else {
+        keywordPrice = {}
+      }
+    } else {
+      keywordPrice = {}
+    }
+
+    const keyword = {
+      $and: [keywordCategories, keywordSubCategory, keywordPrice]
+    }
+
+    let sort
+    switch (displayOrder) {
+      case 'Low-High':
+        sort = {
+          'details.price': 'asc'
+        }
+        break
+      case 'High-Low':
+        sort = {
+          'details.price': 'desc'
+        }
+        break
+      case 'A-Z':
+        sort = {
+          nmProduct: 'asc'
+        }
+        break
+      case 'Z-A':
+        sort = {
+          nmProduct: 'desc'
+        }
+        break
+
+      default:
+        sort = {}
+        break
+    }
+
+    const result = await this.productRepository.getProducts(keyword, page, limit, sort)
 
     if (!result) {
       throw new UnprocessableEntityError('Failed get products data')
@@ -24,6 +105,13 @@ class ProductService {
   }
 
   createProduct = async (payload: ProductDTO, files: Express.Multer.File[]) => {
+    const productExists = await this.productRepository.findOne({
+      nmProduct: payload.nmProduct
+    })
+    if (productExists) {
+      throw new UnprocessableEntityError(`Product name already exists`)
+    }
+
     if (typeof payload.details === 'string') {
       payload.details = JSON.parse(payload.details)
     }
@@ -41,6 +129,14 @@ class ProductService {
   }
 
   updateProduct = async (productId: string, payload: ProductDTO, files: Express.Multer.File[]) => {
+    const productExists = await this.productRepository.findOne({
+      _id: { $ne: productId },
+      nmProduct: payload.nmProduct
+    })
+    if (productExists) {
+      throw new UnprocessableEntityError(`Product name already exists`)
+    }
+
     if (typeof payload.details === 'string') {
       payload.details = JSON.parse(payload.details)
     }

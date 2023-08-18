@@ -25,11 +25,31 @@ export const SendEmail = (userId: string, info: string) => {
   ${Content(
     info === 'verify user' ? 'Confirm your email address' : 'Create new Password',
     info === 'verify user' ? `didn't create an account` : 'not forgot your password',
-    info === 'verify user' ? `${BaseURL}/api/v1/auth/${userId}/verifyAccount` : LinkForgotPassword,
+    info === 'verify user'
+      ? `${BaseURL}/api/v1/auth/${userId}/verifyAccount`
+      : `${LinkForgotPassword}/reset/${userId}`,
     info === 'verify user' ? 'Activate your Account' : 'Create new Password'
   )}  
   ${FooterEmail()}
   `
+}
+
+export const containsDuplicates = (array: string[]) => {
+  if (array.length !== new Set(array).size) {
+    return true
+  }
+
+  return false
+}
+
+export const ucWords = (text: string) => {
+  const words = text.split(' ')
+
+  for (let i = 0; i < words.length; i++) {
+    words[i] = words[i][0].toUpperCase() + words[i].substr(1)
+  }
+
+  return words.join(' ')
 }
 
 export const HeaderEmail = () => {

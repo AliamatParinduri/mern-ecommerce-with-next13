@@ -7,6 +7,18 @@ import { CategoryDTO, CategorySchema } from '@/dto'
 class CategoryController {
   categoryService = new CategoryService()
 
+  getCategories = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.categoryService.getCategories()
+
+      const message = 'Success get data categories'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
   getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const categoryId = req.params.id
