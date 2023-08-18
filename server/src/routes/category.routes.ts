@@ -1,12 +1,12 @@
 import { CategoryController } from '@/controller'
 import { BaseRoutes } from './base.route'
-import { requireAdmin } from '@/middlewares'
+import { requireAdmin, requireLogin } from '@/middlewares'
 
 class CategoryRoutes extends BaseRoutes {
   async routes() {
     const categoryController = new CategoryController()
 
-    this.router.get('/', requireAdmin, categoryController.getCategories)
+    this.router.get('/', requireLogin, categoryController.getCategories)
     this.router.post('/', requireAdmin, categoryController.createCategory)
     this.router.get('/:id', requireAdmin, categoryController.getCategoryById)
     this.router.put('/:id', requireAdmin, categoryController.updateCategory)

@@ -27,7 +27,7 @@ export const SendEmail = (userId: string, info: string) => {
     info === 'verify user' ? `didn't create an account` : 'not forgot your password',
     info === 'verify user'
       ? `${BaseURL}/api/v1/auth/${userId}/verifyAccount`
-      : `${LinkForgotPassword}/create-new-password/${userId}`,
+      : `${LinkForgotPassword}/reset/${userId}`,
     info === 'verify user' ? 'Activate your Account' : 'Create new Password'
   )}  
   ${FooterEmail()}

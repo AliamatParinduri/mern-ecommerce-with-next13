@@ -1,7 +1,6 @@
 'use client'
 
 /* eslint-disable react/no-unescaped-entities */
-import { Metadata } from 'next'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -16,10 +15,6 @@ import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { RegisterDTO } from '@/validations/shared'
 import { RegisterSchema } from '@/validations/userValidation'
 import { BaseURLV1 } from '@/config/api'
-
-export const metadata: Metadata = {
-  title: 'Register Page',
-}
 
 export default function Register() {
   const [buttonClick, setButtonClick] = useState(false)

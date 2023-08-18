@@ -7,12 +7,13 @@ import { Product } from '@/models'
 import { InternalServerError, logger } from '@/utils'
 
 class ProductRepository {
-  getProducts = async (page: number, limit: number) => {
+  getProducts = async (keyword: any, page: number, limit: number, sort: any) => {
     try {
-      const products = await Product.find()
+      const products = await Product.find(keyword)
         .populate('category')
         .limit(limit * 1)
         .skip((page - 1) * limit)
+        .sort(sort)
         .exec()
 
       const count = await Product.count()
@@ -33,6 +34,8 @@ class ProductRepository {
       return await Product.create({
         nmProduct: payload.nmProduct,
         category: payload.category,
+        description: payload.description,
+        rating: 0,
         subCategory: payload.subCategory,
         pic,
         details: payload.details
@@ -61,6 +64,19 @@ class ProductRepository {
     }
   }
 
+  findDetailsProduct = async (detailsId: string) => {
+    try {
+      return await Product.findOne({
+        details: {
+          $elemMatch: { _id: detailsId }
+        }
+      })
+    } catch (err: any) {
+      logger.error('ERR = Find user by id ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
   updateProduct = async (category: ProductDTO, payload: ProductDTO, productImages: string[]) => {
     try {
       category.nmProduct = payload.nmProduct
@@ -68,6 +84,8 @@ class ProductRepository {
       category.subCategory = payload.subCategory
       category.details = payload.details
       category.price = payload.price
+      category.description = payload.description
+      category.rating = payload.rating
       category.stock = payload.stock
       category.size = payload.size
       category.colors = payload.colors

@@ -90,35 +90,36 @@ class UserService {
     return result
   }
 
-  addToCart = async (product: string, qty: number, userId: string) => {
+  addToCart = async (detailsId: string, qty: number, userId: string) => {
     const user = await this.userRepository.findById(userId)
     if (!user) {
       throw new NotFoundError('User Not Found')
     }
 
-    const prod = await this.productRepository.findById(product)
+    const prod = await this.productRepository.findDetailsProduct(detailsId)
     if (!prod) {
       throw new NotFoundError('Product Not Found')
     }
 
-    const result = await this.userRepository.addToCart(user, prod, qty)
+    const newProductDetail = prod.details.filter((detail: any) => detail._id.equals(detailsId)) as []
+    prod.details = [...newProductDetail]
 
+    const result = await this.userRepository.addToCart(user, prod, detailsId, qty)
     return result
   }
 
-  removeFromCart = async (product: string, userId: string) => {
+  removeFromCart = async (detailsId: string, userId: string) => {
     const user = await this.userRepository.findById(userId)
     if (!user) {
       throw new NotFoundError('User Not Found')
     }
 
-    const prod = await this.productRepository.findById(product)
+    const prod = await this.productRepository.findDetailsProduct(detailsId)
     if (!prod) {
       throw new NotFoundError('Product Not Found')
     }
 
-    const result = await this.userRepository.removeFromCart(user, prod)
-
+    const result = await this.userRepository.removeFromCart(user, prod, detailsId)
     return result
   }
 

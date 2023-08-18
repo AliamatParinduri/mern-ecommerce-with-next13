@@ -11,18 +11,20 @@ export interface OrderDTO extends Document {
   products: [
     {
       product: ProductDTO
+      subTotal: number
       qty: number
-      discount: number
     }
   ]
+  discount: number
   ongkir: number
   totalPrice: number
 }
 
 export const OrderSchema = Joi.object({
   userId: Joi.string(),
-  addressId: Joi.string().required(),
+  address: Joi.string().required(),
   products: Joi.required(),
+  discount: Joi.number().required(),
   ongkir: Joi.number().required(),
   totalPrice: Joi.number().required()
 })

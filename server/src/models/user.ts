@@ -17,7 +17,9 @@ const UserSchema = new Schema(
       type: [
         {
           product: { type: Schema.Types.ObjectId, ref: 'Product', trim: true },
-          qty: { type: Number, trim: true }
+          details: { type: Object, trim: true },
+          subTotal: { type: Number, trim: true, default: 0 },
+          qty: { type: Number, trim: true, default: 0 }
         }
       ],
       default: [],
@@ -31,7 +33,14 @@ const UserSchema = new Schema(
       ],
       default: [],
       trim: true
-    }
+    },
+    addresses: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Address',
+        trim: true
+      }
+    ]
   },
   { timestamps: true }
 )
