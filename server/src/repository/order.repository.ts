@@ -5,9 +5,9 @@ import { Order } from '@/models'
 import { InternalServerError, logger } from '@/utils'
 
 class OrderRepository {
-  getOrders = async () => {
+  getOrders = async (keyword: any) => {
     try {
-      return await Order.find()
+      return await Order.find(keyword).sort({ createdAt: 'desc' }).populate('products.product').populate('address')
     } catch (err: any) {
       logger.error('ERR = Get Order ', err.message)
       throw new InternalServerError(err.message)

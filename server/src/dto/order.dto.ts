@@ -21,7 +21,7 @@ export interface OrderDTO extends Document {
 }
 
 export const OrderSchema = Joi.object({
-  userId: Joi.string(),
+  user: Joi.string(),
   address: Joi.string().required(),
   products: Joi.required(),
   discount: Joi.number().required(),

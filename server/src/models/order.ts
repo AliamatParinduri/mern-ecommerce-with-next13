@@ -25,7 +25,7 @@ const OrderSchema = new Schema(
     },
     paymentOrder: {
       type: String,
-      enum: ['Process', 'Sending', 'Done'],
+      enum: ['Process', 'Delivery', 'Done'],
       default: 'Process'
     },
     discount: { type: Number, default: 0 },
