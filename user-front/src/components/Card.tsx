@@ -13,6 +13,7 @@ import { BaseURLProduct, BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { countTotalOrder, sortPriceList } from '@/validations/shared'
 import { useNavigate } from 'react-router-dom'
+import { ToastSuccess } from './Toast'
 
 type Props = {
   product: any
@@ -22,7 +23,7 @@ const CardComponent = ({ product }: Props) => {
   const { user, setUser }: userContextType = UserState()
   const navigate = useNavigate()
 
-  const handleWishlish = async (e: any, productId: string) => {
+  const handleWishlist = async (e: any, productId: string) => {
     e.stopPropagation()
 
     try {
@@ -49,7 +50,7 @@ const CardComponent = ({ product }: Props) => {
         ...newUserWishlist,
       })
 
-      alert('success update wishlist')
+      ToastSuccess('Success update wishlist')
     } catch (e: any) {
       return false
     }
@@ -82,26 +83,29 @@ const CardComponent = ({ product }: Props) => {
             zIndex: 10,
           }}
         >
-          <Checkbox
-            icon={
-              <FavoriteBorder
-                sx={{
-                  color: 'red',
-                  fontWeight: 'bold',
-                  fontSize: '26px',
-                }}
-              />
-            }
-            checked={
-              user!.wishlist.findIndex(
-                (wishlist: any) => wishlist.product._id === product._id
-              ) >= 0
-                ? true
-                : false
-            }
-            checkedIcon={<Favorite sx={{ color: 'red', fontSize: '26px' }} />}
-            onClick={(e) => handleWishlish(e, product._id)}
-          />
+          {user && (
+            <Checkbox
+              icon={
+                <FavoriteBorder
+                  sx={{
+                    color: 'red',
+                    fontWeight: 'bold',
+                    fontSize: '26px',
+                  }}
+                />
+              }
+              checked={
+                user &&
+                user!.wishlist.findIndex(
+                  (wishlist: any) => wishlist.product._id === product._id
+                ) >= 0
+                  ? true
+                  : false
+              }
+              checkedIcon={<Favorite sx={{ color: 'red', fontSize: '26px' }} />}
+              onClick={(e) => handleWishlist(e, product._id)}
+            />
+          )}
         </Box>
       </Box>
       <CardContent>

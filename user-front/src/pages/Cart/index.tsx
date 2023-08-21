@@ -16,6 +16,7 @@ import { formatRupiah } from '@/validations/shared'
 import { HighlightOff } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { tokens } from '@/theme'
+import { ToastSuccess } from '@/components/Toast'
 
 const Cart = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -114,7 +115,7 @@ const Cart = () => {
         ...newUserCart,
       })
 
-      alert('success delete cart')
+      ToastSuccess('Success delete cart')
     } catch (e: any) {
       return false
     }
@@ -176,7 +177,7 @@ const Cart = () => {
       setUser(updateUser)
       localStorage.setItem('userLogin', JSON.stringify(updateUser))
 
-      alert('success create order')
+      ToastSuccess('Success create order')
       setIsLoading(false)
       navigate('/dashboard')
     } catch (e: any) {
@@ -186,8 +187,13 @@ const Cart = () => {
   }
 
   return (
-    <Box p={2} display='flex' justifyContent='space-around' gap={2}>
-      <Box sx={{ width: 1 / 2 }}>
+    <Stack
+      p={2}
+      flexDirection={{ xs: 'column', md: 'row' }}
+      justifyContent='space-around'
+      gap={2}
+    >
+      <Box sx={{ width: { xs: '100%', md: 1 / 2 } }}>
         <Typography gutterBottom variant='headline' component='h1' mb={2}>
           Shopping Cart
         </Typography>
@@ -284,7 +290,7 @@ const Cart = () => {
             </Box>
           ))}
       </Box>
-      <Box sx={{ width: 1 / 3 }}>
+      <Box sx={{ width: { xs: '100%', md: 1 / 3 } }}>
         <Typography gutterBottom variant='headline' component='h1' mb={2}>
           Order Information
         </Typography>
@@ -369,7 +375,7 @@ const Cart = () => {
           </Box>
         </form>
       </Box>
-    </Box>
+    </Stack>
   )
 }
 

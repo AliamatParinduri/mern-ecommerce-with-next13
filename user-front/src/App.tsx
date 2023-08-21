@@ -1,6 +1,8 @@
+import 'react-toastify/dist/ReactToastify.css'
 import { CssBaseline, ThemeProvider } from '@mui/material'
 import { ColorModeContext, useMode } from './theme'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
 import Layout from './pages/Layout'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
@@ -11,6 +13,8 @@ import ResetPassword from './pages/ResetPassword'
 import Cart from './pages/Cart'
 import ProductDetails from './pages/ProductDetails'
 import Orders from './pages/Order'
+import Wishlist from './pages/Wishlist'
+import Profile from './pages/Profile'
 
 function App() {
   const [theme, colorMode]: any = useMode()
@@ -28,14 +32,27 @@ function App() {
               <Route path='/product/:id/details' element={<ProductDetails />} />
               <Route path='/cart' element={<Cart />} />
               <Route path='/orders' element={<Orders />} />
-              <Route path='/login' element={<Login />} />
-              <Route path='/signup' element={<Signup />} />
-              <Route path='/forgot-password' element={<ForgotPassword />} />
-              <Route path='/reset-password/:id' element={<ResetPassword />} />
+              <Route path='/wishlist' element={<Wishlist />} />
+              <Route path='/profile' element={<Profile />} />
             </Route>
+            <Route path='/login' element={<Login />} />
+            <Route path='/signup' element={<Signup />} />
+            <Route path='/forgot-password' element={<ForgotPassword />} />
+            <Route path='/reset-password/:id' element={<ResetPassword />} />
           </Routes>
         </div>
       </ThemeProvider>
+      <ToastContainer
+        position='top-right'
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </ColorModeContext.Provider>
   )
 }

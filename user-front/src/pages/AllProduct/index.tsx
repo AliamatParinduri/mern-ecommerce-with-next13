@@ -18,14 +18,15 @@ import {
 
 import CardComponent from '@/components/Card'
 import { BaseURLV1 } from '@/config/api'
-import { UserState, userContextType } from '@/context/userContext'
 import { tokens } from '@/theme'
 import { ProductsContextType, ProductsState } from '@/context/productContext'
 import { formatRupiah, onlyGetNumberValue } from '@/validations/shared'
+import Loading from '@/assets/svg/Loading'
 
 const AllProduct = () => {
   const [categories, setCategories] = useState([])
   const [subCategories, setSubCategories] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
   const [displayOrder, setDisplayOrder] = useState('')
   const [sort, setSort] = useState('')
   const [selectFilterByCategories, setSelectFilterByCategories] = useState('')
@@ -33,20 +34,13 @@ const AllProduct = () => {
   const [filterByMinPrice, setFilterByMinPrice] = useState('')
   const [filterByMaxPrice, setFilterByMaxPrice] = useState('')
   const [sortByDisplayOrder, setSortByDisplayOrder] = useState('')
-  const { user }: userContextType = UserState()
   const { products, setProducts }: ProductsContextType = ProductsState()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
 
   const getCategories = async () => {
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user!.token}`,
-        },
-      }
-
-      const { data } = await axios.get(`${BaseURLV1}/category`, config)
+      const { data } = await axios.get(`${BaseURLV1}/category`)
 
       setCategories(data.data)
     } catch (e: any) {
@@ -106,19 +100,18 @@ const AllProduct = () => {
 
   const getProducts = async () => {
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user!.token}`,
-        },
-      }
+      console.log('lewat')
+
+      setIsLoading(true)
 
       const { data } = await axios.get(
-        `${BaseURLV1}/product${sort !== '' ? `?${sort}` : ''}`,
-        config
+        `${BaseURLV1}/product${sort !== '' ? `?${sort}` : ''}`
       )
 
+      setIsLoading(false)
       setProducts(data.data.products)
     } catch (e: any) {
+      setIsLoading(false)
       return false
     }
   }
@@ -201,11 +194,11 @@ const AllProduct = () => {
 
   useEffect(() => {
     getCategories()
-  }, [user])
+  }, [])
 
   useEffect(() => {
     getProducts()
-  }, [user, sort])
+  }, [sort])
 
   return (
     <Box p={2} display='flex' flexDirection='column' gap={2}>
@@ -292,7 +285,13 @@ const AllProduct = () => {
         >
           <Box>
             <Typography variant='h5'>Categories:</Typography>
-            {categories.length > 0 && (
+            {isLoading && <Loading value='80' />}
+            {!isLoading && categories.length <= 0 && (
+              <Typography gutterBottom variant='h6' mt={2}>
+                No Categories
+              </Typography>
+            )}
+            {!isLoading && categories.length > 0 && (
               <FormGroup>
                 <FormControlLabel
                   control={
@@ -362,13 +361,21 @@ const AllProduct = () => {
           sx={{ borderRadius: '8px' }}
           flexGrow={1}
         >
-          <Grid container spacing={4}>
-            {products.map((product: any) => (
-              <Grid item xs={4} key={product._id}>
-                <CardComponent product={product} />
-              </Grid>
-            ))}
-          </Grid>
+          <Box>{isLoading && <Loading value='80' />}</Box>
+          {!isLoading && products.length <= 0 && (
+            <Typography gutterBottom variant='subtitle1'>
+              No Data
+            </Typography>
+          )}
+          {!isLoading && products.length > 0 && (
+            <Grid container spacing={4}>
+              {products.map((product: any) => (
+                <Grid item sm={12} md={6} lg={4} xl={3} key={product._id}>
+                  <CardComponent product={product} />
+                </Grid>
+              ))}
+            </Grid>
+          )}
         </Box>
       </Box>
     </Box>

@@ -13,8 +13,8 @@ import { motion } from 'framer-motion'
 
 import LoginForm from '@/components/LoginForm'
 import SocialAuth from '@/components/SocialAuth'
-import Logo from '@/components/Logo'
 import { tokens } from '@/theme'
+import Logo from '@/assets/svg/Logo'
 
 const ContentStyle = styled(Box)(({ theme }: any) => ({
   maxWidth: 480,
@@ -60,7 +60,7 @@ const Login = ({ setAuth }: any) => {
       <Container maxWidth='sm'>
         <ContentStyle>
           <Box textAlign='center' component={motion.div} {...fadeInUp}>
-            <Logo />
+            {/* <Logo /> */}
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>
               Login to your account
             </Typography>

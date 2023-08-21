@@ -1,3 +1,6 @@
+import Loading from '@/assets/svg/Loading'
+import ColorButton from '@/components/ColorButton'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 import { BaseURLProduct, BaseURLV1 } from '@/config/api'
 import { ProductsContextType, ProductsState } from '@/context/productContext'
 import { UserState, userContextType } from '@/context/userContext'
@@ -22,6 +25,7 @@ import { useParams } from 'react-router-dom'
 
 const ProductDetails = () => {
   const [product, setProduct] = useState<any>()
+  const [isLoading, setIsLoading] = useState(false)
   const [selectedImage, setSelectedImage] = useState('')
   const [detailIndex, setDetailIndex] = useState(0)
   const [value, setValue] = useState(0)
@@ -32,82 +36,60 @@ const ProductDetails = () => {
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
 
-  const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
-    width: '150px',
-    backgroundColor: '#787eff',
-    '&:hover': {
-      backgroundColor: '#484c99',
-    },
-  }))
-
   const getProduct = async () => {
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user!.token}`,
-        },
-      }
+      setIsLoading(true)
 
-      const { data } = await axios.get(`${BaseURLV1}/product/${id}`, config)
+      const { data } = await axios.get(`${BaseURLV1}/product/${id}`)
 
       setProduct(data.data)
 
       setSelectedImage(data.data.pic[0])
+      setIsLoading(false)
     } catch (e: any) {
+      setIsLoading(false)
       return false
     }
   }
 
-  const getProducts = async () => {
-    // try {
-    //   const config = {
-    //     headers: {
-    //       Authorization: `Bearer ${user!.token}`,
-    //     },
-    //   }
-    //   const { data } = await axios.get(`${BaseURLV1}/product/${id}`, config)
-    //   setProduct(data.data)
-    //   setSelectedImage(data.data.pic[0])
-    // } catch (e: any) {
-    //   return false
-    // }
-  }
-
   const handleAddToCart = async (detailsId: string) => {
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user!.token}`,
-        },
+    if (!user) {
+      ToastError('Login first, if you want add product to cart')
+    } else {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${user!.token}`,
+          },
+        }
+
+        const { data } = await axios.put(
+          `${BaseURLV1}/users/${user!._id}/addToCart`,
+          { detailsId: detailsId, qty: 1 },
+          config
+        )
+
+        const newUserCart = {
+          ...user,
+          cart: data.data.cart,
+        }
+
+        localStorage.setItem('userLogin', JSON.stringify(newUserCart))
+
+        setUser({
+          ...newUserCart,
+        })
+
+        ToastSuccess('Success Add to Cart')
+      } catch (e: any) {
+        return false
       }
-
-      const { data } = await axios.put(
-        `${BaseURLV1}/users/${user!._id}/addToCart`,
-        { detailsId: detailsId, qty: 1 },
-        config
-      )
-
-      const newUserCart = {
-        ...user,
-        cart: data.data.cart,
-      }
-
-      localStorage.setItem('userLogin', JSON.stringify(newUserCart))
-
-      setUser({
-        ...newUserCart,
-      })
-
-      alert('success Add to Cart')
-    } catch (e: any) {
-      return false
     }
   }
 
   useEffect(() => {
     getProduct()
-    getProducts()
-  }, [user])
+  }, [])
 
   function a11yProps(index: number) {
     return {
@@ -146,12 +128,22 @@ const ProductDetails = () => {
 
   return (
     <Box p={2} display='flex' flexDirection='column' gap={2}>
-      {product && (
+      {isLoading && <Loading value='80' />}
+      {!isLoading && !product && (
+        <Typography gutterBottom variant='h5'>
+          No Data
+        </Typography>
+      )}
+      {!isLoading && product && (
         <Stack gap={2}>
-          <Box display='flex' gap={4}>
+          <Box
+            display='flex'
+            flexDirection={{ xs: 'column', md: 'row' }}
+            gap={4}
+          >
             <Box
-              minWidth='35vw'
-              maxWidth='35vw'
+              minWidth={{ xs: '100%', md: '35vw' }}
+              maxWidth={{ xs: '100%', md: '35vw' }}
               bgcolor={colors.secondary[500]}
               p={2}
               sx={{ borderRadius: '8px' }}
@@ -192,24 +184,33 @@ const ProductDetails = () => {
               <Typography gutterBottom variant='headline' component='h1'>
                 {product.nmProduct}
               </Typography>
-              <Box display='flex' gap={1}>
-                <Typography variant='h5'>Sold </Typography>
-                <Typography variant='h5'>
-                  {product.details[detailIndex].totalOrder}
-                </Typography>
-              </Box>
-              <Box display='flex' gap={1}>
-                <Typography variant='h5'>Rated </Typography>
+              <Stack flexDirection={{ xs: 'row', md: 'column' }} gap={2}>
                 <Box display='flex' gap={1}>
-                  <Star sx={{ color: '#FAAF00' }} />
-                  <Typography variant='h5' ml={-0.9}>
-                    {product.details[detailIndex].rating}
+                  <Typography variant='h5'>Sold </Typography>
+                  <Typography variant='h5'>
+                    {product.details[detailIndex].totalOrder}
                   </Typography>
                 </Box>
-                <Typography variant='h5'>
-                  ({product.details[detailIndex].totalRating} review)
-                </Typography>
-              </Box>
+                <Box
+                  sx={{
+                    display: { xs: 'flex', md: 'none' },
+                  }}
+                >
+                  |
+                </Box>
+                <Box display='flex' gap={1}>
+                  <Typography variant='h5'>Rated </Typography>
+                  <Box display='flex' gap={1}>
+                    <Star sx={{ color: '#FAAF00' }} />
+                    <Typography variant='h5' ml={-0.9}>
+                      {product.details[detailIndex].rating}
+                    </Typography>
+                  </Box>
+                  <Typography variant='h5'>
+                    ({product.details[detailIndex].totalRating} review)
+                  </Typography>
+                </Box>
+              </Stack>
               <Box mt={2}>
                 <Typography variant='h5'>Type</Typography>
                 <Box display='flex' gap={1} mt={1}>
@@ -234,17 +235,19 @@ const ProductDetails = () => {
                   })}
                 </Box>
               </Box>
-              <Typography
-                variant='headline'
-                component='h1'
+              <Stack
+                flexDirection={{ xs: 'row', md: 'column' }}
+                alignItems={{ xs: 'center', md: 'start' }}
                 mt={3}
-                color='#787eff'
+                justifyContent='space-between'
               >
-                {formatRupiah(product.details[detailIndex].price, 'Rp. ')}
-              </Typography>
-              <Typography variant='h6'>
-                Stock Available: {product.details[detailIndex].stock}
-              </Typography>
+                <Typography variant='headline' component='h1' color='#787eff'>
+                  {formatRupiah(product.details[detailIndex].price, 'Rp. ')}
+                </Typography>
+                <Typography variant='h6'>
+                  Stock Available: {product.details[detailIndex].stock}
+                </Typography>
+              </Stack>
               <ColorButton
                 onClick={() =>
                   handleAddToCart(product.details[detailIndex]._id)

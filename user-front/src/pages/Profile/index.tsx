@@ -2,7 +2,10 @@
 import axios from 'axios'
 import { useState, useEffect } from 'react'
 import {
+  Avatar,
   Box,
+  Button,
+  Grid,
   Paper,
   Stack,
   Table,
@@ -17,15 +20,15 @@ import {
   useTheme,
 } from '@mui/material'
 
-import { BaseURLV1 } from '@/config/api'
+import { BaseURLUsers, BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { tokens } from '@/theme'
 import MenuUserInfo from '@/components/MenuUserInfo'
-import { formatRupiah } from '@/validations/shared'
-import { ArrowRightAlt } from '@mui/icons-material'
 import Loading from '@/assets/svg/Loading'
+import CardComponent from '@/components/Card'
+import ColorButton from '@/components/ColorButton'
 
-const Orders = () => {
+const Profile = () => {
   const [orders, setOrders] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const { user }: userContextType = UserState()
@@ -81,9 +84,17 @@ const Orders = () => {
     <Stack p={2} flexDirection={{ sx: 'column', lg: 'row' }} gap={2}>
       <MenuUserInfo />
       <Stack flexGrow={1}>
-        <Typography gutterBottom variant='h3' mb={2}>
-          My Orders
-        </Typography>
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          mb={1}
+          alignItems='center'
+        >
+          <Typography gutterBottom variant='h3' mb={2}>
+            My Profile
+          </Typography>
+          <ColorButton>Edit Profile</ColorButton>
+        </Box>
         <Box bgcolor={colors.secondary[500]} p={2} sx={{ borderRadius: '8px' }}>
           <Box>{isLoading && <Loading value='80' />}</Box>
           {!isLoading && orders.length <= 0 && (
@@ -92,40 +103,47 @@ const Orders = () => {
             </Typography>
           )}
           {!isLoading && orders.length > 0 && (
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 700 }} aria-label='customized table'>
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>Order</StyledTableCell>
-                    <StyledTableCell>Status</StyledTableCell>
-                    <StyledTableCell>Date Purchased</StyledTableCell>
-                    <StyledTableCell>Total</StyledTableCell>
-                    <StyledTableCell></StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {orders &&
-                    orders.map((order: any) => (
-                      <StyledTableRow key={order.name}>
+            <Stack gap={2}>
+              <Grid container spacing={4}>
+                <Grid item xs={6} md={4}>
+                  <Box display='flex' gap={2}>
+                    <Avatar
+                      alt={user!.fullName}
+                      src={`${BaseURLUsers}/${user!.userPic}`}
+                    />
+                    <Stack>
+                      <Typography variant='h6'>{user!.fullName}</Typography>
+                      <Typography variant='body2'>{user!.email}</Typography>
+                    </Stack>
+                  </Box>
+                </Grid>
+              </Grid>
+
+              <Box>
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 700 }} aria-label='customized table'>
+                    <TableHead>
+                      <TableRow>
+                        <StyledTableCell>Full Name</StyledTableCell>
+                        <StyledTableCell>Username</StyledTableCell>
+                        <StyledTableCell>Email</StyledTableCell>
+                        <StyledTableCell>Phone</StyledTableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <StyledTableRow>
                         <StyledTableCell component='th' scope='row'>
-                          {order._id}
+                          {user!.fullName}
                         </StyledTableCell>
-                        <StyledTableCell>{order.paymentOrder}</StyledTableCell>
-                        <StyledTableCell>{order.createdAt}</StyledTableCell>
-                        <StyledTableCell>
-                          {formatRupiah(order.totalPrice, 'Rp. ')}
-                        </StyledTableCell>
-                        <StyledTableCell
-                          onClick={() => {}}
-                          sx={{ cursor: 'pointer' }}
-                        >
-                          {<ArrowRightAlt />}
-                        </StyledTableCell>
+                        <StyledTableCell>{user!.username}</StyledTableCell>
+                        <StyledTableCell>{user!.email}</StyledTableCell>
+                        <StyledTableCell>{user!.noHP}</StyledTableCell>
                       </StyledTableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            </Stack>
           )}
         </Box>
       </Stack>
@@ -133,4 +151,4 @@ const Orders = () => {
   )
 }
 
-export default Orders
+export default Profile
