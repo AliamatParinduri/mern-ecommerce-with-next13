@@ -59,15 +59,11 @@ const Wishlist = () => {
           )}
           {!isLoading && orders.length > 0 && (
             <Grid container spacing={4}>
-              {user?.wishlist.map(({ product }: any) => {
-                console.log(product)
-
-                return (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
-                    <CardComponent product={product} />
-                  </Grid>
-                )
-              })}
+              {user?.wishlist.map(({ product }: any) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+                  <CardComponent product={product} />
+                </Grid>
+              ))}
             </Grid>
           )}
         </Box>

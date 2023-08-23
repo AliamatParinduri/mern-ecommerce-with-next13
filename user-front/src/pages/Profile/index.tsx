@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import {
   Avatar,
   Box,
-  Button,
   Grid,
   Paper,
   Stack,
@@ -25,7 +24,6 @@ import { UserState, userContextType } from '@/context/userContext'
 import { tokens } from '@/theme'
 import MenuUserInfo from '@/components/MenuUserInfo'
 import Loading from '@/assets/svg/Loading'
-import CardComponent from '@/components/Card'
 import ColorButton from '@/components/ColorButton'
 
 const Profile = () => {

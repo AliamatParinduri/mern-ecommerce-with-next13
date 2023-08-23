@@ -40,10 +40,9 @@ const Dashboard = () => {
   return (
     <Stack py={2} px={4} gap={2}>
       <Box
-        height='90vh'
+        height={{ xs: '70vh', sm: '85vh', md: '90vh' }}
         display='flex'
         alignItems='center'
-        justifyContent='start'
         bgcolor={colors.secondary[500]}
         my={-2}
         mx={-4}
@@ -55,11 +54,15 @@ const Dashboard = () => {
           flexDirection='column'
           py={2}
           px={4}
+          textAlign={{ xs: 'center', md: 'left' }}
           minWidth={{ xs: '100%', md: '50%' }}
           maxWidth={{ xs: '100%', md: '50%' }}
           gap={3}
         >
-          <Typography variant='h1' sx={{ fontSize: '50px' }}>
+          <Typography
+            variant='h1'
+            sx={{ fontSize: { xs: '25px', sm: '35px', md: '50px' } }}
+          >
             50% Off For Your First Shopping
           </Typography>
           <Typography variant='subtitle1'>
@@ -78,15 +81,14 @@ const Dashboard = () => {
             View All Products
           </Button>
         </Box>
-        <Box>
-          <img
-            src={Landing1}
-            alt='test'
-            height='100%'
-            style={{
-              margin: 'auto',
-              maxWidth: '100%',
+        <Box textAlign='center'>
+          <Box
+            component='img'
+            sx={{
+              maxWidth: { xs: '50%', sm: '75%', md: '100%' },
             }}
+            alt='The house from the offer.'
+            src={Landing1}
           />
         </Box>
       </Box>
@@ -118,11 +120,15 @@ const Dashboard = () => {
         )}
         {!isLoading && products.length > 0 && (
           <Grid container spacing={4}>
-            {products.map((product: any) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
-                <CardComponent product={product} />
-              </Grid>
-            ))}
+            {products.map((product: any, i: number) => {
+              if (i < 4) {
+                return (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+                    <CardComponent product={product} />
+                  </Grid>
+                )
+              }
+            })}
           </Grid>
         )}
       </Stack>
@@ -180,18 +186,22 @@ const Dashboard = () => {
           </Typography>
         </Box>
         {isLoading && <Loading value='80' />}
-        {!isLoading && products.length <= 0 && (
+        {!isLoading && (products.length <= 0 || products.length <= 4) && (
           <Typography gutterBottom variant='h5'>
             No Data
           </Typography>
         )}
-        {!isLoading && products.length > 0 && (
+        {!isLoading && products.length > 4 && (
           <Grid container spacing={4}>
-            {products!.map((product: any) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
-                <CardComponent product={product} />
-              </Grid>
-            ))}
+            {products!.map((product: any, i: number) => {
+              if (i > 3) {
+                return (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+                    <CardComponent product={product} />
+                  </Grid>
+                )
+              }
+            })}
           </Grid>
         )}
       </Stack>

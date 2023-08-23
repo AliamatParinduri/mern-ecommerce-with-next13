@@ -99,7 +99,7 @@ const Orders = () => {
                     <StyledTableCell>Order</StyledTableCell>
                     <StyledTableCell>Status</StyledTableCell>
                     <StyledTableCell>Date Purchased</StyledTableCell>
-                    <StyledTableCell>Total</StyledTableCell>
+                    <StyledTableCell>Total Order</StyledTableCell>
                     <StyledTableCell></StyledTableCell>
                   </TableRow>
                 </TableHead>

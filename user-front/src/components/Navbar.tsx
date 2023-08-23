@@ -18,6 +18,7 @@ import {
   LightModeOutlined,
   ShoppingBagOutlined,
   SearchOutlined,
+  Login,
 } from '@mui/icons-material'
 import { useTheme } from '@mui/material'
 import { ColorModeContext, tokens } from '@/theme'
@@ -183,6 +184,11 @@ const Navbar = () => {
                   <LightModeOutlined />
                 )}
               </IconButton>
+              {!user && (
+                <IconButton onClick={() => navigate('/login')}>
+                  <Login />
+                </IconButton>
+              )}
               {user && (
                 <IconButton onClick={() => navigate('/cart')}>
                   <Badge

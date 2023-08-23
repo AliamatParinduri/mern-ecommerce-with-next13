@@ -15,6 +15,9 @@ import ProductDetails from './pages/ProductDetails'
 import Orders from './pages/Order'
 import Wishlist from './pages/Wishlist'
 import Profile from './pages/Profile'
+import Addresses from './pages/Addresses'
+import CreateAddress from './pages/Addresses/create'
+import EditAddress from './pages/Addresses/edit'
 
 function App() {
   const [theme, colorMode]: any = useMode()
@@ -34,6 +37,9 @@ function App() {
               <Route path='/orders' element={<Orders />} />
               <Route path='/wishlist' element={<Wishlist />} />
               <Route path='/profile' element={<Profile />} />
+              <Route path='/addresses' element={<Addresses />} />
+              <Route path='/addresses/create' element={<CreateAddress />} />
+              <Route path='/addresses/:id/edit' element={<EditAddress />} />
             </Route>
             <Route path='/login' element={<Login />} />
             <Route path='/signup' element={<Signup />} />

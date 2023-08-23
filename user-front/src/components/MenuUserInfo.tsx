@@ -59,7 +59,7 @@ const MenuUserInfo = () => {
   ]
 
   useEffect(() => {
-    setUri(router.pathname)
+    setUri('/' + router.pathname.split('/')[1])
   }, [])
 
   return (
