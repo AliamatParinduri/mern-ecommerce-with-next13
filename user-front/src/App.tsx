@@ -13,6 +13,7 @@ import ResetPassword from './pages/ResetPassword'
 import Cart from './pages/Cart'
 import ProductDetails from './pages/ProductDetails'
 import Orders from './pages/Order'
+import OrderDetail from './pages/OrderDetail'
 import Wishlist from './pages/Wishlist'
 import Profile from './pages/Profile'
 import Addresses from './pages/Addresses'
@@ -35,6 +36,7 @@ function App() {
               <Route path='/product/:id/details' element={<ProductDetails />} />
               <Route path='/cart' element={<Cart />} />
               <Route path='/orders' element={<Orders />} />
+              <Route path='/orders/:id' element={<OrderDetail />} />
               <Route path='/wishlist' element={<Wishlist />} />
               <Route path='/profile' element={<Profile />} />
               <Route path='/addresses' element={<Addresses />} />

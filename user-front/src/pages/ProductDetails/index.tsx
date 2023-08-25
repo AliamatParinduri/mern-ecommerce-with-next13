@@ -1,37 +1,39 @@
 import Loading from '@/assets/svg/Loading'
 import ColorButton from '@/components/ColorButton'
 import { ToastError, ToastSuccess } from '@/components/Toast'
-import { BaseURLProduct, BaseURLV1 } from '@/config/api'
-import { ProductsContextType, ProductsState } from '@/context/productContext'
+import { BaseURLProduct, BaseURLUsers, BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { tokens } from '@/theme'
-import { formatRupiah } from '@/validations/shared'
+import { ProductsDTO, RatingsDTO, formatRupiah } from '@/validations/shared'
 import { Star } from '@mui/icons-material'
 import {
   Box,
   Button,
-  ButtonProps,
   CardMedia,
+  Grid,
+  Rating,
   Stack,
   Tab,
   Tabs,
   Typography,
-  styled,
   useTheme,
 } from '@mui/material'
+import parse from 'html-react-parser'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import CardComponent from '@/components/Card'
 
 const ProductDetails = () => {
   const [product, setProduct] = useState<any>()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedImage, setSelectedImage] = useState('')
   const [detailIndex, setDetailIndex] = useState(0)
+  const [ratings, setRatings] = useState<RatingsDTO[]>()
+  const [productsRelevant, setProductsRelevant] = useState<ProductsDTO[]>([])
   const [value, setValue] = useState(0)
 
   const { user, setUser }: userContextType = UserState()
-  const { products }: ProductsContextType = ProductsState()
   const { id } = useParams()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
@@ -43,8 +45,8 @@ const ProductDetails = () => {
       const { data } = await axios.get(`${BaseURLV1}/product/${id}`)
 
       setProduct(data.data)
-
       setSelectedImage(data.data.pic[0])
+
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
@@ -89,7 +91,14 @@ const ProductDetails = () => {
 
   useEffect(() => {
     getProduct()
-  }, [])
+  }, [id])
+
+  useEffect(() => {
+    if (product) {
+      getProductsRelevant(product.category)
+      getProductReviews(detailIndex, product)
+    }
+  }, [product])
 
   function a11yProps(index: number) {
     return {
@@ -120,6 +129,46 @@ const ProductDetails = () => {
         )}
       </div>
     )
+  }
+
+  const getProductsRelevant = async (categoryId: string) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user!.token}`,
+        },
+      }
+
+      const { data } = await axios.get(
+        `${BaseURLV1}/product?categories=${categoryId}`,
+        config
+      )
+
+      setProductsRelevant(data.data.products)
+    } catch (e: any) {
+      return false
+    }
+  }
+
+  const getProductReviews = async (i: number, product: any) => {
+    setDetailIndex(i)
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user!.token}`,
+        },
+      }
+
+      const { data } = await axios.get(
+        `${BaseURLV1}/rating?detailsId=${product.details[i]._id}`,
+        config
+      )
+
+      setRatings(data.data)
+    } catch (e: any) {
+      return false
+    }
   }
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -218,7 +267,7 @@ const ProductDetails = () => {
                     return i === detailIndex ? (
                       <ColorButton
                         key={detail._id}
-                        onClick={() => setDetailIndex(i)}
+                        onClick={() => getProductReviews(i, product)}
                       >
                         <Typography>{`${detail.color} - ${detail.size}`}</Typography>
                       </ColorButton>
@@ -227,7 +276,7 @@ const ProductDetails = () => {
                         key={detail._id}
                         variant='contained'
                         color='secondary'
-                        onClick={() => setDetailIndex(i)}
+                        onClick={() => getProductReviews(i, product)}
                       >
                         <Typography>{`${detail.color} - ${detail.size}`}</Typography>
                       </Button>
@@ -283,9 +332,7 @@ const ProductDetails = () => {
               </Tabs>
             </Box>
             <CustomTabPanel value={value} index={0}>
-              <Typography variant='h5' ml={-0.9}>
-                {product.description}
-              </Typography>
+              <Box>{parse(product.description)}</Box>
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1}>
               {product.details[detailIndex].totalRating < 1 ? (
@@ -293,23 +340,65 @@ const ProductDetails = () => {
                   No Review
                 </Typography>
               ) : (
-                <Box>Review</Box>
+                <Box>
+                  {ratings &&
+                    ratings.map((rating) => {
+                      return (
+                        <Stack key={rating._id} gap={1}>
+                          <Box display='flex' gap={1} alignItems='flex-start'>
+                            <CardMedia
+                              crossOrigin='anonymous'
+                              component='img'
+                              image={
+                                product &&
+                                `${BaseURLUsers}/${rating.user.userPic}`
+                              }
+                              alt='Paella dish'
+                              sx={{
+                                borderRadius: '50%',
+                                margin: '.25rem',
+                                cursor: 'pointer',
+                                width: '40px',
+                                height: '40px',
+                              }}
+                            />
+                            <Stack>
+                              <Typography variant='h6'>
+                                {rating.user.fullName}
+                              </Typography>
+                              <Rating
+                                name='half-rating-read'
+                                defaultValue={Number(rating.rating)}
+                                precision={0.1}
+                                readOnly
+                                size='small'
+                              />
+                            </Stack>
+                          </Box>
+                          <Typography variant='subtitle2' fontWeight='medium'>
+                            {rating.komentar}
+                          </Typography>
+                        </Stack>
+                      )
+                    })}
+                  {!ratings && <Box>testing</Box>}
+                </Box>
               )}
             </CustomTabPanel>
           </Box>
 
-          <Box p={2} sx={{ borderRadius: '8px' }}>
-            <Typography variant='h5' ml={-0.9}>
-              Product Relavant
-            </Typography>
-            {/* <Grid container spacing={4}>
-            {products.map((product: any) => (
-              <Grid item xs={4} md={3} key={product._id}>
-                <CardComponent product={product} />
-              </Grid>
-            ))}
-          </Grid> */}
-          </Box>
+          <Stack p={2} sx={{ borderRadius: '8px' }} gap={1}>
+            <Typography variant='h5'>Product Relavant</Typography>
+            <Grid container spacing={4}>
+              {productsRelevant.map((product: any) => {
+                return (
+                  <Grid item xs={4} md={3} key={product._id}>
+                    <CardComponent product={product} />
+                  </Grid>
+                )
+              })}
+            </Grid>
+          </Stack>
         </Stack>
       )}
     </Box>

@@ -124,7 +124,7 @@ const Cart = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault()
 
-    setIsLoading(true)
+    // setIsLoading(true)
     try {
       const config = {
         headers: {
@@ -159,11 +159,16 @@ const Cart = () => {
         }
       })
 
+      const today = new Date()
+      const nextThreeDays = new Date(today.setDate(today.getDate() + 3))
+
       const payload = {
         user: user!._id,
         address: address._id,
         products,
         discount: 0,
+        paymentStatus: 'Paid',
+        estimatedDeliveryDate: nextThreeDays,
         ongkir: 0,
         totalPrice: orderTotal,
       }

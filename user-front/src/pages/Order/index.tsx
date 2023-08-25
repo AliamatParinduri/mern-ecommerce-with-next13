@@ -24,6 +24,7 @@ import MenuUserInfo from '@/components/MenuUserInfo'
 import { formatRupiah } from '@/validations/shared'
 import { ArrowRightAlt } from '@mui/icons-material'
 import Loading from '@/assets/svg/Loading'
+import { useNavigate } from 'react-router-dom'
 
 const Orders = () => {
   const [orders, setOrders] = useState([])
@@ -31,6 +32,7 @@ const Orders = () => {
   const { user }: userContextType = UserState()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
+  const navigate = useNavigate()
 
   const getOrders = async () => {
     try {
@@ -100,7 +102,7 @@ const Orders = () => {
                     <StyledTableCell>Status</StyledTableCell>
                     <StyledTableCell>Date Purchased</StyledTableCell>
                     <StyledTableCell>Total Order</StyledTableCell>
-                    <StyledTableCell></StyledTableCell>
+                    <StyledTableCell>Actions</StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -116,7 +118,7 @@ const Orders = () => {
                           {formatRupiah(order.totalPrice, 'Rp. ')}
                         </StyledTableCell>
                         <StyledTableCell
-                          onClick={() => {}}
+                          onClick={() => navigate(`/orders/${order._id}`)}
                           sx={{ cursor: 'pointer' }}
                         >
                           {<ArrowRightAlt />}

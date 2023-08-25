@@ -135,7 +135,7 @@ const Addresses = () => {
                     <StyledTableCell>Kab/Kota</StyledTableCell>
                     <StyledTableCell>Provinsi</StyledTableCell>
                     <StyledTableCell>Full Address</StyledTableCell>
-                    <StyledTableCell></StyledTableCell>
+                    <StyledTableCell>Actions</StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

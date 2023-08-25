@@ -100,8 +100,6 @@ const AllProduct = () => {
 
   const getProducts = async () => {
     try {
-      console.log('lewat')
-
       setIsLoading(true)
 
       const { data } = await axios.get(
