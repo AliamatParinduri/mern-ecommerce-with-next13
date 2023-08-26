@@ -344,7 +344,7 @@ const ProductDetails = () => {
                   {ratings &&
                     ratings.map((rating) => {
                       return (
-                        <Stack key={rating._id} gap={1}>
+                        <Stack key={rating._id} mb={2}>
                           <Box display='flex' gap={1} alignItems='flex-start'>
                             <CardMedia
                               crossOrigin='anonymous'

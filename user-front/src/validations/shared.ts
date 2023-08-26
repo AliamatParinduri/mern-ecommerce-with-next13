@@ -50,9 +50,10 @@ export type ProductsDTO = {
 
 export type RatingsDTO = {
   _id?: string
-  user: userDTO
+  user?: userDTO
   komentar: string
   rating: string
+  detailsId: string
 }
 
 export type OrderDTO = {
@@ -74,6 +75,8 @@ export type OrderDTO = {
   ongkir: number
   totalPrice: number
   createdAt?: string
+  updatedAt?: string
+  __v?: string
 }
 
 export const ucWords = (text: string) => {

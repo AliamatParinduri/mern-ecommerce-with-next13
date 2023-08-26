@@ -38,12 +38,19 @@ import {
 } from '@mui/icons-material'
 import Loading from '@/assets/svg/Loading'
 import { useNavigate, useParams } from 'react-router-dom'
-import { OrderDTO, formatRupiah, isUserLogin } from '@/validations/shared'
+import {
+  OrderDTO,
+  RatingsDTO,
+  formatRupiah,
+  isUserLogin,
+} from '@/validations/shared'
 import { ToastSuccess } from '@/components/Toast'
 import ColorButton from '@/components/ColorButton'
 
 const OrderDetail = () => {
   const [order, setOrder] = useState<OrderDTO>()
+  const [ratings, setRatings] = useState<RatingsDTO[]>([])
+  const [ratingExists, setRatingExists] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
@@ -52,13 +59,18 @@ const OrderDetail = () => {
   let { user }: userContextType = UserState()
   let subTotal = 0
   const [open, setOpen] = useState(false)
+  const [open2, setOpen2] = useState(false)
   const [userId, setUserId] = useState('')
   const [orderId, setOrderId] = useState('')
   const [productId, setProductId] = useState('')
   const [detailsId, setDetailsId] = useState('')
   const [comment, setComment] = useState('')
   const [rating, setRating] = useState('0')
-  const handleClose = () => setOpen(false)
+
+  const handleClose = () => {
+    setOpen(false)
+    setOpen2(false)
+  }
 
   const getOrderById = async () => {
     try {
@@ -73,27 +85,66 @@ const OrderDetail = () => {
 
       setIsLoading(false)
       setOrder(data.data)
+      setUserId(data.data.user._id)
+      setOrderId(data.data._id)
     } catch (e: any) {
       setIsLoading(false)
       return false
     }
   }
 
-  const writeReview = (
-    userId: string,
-    orderId: string,
-    productId: string,
-    detailsId: string
-  ) => {
-    setUserId(userId)
-    setOrderId(orderId)
+  const getRatingProducts = async () => {
+    try {
+      setIsLoading(true)
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user!.token}`,
+        },
+      }
+
+      const { data } = await axios.get(
+        `${BaseURLV1}/rating?user=${userId}&order=${orderId}`,
+        config
+      )
+
+      const ratings = data.data.map((data: RatingsDTO) => {
+        return {
+          detailsId: data.detailsId,
+          komentar: data.komentar,
+          rating: data.rating,
+        }
+      })
+      const detailsId = data.data.map((data: RatingsDTO) => data.detailsId)
+
+      setRatings(ratings)
+      setRatingExists(detailsId)
+      setIsLoading(false)
+    } catch (e: any) {
+      setIsLoading(false)
+      return false
+    }
+  }
+
+  const writeReview = (productId: string, detailsId: string) => {
     setProductId(productId)
     setDetailsId(detailsId)
+    setComment('')
+    setRating('0')
 
     setOpen(true)
   }
 
-  const handleCreateReview = async () => {
+  const seeReview = (detailsId: string) => {
+    ratings?.map((rating: RatingsDTO) => {
+      if (rating.detailsId === detailsId) {
+        setComment(rating.komentar)
+        setRating(rating.rating)
+      }
+    })
+    setOpen2(true)
+  }
+
+  const handleCreateRating = async () => {
     try {
       setIsLoading(true)
       const config = {
@@ -113,9 +164,19 @@ const OrderDetail = () => {
 
       const { data } = await axios.post(`${BaseURLV1}/rating`, payload, config)
 
+      const newRatings = [
+        ...ratings,
+        {
+          detailsId,
+          komentar: comment,
+          rating,
+        },
+      ]
+
+      const newRatingExists = [...ratingExists, detailsId]
+      setRatings(newRatings)
+      setRatingExists(newRatingExists)
       setIsLoading(false)
-      setUserId('')
-      setOrderId('')
       setProductId('')
       setDetailsId('')
       setRating('0')
@@ -134,10 +195,56 @@ const OrderDetail = () => {
     getOrderById()
   }, [])
 
+  useEffect(() => {
+    if (order && order.paymentOrder === 'Done') {
+      getRatingProducts()
+    }
+  }, [order])
+
   const updateOrderReceived = async () => {
     const text = 'Are you sure update your payment order ?'
     if (confirm(text) == true) {
-      alert('Very soon')
+      updatePaymentOrder()
+    }
+  }
+
+  const updatePaymentOrder = async () => {
+    setIsLoading(true)
+
+    try {
+      const paymentOrder = 'Done'
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user!.token}`,
+        },
+      }
+
+      delete order!._id
+      delete order!.createdAt
+      delete order!.updatedAt
+      delete order!.__v
+
+      const payload = {
+        ...order,
+        address: order!.address._id,
+        user: order!.user._id,
+        paymentOrder,
+        deliveredOrder: new Date(),
+      }
+
+      const { data } = await axios.put(
+        `${BaseURLV1}/order/${id}`,
+        payload,
+        config
+      )
+      setOrder(data.data)
+
+      setIsLoading(false)
+      ToastSuccess('success update status order')
+    } catch (e: any) {
+      setIsLoading(false)
+      return false
     }
   }
 
@@ -377,22 +484,28 @@ const OrderDetail = () => {
                         <StyledTableCell>{`Product properties: ${product.details.size} (${product.details.color})`}</StyledTableCell>
                         {order.deliveredOrder &&
                           order.paymentOrder === 'Done' && (
-                            <StyledTableCell
-                              onClick={() =>
-                                writeReview(
-                                  order.user._id,
-                                  order._id,
-                                  product.product._id,
-                                  product.details._id
-                                )
-                              }
-                              sx={{
-                                cursor: 'pointer',
-                                textDecoration: 'underline',
-                                color: '#787eff',
-                              }}
-                            >
-                              Write a Review
+                            <StyledTableCell>
+                              <Box
+                                onClick={() => {
+                                  ratingExists &&
+                                  ratingExists.includes(product.details._id)
+                                    ? seeReview(product.details._id)
+                                    : writeReview(
+                                        product.product._id,
+                                        product.details._id
+                                      )
+                                }}
+                                sx={{
+                                  cursor: 'pointer',
+                                  textDecoration: 'underline',
+                                  color: '#787eff',
+                                }}
+                              >
+                                {ratingExists &&
+                                ratingExists.includes(product.details._id)
+                                  ? 'See a Review'
+                                  : 'Write a Review'}
+                              </Box>
                             </StyledTableCell>
                           )}
                       </StyledTableRow>
@@ -546,11 +659,11 @@ const OrderDetail = () => {
             />
             <Stack gap={2}>
               <Stack>
-                <label>Rating</label>
+                <label>Rating : </label>
                 <Rating
                   name='size-large'
                   size='large'
-                  defaultValue={Number.toString()}
+                  defaultValue={Number(rating)}
                   onChange={(e: any) => setRating(e.target.value)}
                 />
               </Stack>
@@ -564,15 +677,85 @@ const OrderDetail = () => {
                   value={comment}
                 />
               </Box>
+              <Button
+                fullWidth
+                type='button'
+                onClick={handleCreateRating}
+                variant='contained'
+              >
+                {isLoading ? 'loading...' : 'Create Review'}
+              </Button>
+            </Stack>
+          </Box>
+        </Fade>
+      </Modal>
+      <Modal
+        aria-labelledby='transition-modal-title'
+        aria-describedby='transition-modal-description'
+        open={open2}
+        onClose={handleClose}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={open2}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 400,
+              bgcolor: 'background.paper',
+              border: '2px solid #000',
+              boxShadow: 24,
+              p: 4,
+            }}
+          >
+            <Box
+              display='flex'
+              justifyContent='space-between'
+              alignItems='center'
+            >
+              <Typography
+                id='transition-modal-title'
+                variant='h5'
+                component='h2'
+                mb={1}
+              >
+                Product Rating
+              </Typography>
+              <IconButton onClick={handleClose}>
+                <Close />
+              </IconButton>
+            </Box>
+            <Divider
+              component='div'
+              sx={{
+                borderWidth: 2,
+                height: '4px',
+                mb: 3,
+                width: '100%',
+              }}
+            />
+            <Stack gap={2}>
               <Stack>
-                <Button
-                  fullWidth
-                  type='button'
-                  onClick={handleCreateReview}
-                  variant='contained'
-                >
-                  {isLoading ? 'loading...' : 'Create Review'}
-                </Button>
+                <label>Rating : </label>
+                <Rating
+                  name='size-large'
+                  size='large'
+                  readOnly={true}
+                  defaultValue={Number(rating)}
+                  onChange={(e: any) => setRating(e.target.value)}
+                />
+              </Stack>
+              <Stack gap={1}>
+                <label>Comment : </label>
+                <Typography gutterBottom variant='subtitle2'>
+                  {comment}
+                </Typography>
               </Stack>
             </Stack>
           </Box>
