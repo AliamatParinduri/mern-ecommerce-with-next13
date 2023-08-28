@@ -50,6 +50,8 @@ const ProductDetails = () => {
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed get Product Data')
       return false
     }
   }
@@ -82,8 +84,10 @@ const ProductDetails = () => {
           ...newUserCart,
         })
 
-        ToastSuccess('Success Add to Cart')
+        ToastSuccess('Success Add Product to Cart')
       } catch (e: any) {
+        const description = e.response?.data?.description
+        ToastError(description ? description : 'Failed Add Products to Cart')
         return false
       }
     }
@@ -95,7 +99,7 @@ const ProductDetails = () => {
 
   useEffect(() => {
     if (product) {
-      getProductsRelevant(product.category)
+      getProductsRelevant(product.category._id)
       getProductReviews(detailIndex, product)
     }
   }, [product])
@@ -146,6 +150,8 @@ const ProductDetails = () => {
 
       setProductsRelevant(data.data.products)
     } catch (e: any) {
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed get Products Relevant')
       return false
     }
   }
@@ -167,6 +173,8 @@ const ProductDetails = () => {
 
       setRatings(data.data)
     } catch (e: any) {
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed get Products Ratings')
       return false
     }
   }
@@ -230,7 +238,18 @@ const ProductDetails = () => {
               </Box>
             </Box>
             <Stack flexGrow={1} mt={2} gap={1}>
-              <Typography gutterBottom variant='headline' component='h1'>
+              <Typography
+                gutterBottom
+                variant='headline'
+                component='h1'
+                sx={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: '2',
+                  WebkitBoxOrient: 'vertical',
+                }}
+              >
                 {product.nmProduct}
               </Typography>
               <Stack flexDirection={{ xs: 'row', md: 'column' }} gap={2}>
@@ -297,15 +316,17 @@ const ProductDetails = () => {
                   Stock Available: {product.details[detailIndex].stock}
                 </Typography>
               </Stack>
-              <ColorButton
-                onClick={() =>
-                  handleAddToCart(product.details[detailIndex]._id)
-                }
-              >
-                <Typography variant='headline' component='h3'>
-                  Add To Cart
-                </Typography>
-              </ColorButton>
+              {user && (
+                <ColorButton
+                  onClick={() =>
+                    handleAddToCart(product.details[detailIndex]._id)
+                  }
+                >
+                  <Typography variant='headline' component='h3'>
+                    Add To Cart
+                  </Typography>
+                </ColorButton>
+              )}
             </Stack>
           </Box>
 
@@ -381,7 +402,6 @@ const ProductDetails = () => {
                         </Stack>
                       )
                     })}
-                  {!ratings && <Box>testing</Box>}
                 </Box>
               )}
             </CustomTabPanel>

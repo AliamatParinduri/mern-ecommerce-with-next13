@@ -21,18 +21,20 @@ import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { tokens } from '@/theme'
 import MenuUserInfo from '@/components/MenuUserInfo'
-import { formatRupiah } from '@/validations/shared'
+import { formatRupiah, isUserLogin } from '@/validations/shared'
 import { ArrowRightAlt } from '@mui/icons-material'
 import Loading from '@/assets/svg/Loading'
 import { useNavigate } from 'react-router-dom'
+import { ToastError } from '@/components/Toast'
 
 const Orders = () => {
   const [orders, setOrders] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const { user }: userContextType = UserState()
+  const { setUser }: userContextType = UserState()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
   const navigate = useNavigate()
+  let { user }: userContextType = UserState()
 
   const getOrders = async () => {
     try {
@@ -52,13 +54,29 @@ const Orders = () => {
       setOrders(data.data)
     } catch (e: any) {
       setIsLoading(false)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userLogin')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        navigate('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
       return false
     }
   }
 
   useEffect(() => {
+    if (isUserLogin(user)) {
+      user = isUserLogin(user)
+    }
+
     getOrders()
-  }, [user])
+  }, [])
 
   const StyledTableCell = styled(TableCell)(({ theme: any }) => ({
     [`&.${tableCellClasses.head}`]: {

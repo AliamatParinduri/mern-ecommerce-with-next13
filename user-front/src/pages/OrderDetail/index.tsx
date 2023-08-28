@@ -44,7 +44,7 @@ import {
   formatRupiah,
   isUserLogin,
 } from '@/validations/shared'
-import { ToastSuccess } from '@/components/Toast'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 import ColorButton from '@/components/ColorButton'
 
 const OrderDetail = () => {
@@ -56,6 +56,7 @@ const OrderDetail = () => {
   const colors = tokens(theme.palette.mode)
   const { id } = useParams()
   const navigate = useNavigate()
+  const { setUser }: userContextType = UserState()
   let { user }: userContextType = UserState()
   let subTotal = 0
   const [open, setOpen] = useState(false)
@@ -89,6 +90,18 @@ const OrderDetail = () => {
       setOrderId(data.data._id)
     } catch (e: any) {
       setIsLoading(false)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userLogin')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        navigate('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
       return false
     }
   }
@@ -121,6 +134,10 @@ const OrderDetail = () => {
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
+      const description = e.response?.data?.description
+      ToastError(
+        description ? description : 'Failed get Rating Product Details'
+      )
       return false
     }
   }
@@ -185,12 +202,16 @@ const OrderDetail = () => {
       ToastSuccess('Success write Review')
     } catch (e: any) {
       setIsLoading(false)
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed Create Rating Product')
       return false
     }
   }
 
   useEffect(() => {
-    isUserLogin(user) ? (user = isUserLogin(user)) : navigate('/login')
+    if (isUserLogin(user)) {
+      user = isUserLogin(user)
+    }
 
     getOrderById()
   }, [])
@@ -244,6 +265,8 @@ const OrderDetail = () => {
       ToastSuccess('success update status order')
     } catch (e: any) {
       setIsLoading(false)
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed Update Status Order')
       return false
     }
   }

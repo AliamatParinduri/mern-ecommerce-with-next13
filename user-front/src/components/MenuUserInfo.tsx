@@ -64,7 +64,11 @@ const MenuUserInfo = () => {
 
   return (
     <Box
-      width={{
+      minWidth={{
+        xs: '100%',
+        lg: '250px',
+      }}
+      maxWidth={{
         xs: '100%',
         lg: '250px',
       }}

@@ -4,8 +4,9 @@ import axios from 'axios'
 import { UserState, userContextType } from '@/context/userContext'
 import { BaseURLV1 } from '@/config/api'
 import { Box, Button, FormLabel, Stack, TextField } from '@mui/material'
-import { ToastSuccess } from './Toast'
+import { ToastError, ToastSuccess } from './Toast'
 import { useNavigate, useParams } from 'react-router-dom'
+import { isUserLogin } from '@/validations/shared'
 
 type Props = {
   title: string
@@ -17,9 +18,9 @@ const AddressForm = ({ title }: Props) => {
   const [kabKot, setKabKot] = useState('')
   const [provinsi, setProvinsi] = useState('')
   const [fullAddress, setFullAddress] = useState('')
-  const { user }: userContextType = UserState()
   const navigate = useNavigate()
   const { id } = useParams()
+  let { user }: userContextType = UserState()
 
   const getAddress = async (id: string) => {
     try {
@@ -39,6 +40,8 @@ const AddressForm = ({ title }: Props) => {
       setFullAddress(data.data.fullAddress)
     } catch (e: any) {
       setIsLoading(false)
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed get Address Data')
       return false
     }
   }
@@ -69,6 +72,8 @@ const AddressForm = ({ title }: Props) => {
       navigate('/addresses')
     } catch (e: any) {
       setIsLoading(false)
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed create Address Data')
       return false
     }
   }
@@ -102,11 +107,17 @@ const AddressForm = ({ title }: Props) => {
       navigate('/addresses')
     } catch (e: any) {
       setIsLoading(false)
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed update Address')
       return false
     }
   }
 
   useEffect(() => {
+    if (isUserLogin(user)) {
+      user = isUserLogin(user)
+    }
+
     if (id) getAddress(id)
   }, [])
 

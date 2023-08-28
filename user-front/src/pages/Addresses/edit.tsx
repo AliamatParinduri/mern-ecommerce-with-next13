@@ -1,16 +1,30 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { useEffect } from 'react'
 import { Box, Stack, Typography, useTheme } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 
 import { tokens } from '@/theme'
 import MenuUserInfo from '@/components/MenuUserInfo'
 import AddressForm from '@/components/AddressForm'
 import { ArrowBack } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import { ToastError } from '@/components/Toast'
+import { UserState, userContextType } from '@/context/userContext'
 
 const EditAddress = () => {
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
   const navigate = useNavigate()
+  const { user, setUser }: userContextType = UserState()
+
+  useEffect(() => {
+    const userLogin = localStorage.getItem('userLogin')
+
+    if (!user && !userLogin) {
+      setUser(null)
+      ToastError('Your session has ended, Please login again')
+      navigate('/login')
+    }
+  }, [user])
 
   return (
     <Stack p={2} flexDirection={{ sx: 'column', lg: 'row' }} gap={2}>

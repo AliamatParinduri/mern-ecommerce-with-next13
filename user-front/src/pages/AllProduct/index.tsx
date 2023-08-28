@@ -22,11 +22,15 @@ import { tokens } from '@/theme'
 import { ProductsContextType, ProductsState } from '@/context/productContext'
 import { formatRupiah, onlyGetNumberValue } from '@/validations/shared'
 import Loading from '@/assets/svg/Loading'
+import { ToastError } from '@/components/Toast'
 
 const AllProduct = () => {
   const [categories, setCategories] = useState([])
   const [subCategories, setSubCategories] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false)
+  const [checkedAllProduct, setCheckedAllProduct] = useState(true)
+  const [checkedCategories, setCheckedCategories] = useState<string[]>([])
   const [displayOrder, setDisplayOrder] = useState('')
   const [sort, setSort] = useState('')
   const [selectFilterByCategories, setSelectFilterByCategories] = useState('')
@@ -40,23 +44,28 @@ const AllProduct = () => {
 
   const getCategories = async () => {
     try {
+      setIsLoadingCategories(true)
       const { data } = await axios.get(`${BaseURLV1}/category`)
 
       setCategories(data.data)
+      setIsLoadingCategories(false)
     } catch (e: any) {
+      setIsLoadingCategories(false)
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed get Categories Data')
       return false
     }
   }
 
   const getParams = async ({
-    categories = selectFilterByCategories,
-    subCategory = selectFilterBySubCategory,
+    filterByCategories = selectFilterByCategories,
+    filterBySubCategory = selectFilterBySubCategory,
     minPrice = onlyGetNumberValue(filterByMinPrice),
     maxPrice = onlyGetNumberValue(filterByMaxPrice),
     displayOrder = sortByDisplayOrder,
   }: {
-    categories?: string
-    subCategory?: string
+    filterByCategories?: string
+    filterBySubCategory?: string
     minPrice?: number
     maxPrice?: number
     displayOrder?: string
@@ -67,23 +76,23 @@ const AllProduct = () => {
       sort = 'price=' + minPrice + '-' + maxPrice
     }
 
-    if (categories !== '') {
+    if (filterByCategories !== '') {
       if (sort === '') {
-        sort = 'categories=' + categories
+        sort = 'categories=' + filterByCategories
       } else {
-        sort = sort!.concat('&categories=' + categories)
+        sort = sort!.concat('&categories=' + filterByCategories)
       }
     }
 
     if (
-      subCategory !== '' &&
-      categories !== '' &&
-      categories.split('-').length === 1
+      filterBySubCategory !== '' &&
+      filterByCategories !== '' &&
+      filterByCategories.split('-').length === 1
     ) {
       if (sort === '') {
-        sort = 'subCategory=' + subCategory
+        sort = 'subCategory=' + filterBySubCategory
       } else {
-        sort = sort!.concat('&subCategory=' + subCategory)
+        sort = sort!.concat('&subCategory=' + filterBySubCategory)
       }
     }
 
@@ -110,6 +119,8 @@ const AllProduct = () => {
       setProducts(data.data.products)
     } catch (e: any) {
       setIsLoading(false)
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed get Products Data')
       return false
     }
   }
@@ -117,50 +128,80 @@ const AllProduct = () => {
   const handleFilterByCategories = async (e: any) => {
     const checked = e.target.checked
     const value = e.target.value
+    const name = e.target.name
     let FilterByCategories: string
 
-    if (checked) {
-      if (selectFilterByCategories == '') {
-        setSelectFilterByCategories(value)
-        FilterByCategories = value
-      } else {
-        setSelectFilterByCategories(
-          selectFilterByCategories.concat(`-${value}`)
-        )
-        FilterByCategories = selectFilterByCategories.concat(`-${value}`)
-      }
+    if (name === 'all') {
+      setCheckedAllProduct((prev) => !prev)
+      setCheckedCategories([])
+
+      setSelectFilterByCategories('')
+      setSelectFilterBySubCategory('')
+
+      getParams({
+        filterByCategories: '',
+        filterBySubCategory: '',
+      })
     } else {
-      const categoriesSplit = selectFilterByCategories.split('-')
-      const categoriesArray = categoriesSplit.filter(
-        (category) => category !== value
-      )
-      const newCategories = categoriesArray.join('-')
-      setSelectFilterByCategories(newCategories)
-      FilterByCategories = newCategories
-    }
-
-    if (
-      FilterByCategories !== '' &&
-      FilterByCategories.split('-').length === 1
-    ) {
-      const subCategories: any = categories.find(
-        (category: any) => category._id === FilterByCategories
-      )
-
-      if (subCategories) {
-        setSubCategories(subCategories.subCategory)
+      const check = checkedCategories.includes(name)
+      let newCheck = []
+      if (check) {
+        newCheck = checkedCategories.filter(
+          (category: string) => category !== name
+        )
+      } else {
+        newCheck = [...checkedCategories, name]
       }
+
+      if (newCheck.length === 0 || checkedCategories.length === 0) {
+        setCheckedAllProduct((prev) => !prev)
+      }
+
+      setCheckedCategories(newCheck)
+
+      if (checked) {
+        if (selectFilterByCategories == '') {
+          setSelectFilterByCategories(value)
+          FilterByCategories = value
+        } else {
+          setSelectFilterByCategories(
+            selectFilterByCategories.concat(`-${value}`)
+          )
+          FilterByCategories = selectFilterByCategories.concat(`-${value}`)
+        }
+      } else {
+        const categoriesSplit = selectFilterByCategories.split('-')
+        const categoriesArray = categoriesSplit.filter(
+          (category) => category !== value
+        )
+        const newCategories = categoriesArray.join('-')
+        setSelectFilterByCategories(newCategories)
+        FilterByCategories = newCategories
+      }
+
+      if (
+        FilterByCategories !== '' &&
+        FilterByCategories.split('-').length === 1
+      ) {
+        const subCategories: any = categories.find(
+          (category: any) => category._id === FilterByCategories
+        )
+
+        if (subCategories) {
+          setSubCategories(subCategories.subCategory)
+        }
+      }
+      getParams({
+        filterByCategories: FilterByCategories,
+      })
     }
-    getParams({
-      categories: FilterByCategories,
-    })
   }
 
   const handleFilterBySubCategories = (e: any) => {
     setSelectFilterBySubCategory(e.target.value)
 
     getParams({
-      subCategory: e.target.value,
+      filterBySubCategory: e.target.value,
     })
   }
 
@@ -181,7 +222,7 @@ const AllProduct = () => {
     setNum(formatRupiah(newValue.toString(), 'Rp. '))
   }
 
-  const handlesortByDisplayOrder = (e: any) => {
+  const handleSortByDisplayOrder = (e: any) => {
     setDisplayOrder(e.target.value)
     setSortByDisplayOrder(e.target.value)
 
@@ -253,7 +294,7 @@ const AllProduct = () => {
           <FormControl sx={{ minWidth: 120 }}>
             <Select
               value={displayOrder}
-              onChange={handlesortByDisplayOrder}
+              onChange={handleSortByDisplayOrder}
               displayEmpty
               inputProps={{ 'aria-label': 'Without label' }}
               sx={{
@@ -283,18 +324,21 @@ const AllProduct = () => {
         >
           <Box>
             <Typography variant='h5'>Categories:</Typography>
-            {isLoading && <Loading value='80' />}
-            {!isLoading && categories.length <= 0 && (
+            {isLoadingCategories && <Loading value='80' />}
+            {!isLoadingCategories && categories.length <= 0 && (
               <Typography gutterBottom variant='h6' mt={2}>
                 No Categories
               </Typography>
             )}
-            {!isLoading && categories.length > 0 && (
+            {!isLoadingCategories && categories.length > 0 && (
               <FormGroup>
                 <FormControlLabel
                   control={
                     <Checkbox
-                      defaultChecked
+                      onChange={handleFilterByCategories}
+                      disabled={checkedAllProduct}
+                      name='all'
+                      checked={checkedAllProduct}
                       sx={{
                         color: '#787eff',
                         '&.Mui-checked': {
@@ -308,9 +352,11 @@ const AllProduct = () => {
                 {categories.map((category: any) => (
                   <FormControlLabel
                     key={category._id}
+                    checked={checkedCategories.includes(category.category)}
                     control={
                       <Checkbox
                         value={category._id}
+                        name={category.category}
                         sx={{
                           color: '#787eff',
                           '&.Mui-checked': {

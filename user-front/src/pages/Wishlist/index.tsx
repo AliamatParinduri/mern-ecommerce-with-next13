@@ -1,46 +1,28 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import axios from 'axios'
 import { useState, useEffect } from 'react'
 import { Box, Grid, Stack, Typography, useTheme } from '@mui/material'
 
-import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { tokens } from '@/theme'
 import MenuUserInfo from '@/components/MenuUserInfo'
-import Loading from '@/assets/svg/Loading'
 import CardComponent from '@/components/Card'
+import { ToastError } from '@/components/Toast'
+import { useNavigate } from 'react-router-dom'
 
 const Wishlist = () => {
-  const [orders, setOrders] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const { user }: userContextType = UserState()
+  const { user, setUser }: userContextType = UserState()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
-
-  const getOrders = async () => {
-    try {
-      setIsLoading(true)
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user!.token}`,
-        },
-      }
-
-      const { data } = await axios.get(
-        `${BaseURLV1}/order?userId=${user!._id}`,
-        config
-      )
-
-      setIsLoading(false)
-      setOrders(data.data)
-    } catch (e: any) {
-      setIsLoading(false)
-      return false
-    }
-  }
+  const navigate = useNavigate()
 
   useEffect(() => {
-    getOrders()
+    const userLogin = localStorage.getItem('userLogin')
+
+    if (!user && !userLogin) {
+      setUser(null)
+      ToastError('Your session has ended, Please login again')
+      navigate('/login')
+    }
   }, [user])
 
   return (
@@ -51,16 +33,15 @@ const Wishlist = () => {
           My Wishlist
         </Typography>
         <Box bgcolor={colors.secondary[500]} p={2} sx={{ borderRadius: '8px' }}>
-          <Box>{isLoading && <Loading value='80' />}</Box>
-          {!isLoading && orders.length <= 0 && (
+          {user && user.wishlist.length <= 0 && (
             <Typography gutterBottom variant='h5'>
               No Data
             </Typography>
           )}
-          {!isLoading && orders.length > 0 && (
+          {user && user.wishlist.length > 0 && (
             <Grid container spacing={4}>
               {user?.wishlist.map(({ product }: any) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+                <Grid item xs={12} sm={6} md={4} key={product._id}>
                   <CardComponent product={product} />
                 </Grid>
               ))}

@@ -16,7 +16,7 @@ import { formatRupiah } from '@/validations/shared'
 import { HighlightOff } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { tokens } from '@/theme'
-import { ToastSuccess } from '@/components/Toast'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const Cart = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -57,6 +57,11 @@ const Cart = () => {
   }
 
   useEffect(() => {
+    if (user && user.cart.length < 1) {
+      ToastError('Cart Product empty!')
+      navigate(-1)
+    }
+
     getAddress()
   }, [user])
   user && user.cart.map((cart: any) => (orderTotal += parseInt(cart.subTotal)))
@@ -124,7 +129,7 @@ const Cart = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault()
 
-    // setIsLoading(true)
+    setIsLoading(true)
     try {
       const config = {
         headers: {

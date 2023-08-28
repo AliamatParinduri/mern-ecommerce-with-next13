@@ -19,6 +19,7 @@ import Profile from './pages/Profile'
 import Addresses from './pages/Addresses'
 import CreateAddress from './pages/Addresses/create'
 import EditAddress from './pages/Addresses/edit'
+import EditProfile from './pages/EditProfile'
 
 function App() {
   const [theme, colorMode]: any = useMode()
@@ -39,6 +40,7 @@ function App() {
               <Route path='/orders/:id' element={<OrderDetail />} />
               <Route path='/wishlist' element={<Wishlist />} />
               <Route path='/profile' element={<Profile />} />
+              <Route path='/profile/edit-profile' element={<EditProfile />} />
               <Route path='/addresses' element={<Addresses />} />
               <Route path='/addresses/create' element={<CreateAddress />} />
               <Route path='/addresses/:id/edit' element={<EditAddress />} />

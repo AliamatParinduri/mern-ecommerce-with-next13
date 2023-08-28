@@ -12,6 +12,7 @@ import Loading from '@/assets/svg/Loading'
 import { BaseURLV1 } from '@/config/api'
 import { ProductsContextType, ProductsState } from '@/context/productContext'
 import { useNavigate } from 'react-router-dom'
+import { ToastError } from '@/components/Toast'
 
 const Dashboard = () => {
   const theme = useTheme()
@@ -29,6 +30,8 @@ const Dashboard = () => {
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed get Products Data')
       return false
     }
   }

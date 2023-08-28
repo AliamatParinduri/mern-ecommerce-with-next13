@@ -25,15 +25,17 @@ import { Delete, Edit } from '@mui/icons-material'
 import Loading from '@/assets/svg/Loading'
 import ColorButton from '@/components/ColorButton'
 import { useNavigate } from 'react-router-dom'
-import { ToastSuccess } from '@/components/Toast'
+import { ToastError, ToastSuccess } from '@/components/Toast'
+import { isUserLogin } from '@/validations/shared'
 
 const Addresses = () => {
   const [addresses, setAddresses] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const { user }: userContextType = UserState()
+  const { setUser }: userContextType = UserState()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
   const navigate = useNavigate()
+  let { user }: userContextType = UserState()
 
   const getAddresses = async () => {
     try {
@@ -53,6 +55,18 @@ const Addresses = () => {
       setAddresses(data.data)
     } catch (e: any) {
       setIsLoading(false)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userLogin')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        navigate('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
       return false
     }
   }
@@ -75,13 +89,19 @@ const Addresses = () => {
       ToastSuccess('Success delete Address')
     } catch (e: any) {
       setIsLoading(false)
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed delete Address')
       return false
     }
   }
 
   useEffect(() => {
+    if (isUserLogin(user)) {
+      user = isUserLogin(user)
+    }
+
     getAddresses()
-  }, [user])
+  }, [])
 
   const StyledTableCell = styled(TableCell)(({ theme: any }) => ({
     [`&.${tableCellClasses.head}`]: {

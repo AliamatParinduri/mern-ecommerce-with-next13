@@ -1,3 +1,5 @@
+import { ToastError } from '@/components/Toast'
+
 export type LoginDTO = {
   username: string
   password?: string
