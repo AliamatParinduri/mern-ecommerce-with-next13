@@ -13,6 +13,13 @@ import { BaseURLProduct, BaseURLV1 } from '@/config/api'
 import InputFile from '@/components/InputFile'
 import { UserState, userContextType } from '@/context/userContext'
 import { isUserLogin } from '@/validations/shared'
+import WysiwygDescription from '@/components/WysiwygDescription'
+import {
+  EditorState,
+  ContentState,
+  convertFromHTML,
+  convertFromRaw,
+} from 'draft-js'
 
 type Props = {
   params: { id: string }
@@ -28,6 +35,9 @@ const EditProduct = ({ params: { id } }: Props) => {
   const [category, setCategory] = useState('')
   const [subCategory, setSubCategory] = useState('')
   const [files, setFiles] = useState([])
+  const [description, setDescription] = useState(() =>
+    EditorState.createEmpty()
+  )
   const [price, setPrice] = useState('')
   const [stock, setStock] = useState('')
   const [size, setSize] = useState('')
@@ -38,7 +48,7 @@ const EditProduct = ({ params: { id } }: Props) => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
-    // setIsLoading(true)
+    setIsLoading(true)
 
     try {
       const formData = new FormData()
@@ -106,7 +116,13 @@ const EditProduct = ({ params: { id } }: Props) => {
       setNmProduct(dt.data.nmProduct)
       setCategory(dt.data.category)
       setSubCategory(dt.data.subCategory)
-      setSubCategory(dt.data.subCategory)
+      setDescription(
+        EditorState.createWithContent(
+          ContentState.createFromBlockArray(
+            convertFromHTML(dt.data.description)
+          )
+        )
+      )
 
       setProductDetails(dt.data.details)
       setProductImages(dt.data.pic)
@@ -135,7 +151,6 @@ const EditProduct = ({ params: { id } }: Props) => {
 
   const handleDeleteImage = async (id: string, image: any) => {
     try {
-
       const config = {
         headers: {
           Authorization: `Bearer ${user!.token}`,
@@ -387,6 +402,11 @@ const EditProduct = ({ params: { id } }: Props) => {
                     </table>
                   </fieldset>
                 )}
+                <WysiwygDescription
+                  title='Description'
+                  editorState={description}
+                  setEditorState={setDescription}
+                />
                 <Button
                   title='Edit Product'
                   isLoading={isLoading}

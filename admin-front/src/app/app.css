@@ -1,0 +1,9 @@
+.editor-class {
+  background-color: #ccc;
+  color: black;
+  padding: 1rem;
+  border: 1px solid #ccc;
+}
+.toolbar-class {
+  border: 1px solid #ccc;
+}
