@@ -9,15 +9,7 @@ class RatingController {
 
   getRatings = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { userId } = req.params
-
-      const keyword = userId
-        ? {
-            userId
-          }
-        : {}
-
-      const result = await this.ratingService.getRatings(keyword)
+      const result = await this.ratingService.getRatings(req)
 
       const message = 'Success get data ratings'
       logger.info(message)

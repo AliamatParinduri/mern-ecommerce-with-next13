@@ -20,7 +20,7 @@ const OrderSchema = new Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ['UnPaid', 'Pain'],
+      enum: ['UnPaid', 'Paid'],
       default: 'UnPaid'
     },
     paymentOrder: {
@@ -28,6 +28,8 @@ const OrderSchema = new Schema(
       enum: ['Process', 'Delivery', 'Done'],
       default: 'Process'
     },
+    estimatedDeliveryDate: { type: Date },
+    deliveredOrder: { type: Date },
     discount: { type: Number, default: 0 },
     ongkir: { type: Number, default: 0, trim: true },
     totalPrice: { type: Number, trim: true, required: true }

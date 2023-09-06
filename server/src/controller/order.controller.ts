@@ -11,7 +11,19 @@ class OrderController {
     try {
       const result = await this.orderService.getOrders(req)
 
-      const message = 'Success get data order'
+      const message = 'Success get data orders'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
+  getRekapOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.orderService.getRekapOrders(req)
+
+      const message = 'Success get data rekap orders'
       logger.info(message)
       return res.status(200).json({ message, data: result })
     } catch (err: any) {

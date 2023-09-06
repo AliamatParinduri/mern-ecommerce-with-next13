@@ -4,9 +4,9 @@ import { RatingDTO } from '@/dto'
 
 const RatingSchema = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', trim: true },
-    orderId: { type: Schema.Types.ObjectId, ref: 'Order', trim: true },
-    productId: { type: Schema.Types.ObjectId, ref: 'Product', trim: true },
+    user: { type: Schema.Types.ObjectId, ref: 'User', trim: true },
+    order: { type: Schema.Types.ObjectId, ref: 'Order', trim: true },
+    product: { type: Schema.Types.ObjectId, ref: 'Product', trim: true },
     detailsId: { type: String, trim: true, required: true },
     rating: { type: Number, trim: true, required: true },
     komentar: { type: String, trim: true }

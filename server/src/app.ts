@@ -11,7 +11,9 @@ const app: Application = express()
 
 app.use(
   helmet({
-    crossOriginEmbedderPolicy: false
+    crossOriginResourcePolicy: {
+      policy: 'cross-origin'
+    }
   })
 )
 app.use(express.json())
