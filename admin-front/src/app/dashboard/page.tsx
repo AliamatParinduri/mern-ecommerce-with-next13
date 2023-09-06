@@ -1,558 +1,677 @@
 'use client'
 
-import { useEffect } from 'react'
-
+import { useEffect, useState, useMemo } from 'react'
 import Layout from '@/components/Layout'
-import { isUserLogin } from '@/validations/shared'
+import {
+  formatAliasesNumber,
+  formatRupiah,
+  getPercentage,
+  isUserLogin,
+  userDTO,
+} from '@/validations/shared'
 import { useRouter } from 'next/navigation'
 import { UserState, userContextType } from '@/context/userContext'
+import Chart from '@/components/Chart'
+import HappySvg from '../../../public/svg/happy.svg'
+import { FaCheckDouble } from 'react-icons/fa'
+import Image from 'next/image'
+import axios from 'axios'
+import { BaseURLProduct, BaseURLV1 } from '@/config/api'
+import Link from 'next/link'
+import Datatable from '@/components/Datatable'
+import MultipleCharts from '@/components/MultipleChart'
+import Carousel from '@/components/Carousel'
+
+const BasketSvg = () => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    fill='currentColor'
+    className='absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 w-8 h-8 bi bi-cart3'
+    viewBox='0 0 16 16'
+  >
+    <path d='M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l.84 4.479 9.144-.459L13.89 4H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'></path>
+  </svg>
+)
+
+const WalletSvg = () => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    fill='currentColor'
+    className='absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 w-8 h-8 bi bi-credit-card'
+    viewBox='0 0 16 16'
+  >
+    <path d='M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v1h14V4a1 1 0 0 0-1-1H2zm13 4H1v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7z'></path>
+    <path d='M2 10a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-1z'></path>
+  </svg>
+)
+
+const ProductsSvg = () => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    fill='currentColor'
+    className='absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 w-8 h-8 bi bi-person'
+    viewBox='0 0 16 16'
+  >
+    <path d='M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z'></path>
+  </svg>
+)
+
+type ordersType = {
+  labels: string[]
+  orders: number[]
+  totalOrders: string
+  ordersPercentage: string
+  totalSales?: number[]
+}
+
+type multipleOrdersType = {
+  labels: string[]
+  totalSales1: number[]
+  totalSales2: number[]
+  todaySales: string
+}
 
 const Dashboard = () => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [users, setUsers] = useState<userDTO[]>([])
+  const [dailyOrders, setdailyOrders] = useState<ordersType>()
+  const [weeklyOrders, setWeeklyOrders] = useState<ordersType>()
+  const [monthlyOrders, setMonthlyOrders] = useState<ordersType>()
+  const [weeklyUserTopPurchases, setWeeklyUserTopPurchases] = useState<any>([])
+  const [weeklyTopCategorySales, setWeeklyTopCategorySales] = useState<any>([])
+  const [weeklyTopProducts, setWeeklyTopProducts] = useState<any>([])
+  const [totalSales, setTotalSales] = useState<any>()
+  const [totalProfit, setTotalProfit] = useState<any>()
+  const [newUsers, setNewUsers] = useState<any>()
+  const [newProducts, setNewProducts] = useState<any>()
+  const [weeklyTotalSales, setWeeklyTotalSales] = useState<multipleOrdersType>()
+  const [weeklyDetailsAgeUsers, setWeeklyDetailsAgeUsers] = useState<any>()
+
   let { user }: userContextType = UserState()
   const router = useRouter()
 
+  const getUsers = async () => {
+    setIsLoading(true)
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user!.token}`,
+        },
+      }
+
+      const { data } = await axios.get(`${BaseURLV1}/users`, config)
+
+      setIsLoading(false)
+      setUsers(data.data.users)
+    } catch (e: any) {
+      setIsLoading(false)
+      return false
+    }
+  }
+
+  const getRekapOrders = async () => {
+    setIsLoading(true)
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user!.token}`,
+        },
+      }
+
+      const { data } = await axios.get(`${BaseURLV1}/order/rekapOrders`, config)
+      const daily = data.data.dailyOrders
+      const weekly = data.data.weeklyOrders
+      const monthly = data.data.monthlyOrders
+      const weeklyUsrTopPurchases = data.data.weeklyUserTopPurchases
+      const weeklyTopCtgrSales = data.data.weeklyTopCategorySales
+      const weeklyTopProducts = data.data.weeklyTopSalesProducts
+      const totSales = data.data.totalSales
+      const totProfit = data.data.getDifferentProfit
+      const totNewUsers = data.data.getDifferentNewUsers
+      const totNewProducts = data.data.getDifferentProducts
+      const weeklyTotSales1 = data.data.getDifferentTotalSales[0]
+      const weeklyTotSales2 = data.data.getDifferentTotalSales[1]
+      const WeeklyDtlAgeUsers = data.data.getDetailsAgeUsersPurchases
+
+      const resultDailyPercentage = getPercentage(
+        daily.orders[daily.orders.length - 1],
+        daily.orders[daily.orders.length - 2]
+      )
+
+      const resultWeeklyPercentage = getPercentage(
+        weekly.orders[weekly.orders.length - 1],
+        weekly.orders[weekly.orders.length - 2]
+      )
+      const resultMonthlyPercentage = getPercentage(
+        monthly.orders[monthly.orders.length - 1],
+        monthly.orders[monthly.orders.length - 2]
+      )
+
+      setdailyOrders({
+        ...dailyOrders,
+        labels: daily.labels,
+        orders: daily.orders,
+        totalOrders: daily.orders[daily.orders.length - 1].toString(),
+        ordersPercentage: resultDailyPercentage!,
+      })
+
+      setWeeklyOrders({
+        ...weeklyOrders,
+        labels: weekly.labels,
+        orders: weekly.orders,
+        totalOrders: weekly.orders[weekly.orders.length - 1].toString(),
+        ordersPercentage: resultWeeklyPercentage!,
+      })
+
+      setMonthlyOrders({
+        ...monthlyOrders,
+        labels: monthly.labels,
+        orders: monthly.orders,
+        totalOrders: monthly.orders[monthly.orders.length - 1].toString(),
+        ordersPercentage: resultMonthlyPercentage!,
+      })
+
+      // Weekly top users
+      setWeeklyUserTopPurchases(weeklyUsrTopPurchases)
+      // Weekly top categories
+      setWeeklyTopCategorySales(weeklyTopCtgrSales)
+      // Weekly top products
+      setWeeklyTopProducts(weeklyTopProducts)
+
+      // total sales
+      const totalSalesPercentage = getPercentage(
+        totSales.totalSales[totSales.totalSales.length - 1],
+        totSales.totalSales[totSales.totalSales.length - 2]
+      )
+
+      setTotalSales({
+        ...totalSales,
+        salesPercentage: totalSalesPercentage!,
+        sales: totSales.totalSales[totSales.totalSales.length - 1],
+      })
+
+      // total profit
+      const totalProfitPercentage = getPercentage(
+        totProfit[totProfit.length - 1],
+        totProfit[totProfit.length - 2]
+      )
+
+      setTotalProfit({
+        ...totalProfit,
+        profitPercentage: totalProfitPercentage!,
+        profit: totProfit[totProfit.length - 1]!,
+      })
+
+      // new users
+      const totalUsersPercentage = getPercentage(
+        totNewUsers.users[totNewUsers.users.length - 1],
+        totNewUsers.users[totNewUsers.users.length - 2]
+      )
+
+      setNewUsers({
+        ...newUsers,
+        usersPercentage: totalUsersPercentage!,
+        users: totNewUsers.users[totNewUsers.users.length - 1]!,
+      })
+
+      // new products
+      const totalProductsPercentage = getPercentage(
+        totNewProducts.products[totNewProducts.products.length - 1],
+        totNewProducts.products[totNewProducts.products.length - 2]
+      )
+
+      setNewProducts({
+        ...newProducts,
+        productsPercentage: totalProductsPercentage!,
+        products: totNewProducts.products[totNewProducts.products.length - 1]!,
+      })
+
+      // weekly sales
+      const d = new Date().getDay()
+      setWeeklyTotalSales({
+        ...weeklyTotalSales,
+        labels: weeklyTotSales1.labels,
+        totalSales1: weeklyTotSales1.totalSales,
+        totalSales2: weeklyTotSales2.totalSales,
+        todaySales: weeklyTotSales1.totalSales[d === 0 ? 6 : d - 1],
+      })
+
+      setWeeklyDetailsAgeUsers({
+        ...setWeeklyDetailsAgeUsers,
+        labels: WeeklyDtlAgeUsers.labels,
+        detailsAges: WeeklyDtlAgeUsers.detailsAges,
+      })
+
+      setIsLoading(false)
+    } catch (e: any) {
+      console.log(e)
+
+      setIsLoading(false)
+      return false
+    }
+  }
+
   useEffect(() => {
     isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
-  }, [])
+
+    if (user) {
+      getUsers()
+      getRekapOrders()
+    }
+  }, [user])
+
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Full Name',
+        accessor: 'fullName',
+      },
+      {
+        Header: 'Email',
+        accessor: 'email',
+      },
+      {
+        Header: 'Phone Number',
+        accessor: 'noHP',
+      },
+      {
+        Header: 'Action',
+        accessor: 'Action',
+        Cell: ({ row }: any) => (
+          <div className='flex items-center gap-2'>
+            <Link
+              href={`users/${row.original._id}/edit-user`}
+              className='font-medium text-white no-underline bg-ActiveMenu-500 px-3 py-1.5 rounded'
+            >
+              Edit
+            </Link>
+            <Link
+              href='#'
+              // onClick={() => handleDelete(row.original._id)}
+              onClick={() => alert('delete')}
+              className='font-medium text-white no-underline bg-red-500 px-3 py-1.5 rounded'
+            >
+              Delete
+            </Link>
+          </div>
+        ),
+      },
+    ],
+    []
+  )
+
+  type Props = { type: string; title: string; elId: any; data: any }
+
+  const Card1 = ({ type, title, elId, data }: Props) => {
+    return (
+      <div className='relative flex flex-col justify-around bg-clip-border rounded-xl w-full lg:w-1/5 bg-white dark:bg-boxDark-500 text-gray-700 shadow-md'>
+        <div className='flex '>
+          <div className='p-4 w-3/5'>
+            <p className='block antialiased font-sans text-sm leading-normal font-normal text-blue-gray-600 dark:text-white'>
+              {title}
+            </p>
+            <h4 className='block antialiased tracking-normal font-sans text-2xl font-semibold leading-snug text-blue-gray-900 dark:text-white'>
+              {data && formatAliasesNumber(data.totalOrders, 'Trx')}
+            </h4>
+          </div>
+          <div className='flex-shrink w-2/5 pt-2'>
+            {data && data.labels.length > 0 && (
+              <Chart
+                type={type}
+                value={data.orders}
+                labels={data.labels}
+                diffPercentage={data.ordersPercentage}
+                elId={elId}
+                detail={false}
+              />
+            )}
+          </div>
+        </div>
+        <div className='p-4'>
+          <p className='block antialiased font-sans text-base leading-relaxed font-normal text-blue-gray-600 dark:text-white'>
+            {dailyOrders && (
+              <strong
+                className={`text-${
+                  dailyOrders.ordersPercentage.charAt(0) === '+'
+                    ? 'green'
+                    : 'red'
+                }-500`}
+              >
+                {dailyOrders.ordersPercentage}
+              </strong>
+            )}
+            &nbsp; than yesterday
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  type Props2 = {
+    title: string
+    svg: any
+    data: any
+    dataPercentage: any
+    dataPrimary: any
+  }
+  const Card2 = ({ title, data, svg, dataPercentage, dataPrimary }: Props2) => {
+    return (
+      <div className='relative flex flex-col justify-around gap-4 py-3 bg-clip-border rounded-xl w-1/2 bg-white dark:bg-boxDark-500 text-gray-700 shadow-md'>
+        <div className='flex px-6 justify-between'>
+          <p className='block antialiased font-sans text-sm leading-normal font-normal text-blue-gray-600 dark:text-white'>
+            {title}
+          </p>
+          <p className='block antialiased font-sans text-base leading-relaxed font-normal t-blue-gray-600 dark:text-white'>
+            {data && (
+              <strong
+                className={`text-${
+                  dataPercentage.charAt(0) === '+' ? 'green' : 'red'
+                }-500`}
+              >
+                {dataPercentage}
+              </strong>
+            )}
+          </p>
+        </div>
+        <div className='flex flex-row justify-between px-6'>
+          <div className='self-center w-14 h-14 rounded-full text-green-500 bg-green-100 dark:bg-green-900 dark:bg-opacity-40 relative text-center'>
+            {svg}
+          </div>
+          <h2 className='block antialiased font-sans self-center text-3xl leading-normal font-normal text-blue-gray-600 dark:text-white'>
+            {data && formatAliasesNumber(dataPrimary, 'Rp. ')}
+          </h2>
+        </div>
+        <div className='px-6'>
+          <a
+            className='antialiased font-sans text-sm leading-normal font-normal text-blue-gray-600 dark:text-white'
+            href='#'
+          >
+            View more...
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <Layout>
-      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nobis libero
-      corporis aliquam tempora repellendus iusto corrupti, dolor ipsa aperiam
-      placeat illo, ex sapiente dolores voluptatibus animi in eaque sit harum
-      neque? Nostrum ad cupiditate magni error sapiente, optio unde! Doloremque
-      atque, quia obcaecati quibusdam, repellat quis magnam a aspernatur veniam,
-      illo porro qui quidem officia dolore. Earum, tenetur nesciunt suscipit
-      voluptatem vitae blanditiis, officia temporibus illum aperiam magnam
-      consectetur quidem veritatis reiciendis voluptate fuga autem ratione modi
-      aut dolore eligendi! Exercitationem id illum suscipit, itaque quas modi
-      sequi consequuntur praesentium maiores numquam odit alias? Quae quia
-      commodi dolor consequuntur aspernatur animi sed dignissimos eos doloremque
-      atque. Est eligendi commodi dignissimos molestias culpa ex, sit corporis
-      alias pariatur ut illum, nostrum voluptatum a tempora deserunt
-      exercitationem dicta beatae consequuntur vitae ducimus placeat id, cum
-      reiciendis. Qui unde fugiat quos necessitatibus voluptates reiciendis
-      quisquam, molestiae, at aut quae quidem labore ab incidunt architecto
-      harum dolorem eligendi aliquid dolore pariatur iusto ducimus et
-      laboriosam! Iste, aspernatur possimus! Magnam tempora sequi dolorum
-      tenetur aut alias? Rerum natus sunt consectetur assumenda magni incidunt
-      rem qui dolor corrupti aliquid veritatis quibusdam at dolorem perspiciatis
-      odit, earum quas ut ex voluptatem asperiores fugiat, iure reiciendis amet
-      nisi. Mollitia quibusdam aliquid deleniti dignissimos quo sunt vero ad
-      voluptatibus nulla dolor nobis quasi dolorem ducimus reiciendis, minus
-      quam aliquam saepe. Vel doloremque rem vitae, nemo exercitationem sed amet
-      unde aperiam rerum voluptatum voluptatem perspiciatis porro facere natus
-      tempora? Reprehenderit, sunt dignissimos tenetur vitae exercitationem nemo
-      iure dolorem vero sit autem labore reiciendis voluptatum in quis ducimus
-      id dolore laborum quaerat harum eveniet! Corporis dolorem officiis illo
-      nulla non ipsam quisquam nihil maiores, nostrum, aperiam voluptatibus!
-      Fuga error unde impedit, tempore nihil voluptatem illo numquam veritatis
-      odit ducimus accusantium, eos ipsum dolore optio fugiat qui et nemo rerum?
-      Vero enim velit natus similique accusamus architecto hic non quaerat
-      voluptas illum nesciunt dolore explicabo vitae rem ex, deleniti sunt
-      laudantium magni nulla doloremque saepe! Aperiam vitae, nihil assumenda
-      perspiciatis odio veniam voluptate, blanditiis magni totam molestias dolor
-      ducimus excepturi repellat recusandae illum placeat deserunt. Itaque
-      aspernatur dicta sapiente beatae fugit modi consequatur, quos magni
-      nostrum. Accusantium, eaque commodi natus adipisci, nobis tempore est
-      necessitatibus voluptatibus illum soluta voluptatem illo unde quia magni
-      delectus! Laborum mollitia facere autem cum nam id magnam accusamus sunt
-      eveniet, necessitatibus quidem architecto eaque sapiente error delectus
-      voluptates quisquam incidunt cupiditate tenetur quaerat iste vero! Eos
-      porro possimus consectetur eius corporis repudiandae inventore rerum
-      officia fugiat, ab magni mollitia quod veniam eveniet quos dolorem odit
-      nesciunt dignissimos iusto. Quod fuga, atque omnis aliquam asperiores sunt
-      magni recusandae repellendus, nisi voluptatem quae fugit doloribus nihil
-      reiciendis voluptatum molestiae itaque ratione, dicta voluptas facere?
-      Ipsa corrupti vel animi mollitia veritatis enim similique quibusdam
-      officia ducimus dolorum quod quaerat voluptas, omnis totam explicabo quo,
-      necessitatibus deleniti! Esse, ipsam? Facere, ea dignissimos nemo tenetur
-      deleniti sequi minima, omnis reiciendis nobis sunt, earum atque. Dolor
-      architecto totam eum numquam exercitationem nostrum tempora quod quibusdam
-      natus hic, nemo laudantium tenetur minus? Accusantium sapiente incidunt
-      magnam velit in eum quam possimus modi rem nihil voluptate magni dolorem
-      iure molestiae cupiditate ullam facilis facere, placeat doloribus illum
-      delectus. Necessitatibus, repellendus? Id similique, sit quidem doloribus
-      magnam sint harum dolores dolor numquam veritatis, quaerat fuga facilis
-      asperiores culpa delectus minus molestias! Nesciunt labore consequuntur
-      mollitia esse ut. Enim, libero totam necessitatibus at saepe vitae ea
-      illum fuga dolor tenetur fugiat iusto nobis corrupti autem commodi
-      voluptatem obcaecati expedita provident, consequuntur in eos? Repudiandae
-      ea itaque delectus. Officiis obcaecati excepturi, numquam unde quam libero
-      expedita qui quod omnis, officia necessitatibus, molestias distinctio
-      provident. Quos aliquid distinctio fugit sint in maxime autem magni ullam
-      tenetur blanditiis itaque fugiat repellendus esse et, ab voluptatem neque
-      saepe dolore. Minima cupiditate quibusdam sequi nam? Eaque repellendus
-      praesentium asperiores exercitationem facere maxime, repudiandae deserunt,
-      sunt quas quod unde voluptatibus incidunt quo saepe, qui quibusdam
-      similique earum. Quae amet incidunt sequi at totam aliquid quisquam
-      nesciunt quos mollitia dicta vitae nisi repellendus soluta, minus
-      voluptatibus itaque assumenda quam est debitis quibusdam laborum minima
-      accusantium porro. Sequi perspiciatis magni dolor repudiandae voluptatibus
-      veniam quia et maxime distinctio consectetur eveniet id neque officia
-      numquam possimus obcaecati, nobis beatae quibusdam nihil itaque soluta
-      atque accusamus? Officiis adipisci explicabo veritatis eos modi eius
-      necessitatibus repellendus debitis error ad. Omnis hic eos perspiciatis
-      blanditiis accusamus nesciunt, sequi a incidunt reiciendis quibusdam
-      temporibus dolorum aperiam aliquid modi ea cumque quas dicta! Incidunt
-      ipsum temporibus architecto ipsa aliquid dolorum at voluptatibus sequi,
-      autem nostrum velit explicabo praesentium laudantium vitae sed quos quas
-      obcaecati, laborum voluptas rem error. Excepturi sit inventore, numquam
-      soluta impedit tempora quaerat, recusandae optio aliquam aperiam dicta
-      minima deleniti accusamus similique, maxime laboriosam sequi fugiat?
-      Voluptatem atque, alias asperiores aspernatur ipsam veritatis corrupti
-      eligendi magni! Animi vel libero repellat, optio, quaerat nisi cumque
-      saepe laboriosam aperiam officiis voluptatum ea cum dolores ullam
-      consectetur architecto impedit vitae. Unde adipisci nemo consequuntur
-      illum eaque quod minima optio sequi delectus, quos iure nesciunt omnis
-      quae ratione. Dolor quam atque vel, asperiores ipsa nulla labore sed
-      tempora tenetur et doloribus praesentium rerum eum temporibus sunt fuga,
-      nemo sit animi, totam sint? Totam dicta facilis eius quisquam quam tempore
-      saepe culpa, a illo, cum consequatur sint excepturi accusantium nihil
-      obcaecati consequuntur esse est minus voluptatem nisi officia ipsa!
-      Mollitia nisi deleniti doloribus neque non, cupiditate, aut, perspiciatis
-      veniam nam assumenda numquam architecto inventore quos similique. Nisi,
-      voluptas! Non, fuga, quidem provident animi magnam voluptatibus, ipsam sit
-      nam officiis reprehenderit totam deleniti mollitia eveniet veritatis rerum
-      quisquam tenetur cum ipsum culpa hic. Reprehenderit vel in temporibus
-      atque adipisci reiciendis, culpa nisi voluptate soluta blanditiis eligendi
-      eaque, natus amet praesentium accusamus! Obcaecati, rerum laudantium. Ex
-      reprehenderit doloribus hic ducimus animi magni fugiat accusamus officiis
-      fugit minus, adipisci placeat aut saepe quia, eum corporis ullam omnis,
-      error dolores illo veniam quidem dolor! Corrupti eius enim, animi odit
-      sapiente reprehenderit repellendus deserunt quod ad unde quam voluptas ex
-      at sit ipsa molestias assumenda, nostrum quae quia. Magnam nam voluptates
-      deserunt! Consequatur omnis perspiciatis voluptates laborum neque! Neque,
-      nostrum blanditiis ipsa nemo rerum optio inventore harum laboriosam ad
-      odio praesentium aperiam alias, in amet tempora consequuntur nihil
-      quibusdam minima? Excepturi natus velit, hic quam aperiam laudantium
-      deserunt ut cum asperiores illum! Iure, dolor. Voluptatibus sequi in odio,
-      minus, reprehenderit porro architecto delectus voluptatum provident
-      tempora maiores voluptas error eaque enim tempore tenetur odit, similique
-      veniam temporibus obcaecati deleniti est quam. Distinctio debitis ab sit
-      non suscipit provident quaerat blanditiis est ratione dolores atque rerum,
-      dicta laborum deleniti, repellat tempora voluptatem delectus inventore
-      deserunt qui architecto placeat sed? Maiores molestias, expedita quod,
-      quae quos dolore, sapiente corrupti voluptatibus vero quibusdam aperiam
-      fugiat commodi veritatis voluptatem rem repellendus ipsa obcaecati
-      reiciendis tempore dolorum praesentium cupiditate minima! Ipsum, velit
-      aperiam dolor autem veniam a unde? Unde vitae nobis vero debitis
-      doloremque distinctio veniam eius quibusdam deserunt consectetur. Maxime
-      debitis architecto, veniam officiis, corrupti voluptates, atque
-      consectetur itaque officia quae rerum aliquid quo dolor voluptatem! Non,
-      praesentium aspernatur! Consequuntur, accusamus deserunt quod iusto
-      officiis laboriosam iste exercitationem sed perferendis. Obcaecati
-      blanditiis aut veritatis nulla fugit beatae aspernatur porro! Itaque odit
-      ut repellat sit minima qui nemo cumque dignissimos nesciunt cupiditate
-      sequi porro, sint autem beatae non velit et blanditiis natus! Vitae at
-      natus voluptatum quo voluptates quam ex voluptate, facere consectetur
-      accusantium optio sequi officiis doloremque deleniti incidunt, autem ad
-      repellat quos architecto. Beatae, voluptate facere praesentium ea aliquid
-      corporis autem magni consequuntur necessitatibus exercitationem dolorem
-      officia eius delectus perspiciatis nesciunt est error voluptas in modi
-      eligendi quaerat facilis sed inventore? Nemo perferendis rem deleniti
-      dolores maiores dolorem aliquid aspernatur possimus ex vero recusandae ad
-      fuga, sapiente, atque quasi laudantium vitae perspiciatis deserunt
-      facilis, quia eligendi! Sed impedit repellendus enim quas consectetur
-      culpa blanditiis dicta voluptatum modi fugit officiis nihil nisi dolor
-      earum voluptates maiores quasi cupiditate minima adipisci temporibus,
-      veritatis odio? Impedit placeat ab similique dolore, delectus recusandae
-      dignissimos corporis quis optio sit obcaecati ipsum nulla repellendus
-      commodi omnis unde soluta doloribus et culpa eum voluptas incidunt
-      repellat, illum cum. Explicabo modi at reiciendis numquam hic mollitia,
-      magnam quod natus nemo cupiditate quos delectus totam ea iste nisi. Quae
-      aliquam eos laudantium laborum debitis, repudiandae esse porro possimus,
-      consequatur earum, odio laboriosam ab sapiente ratione labore libero
-      doloribus tempore nostrum. Earum, doloremque! Consectetur possimus quaerat
-      rerum, ad maiores, amet cum quidem itaque sint voluptates veniam
-      exercitationem aliquid minus rem quae aperiam libero molestiae iure
-      deserunt? At cumque dolor unde consequatur odit doloremque laborum earum
-      rerum magnam repellendus quam quasi eius praesentium quae ipsum
-      cupiditate, corrupti possimus recusandae facere! Enim iste eos quae natus
-      commodi? Error sint architecto praesentium. Cupiditate quisquam corrupti
-      inventore quia dolor amet laboriosam culpa quod exercitationem itaque et
-      debitis magni, suscipit minima fuga reprehenderit illum adipisci. Deleniti
-      velit ullam voluptatibus perferendis vero! Aperiam distinctio aspernatur
-      pariatur possimus animi ea minima autem odit quo culpa vitae, tempora
-      ratione amet officia laboriosam quam. Molestiae perferendis doloribus vero
-      quaerat dolorum eveniet ducimus maxime eum! Laborum explicabo, ipsa
-      aliquam consequatur dolores beatae! Labore obcaecati doloremque, alias
-      porro eos, maiores totam excepturi nulla culpa iure magni sed mollitia
-      sunt eaque cumque repellendus quasi animi, sint numquam esse eveniet rem!
-      Recusandae quidem accusantium dignissimos nobis! Ex quos, maiores sunt
-      temporibus adipisci asperiores nostrum inventore praesentium minus nam
-      illum dignissimos voluptate tempore voluptatum iusto nisi recusandae
-      incidunt veritatis quia ratione quaerat unde tempora eligendi nobis!
-      Reprehenderit vero laudantium commodi sed est iste voluptatum blanditiis
-      laborum voluptatem qui, delectus nesciunt in similique vel dolor illum
-      nobis explicabo quas eaque animi odio! Vitae repellendus perferendis
-      tenetur. Placeat ullam obcaecati enim cupiditate vero delectus aliquid
-      quaerat unde? Praesentium quos libero quisquam tempora tenetur
-      voluptatibus blanditiis harum temporibus dolor ducimus corrupti
-      consequatur, dolorum qui quod animi impedit culpa ex omnis eos nihil
-      mollitia. Dignissimos exercitationem repudiandae qui quam eos distinctio,
-      delectus fuga illo sunt, veniam non, iusto quibusdam beatae harum magnam
-      obcaecati itaque adipisci architecto doloremque dolorum vitae? Esse
-      voluptatem excepturi distinctio temporibus aliquid, hic inventore
-      voluptates nihil eius soluta accusantium dolor quis, ea animi nisi labore
-      provident mollitia odio rem ut commodi perferendis similique. Mollitia quo
-      maiores numquam enim ut! Aut, nemo sed obcaecati quisquam cumque dolore,
-      laboriosam consequatur nisi quasi a fugit itaque vel quibusdam quia
-      expedita. Illum facere perferendis commodi eveniet dicta, minima pariatur
-      obcaecati deserunt enim veniam! Quasi, eaque. Corrupti nesciunt ipsa iusto
-      deserunt quos ex, nemo itaque. Saepe repellendus porro quaerat culpa
-      necessitatibus at. Animi, soluta? Officiis voluptates sit odio deserunt
-      neque earum impedit rem veniam voluptatem nostrum quam atque corporis
-      laboriosam perspiciatis ipsa ab recusandae laudantium et, dolorem
-      doloribus labore architecto harum soluta! Minima maxime, iusto recusandae
-      reprehenderit ullam exercitationem, blanditiis, quisquam dolore quae
-      voluptates delectus odit harum commodi optio assumenda ipsum? Eius
-      possimus fugiat obcaecati libero dignissimos, tenetur esse. Fugiat,
-      voluptatibus dolore alias quo ipsum repellat accusantium aliquid
-      exercitationem mollitia dolorum? Eligendi ullam, molestias voluptates
-      architecto voluptatem dolore sint iure aliquid corporis unde cum eius
-      tenetur distinctio? Ipsam atque accusamus dignissimos vel magnam
-      laudantium natus quae commodi perferendis! Est, aperiam officia.
-      Repellendus hic doloremque id voluptatum molestias, omnis nesciunt aliquam
-      exercitationem blanditiis architecto pariatur assumenda porro ea
-      voluptatibus soluta cumque consequatur quidem recusandae earum incidunt.
-      Quos, delectus perspiciatis odit ut, cupiditate inventore dolores quae,
-      nulla dolor repellendus expedita! Laboriosam, porro odio! Quos
-      exercitationem dolorem repudiandae ut alias veritatis, inventore
-      repellendus, maxime autem quam accusantium dolorum temporibus officiis
-      fuga aliquam earum veniam corrupti rem porro blanditiis sint numquam
-      voluptatem quasi ad! Recusandae reiciendis voluptas libero dolore maiores
-      vero, sit culpa impedit? Deserunt illum repellendus consequuntur ex
-      perferendis quis tempore laborum, quod neque, labore, recusandae molestiae
-      accusantium qui asperiores totam veniam iusto vel. Tempora aspernatur ipsa
-      voluptas fugit id minus ab dolores voluptatem eum porro officiis excepturi
-      ipsum, aliquam quam nobis! Porro possimus nemo voluptas harum ipsam ea
-      tenetur, suscipit aliquid maxime minima quaerat, itaque aperiam molestias
-      quia cupiditate laborum sint amet error ipsum quis iste architecto ullam
-      eaque ratione! Facilis perspiciatis optio possimus dignissimos culpa
-      corrupti reiciendis nam quis. Vel quisquam doloremque vero sit quaerat
-      fuga dicta aliquid, est deleniti praesentium doloribus cumque libero
-      eaque. Blanditiis enim laborum harum reiciendis perspiciatis animi, iusto
-      molestias rerum consequatur accusantium sapiente obcaecati tempore. Sunt
-      asperiores, blanditiis corrupti, voluptatibus commodi doloremque, ipsum
-      magni repellat placeat magnam rerum doloribus alias! Maxime laborum
-      perferendis similique vero aperiam tenetur illum! Est tempore aperiam ex
-      eius nobis pariatur, mollitia tenetur ut libero nemo in impedit
-      repudiandae rem necessitatibus, expedita, excepturi illo. Quae neque
-      voluptates, nulla nam temporibus tenetur odit maxime dolor repudiandae
-      consectetur nesciunt odio officia eveniet sunt accusantium minus beatae
-      distinctio. Eveniet consectetur error culpa porro voluptatum quae deserunt
-      rem id, qui tempora quasi, doloremque voluptates a nihil quas aspernatur
-      omnis? Nostrum, dignissimos temporibus ipsam minus fuga ipsum laborum
-      voluptates, blanditiis dolor rem atque aperiam quibusdam exercitationem
-      neque illum expedita aliquam. Iure, similique a. Culpa ipsam ut fugiat,
-      pariatur commodi delectus placeat? Quam sapiente reiciendis maiores ullam
-      sed id dolorum explicabo ex quos, quasi nam ab, facilis dolore? Nisi ullam
-      facere quis minima minus quia enim, aliquid, amet quasi ad corrupti quos
-      cupiditate, voluptate qui in. Dolor error quos nemo odio ea qui, nam
-      inventore at sit, voluptas placeat delectus ullam laudantium nostrum eum
-      accusamus sapiente explicabo voluptates illo odit aut consequatur quae.
-      Perspiciatis officiis laborum quos beatae tempore perferendis odit
-      repellat aut excepturi quia cumque itaque modi rerum blanditiis minima
-      cupiditate qui accusantium debitis, aliquam dolorem mollitia. Enim odio
-      molestias laborum debitis numquam provident, cupiditate possimus fuga
-      rerum nihil eaque, quia aliquam excepturi repellendus nisi at ea iure
-      doloribus ex, perferendis tempora quaerat! Minima, dicta? Dignissimos
-      velit cum harum nostrum ad? Ullam exercitationem quos omnis amet ea,
-      minus, ratione repudiandae modi molestias inventore quae ipsam fugit
-      maiores sed reprehenderit. Molestiae aliquid, doloremque quaerat optio
-      atque unde, labore suscipit, vel voluptatibus odio facilis ad? Magni
-      numquam mollitia maxime eligendi iure ducimus hic sed odio. Accusamus,
-      praesentium ipsum molestiae fugit ratione aperiam et incidunt velit fugiat
-      sed nisi, voluptatibus enim voluptate suscipit temporibus mollitia.
-      Tempore quas sequi sunt ea sapiente? Aliquam mollitia, quam accusamus
-      fugit incidunt voluptas eveniet error impedit est ab itaque tenetur
-      necessitatibus rem quae perferendis, quos ad culpa, deleniti doloremque.
-      Eum modi incidunt reiciendis reprehenderit totam eveniet. Voluptates,
-      porro possimus labore nulla libero, nemo voluptatum iste placeat molestias
-      reprehenderit rerum atque a voluptas qui consequatur exercitationem
-      facilis perspiciatis esse eveniet? Animi voluptas aliquid consequuntur nam
-      similique! Suscipit, harum iusto? Natus obcaecati velit esse molestiae
-      inventore consectetur expedita doloremque voluptatem dolorum, adipisci
-      debitis, deserunt impedit quos fugit! Quod unde amet blanditiis commodi.
-      Aspernatur voluptatibus consectetur ipsum provident adipisci numquam.
-      Delectus dignissimos in eaque alias praesentium perspiciatis ea non? Illum
-      itaque corporis autem beatae consequatur esse nostrum vero ipsum excepturi
-      accusamus, cum repudiandae incidunt blanditiis. Nam tempore est quod
-      alias, voluptates dolorem, nihil explicabo magnam qui exercitationem
-      cumque laborum non veritatis repellendus, maxime velit blanditiis commodi
-      iusto optio. Enim eius pariatur qui neque voluptas, vero dolore aliquam
-      unde placeat laboriosam. Deserunt exercitationem praesentium sit deleniti
-      nam laudantium error? Sint vero aperiam optio quibusdam sequi? Magnam,
-      laudantium nostrum magni error maxime dolorum. Aperiam minima animi ab,
-      eveniet vel odio. Quibusdam, vel accusamus? Illo sapiente libero
-      accusantium dolor cum officiis nemo, ullam ea voluptas vero distinctio
-      voluptatem exercitationem quisquam nisi laudantium velit harum! Saepe
-      eveniet cumque quisquam aspernatur quos adipisci facere, amet nemo enim
-      quis delectus dolor quas provident nulla quae commodi numquam praesentium
-      eaque officia voluptates in consectetur laudantium! Officia, odit ex?
-      Blanditiis dolorem rem enim, animi soluta cum saepe perspiciatis illo
-      aliquam cupiditate vel beatae, fuga iste eaque officiis dolor adipisci
-      laudantium cumque suscipit alias labore ex deserunt voluptatum? Rerum
-      aliquid debitis, ipsam iusto perferendis fugit vel dolore deserunt
-      voluptatum in veritatis nihil blanditiis? Praesentium voluptatem sapiente
-      accusamus quia odio, animi similique, at dolore eveniet, voluptatum
-      beatae! Natus, error similique accusamus delectus fugiat corrupti placeat
-      vero deserunt perferendis. Blanditiis minus impedit consequuntur quos
-      autem. Ea perspiciatis cumque aliquam explicabo ullam eaque esse vel nam
-      commodi in harum quo eos fuga sed inventore, reprehenderit placeat dicta?
-      Molestiae quidem alias minus quasi dolore amet facilis debitis non sed
-      cum, in suscipit! Distinctio cum obcaecati quibusdam vero quod. Quae,
-      veritatis id? Voluptas, eaque praesentium. Sint, consectetur. Totam
-      necessitatibus enim nisi. Quibusdam voluptates incidunt fuga dicta sed!
-      Distinctio mollitia pariatur, eligendi culpa porro consequuntur similique
-      ab qui praesentium dignissimos non tempora illo, in accusantium officiis
-      sint quia veniam. Eius consequatur nulla quam, debitis incidunt impedit a,
-      aspernatur, necessitatibus fugiat iure harum dolores accusantium numquam
-      voluptas amet repudiandae assumenda id dicta dolor quod? Hic sapiente
-      magnam molestias sunt perferendis voluptatem ab vitae eligendi asperiores
-      cum. Veritatis porro explicabo sed ad, officiis vero nisi libero fuga
-      fugiat aperiam aliquam assumenda praesentium natus ut similique ab totam.
-      Maiores, repudiandae! Pariatur suscipit cum rem ea, totam, repellat
-      blanditiis quisquam earum maxime fugiat illo veniam voluptate dignissimos
-      reiciendis eligendi ipsum animi iure eos sapiente minus harum vero neque.
-      Modi tempore, ipsam ab laudantium quaerat quam iste voluptates a
-      temporibus. Culpa ad molestiae esse exercitationem doloribus consequatur
-      ipsa distinctio laborum ipsam fuga rem modi ducimus, inventore odio. Quasi
-      sed ratione expedita enim quaerat. Iure culpa explicabo eligendi
-      aspernatur ad quibusdam, eos repellendus perspiciatis autem fuga
-      accusamus. Nulla iure accusamus dolor. Dolorem tempora tenetur corporis
-      fuga id. Quia corporis ab ullam ex soluta incidunt sequi deleniti,
-      laborum, corrupti et nobis voluptas minus sed id ea nesciunt fugiat.
-      Doloremque veritatis nobis soluta ullam debitis neque et ea, sint quos
-      eius magni ipsam adipisci ut provident animi voluptatum illo repellat,
-      delectus quae. Iusto autem maxime aspernatur odio voluptatum suscipit
-      dignissimos enim odit eius nulla ratione dolorum quos illum modi
-      perspiciatis praesentium laudantium doloremque adipisci facere, ex libero?
-      Cupiditate ullam atque sit dolore inventore et reprehenderit animi
-      ratione, placeat consequatur ut reiciendis earum accusamus vero provident,
-      dolorum, odio ex possimus sapiente odit modi. Officia similique, harum
-      eaque ut eos mollitia! Consectetur vitae optio iusto voluptatum vero ipsa?
-      Aliquam, fugit quo quisquam quibusdam cumque debitis tenetur totam
-      corrupti cum dolorum perferendis perspiciatis natus ipsa a, ab id quod sit
-      earum! Quis fugit accusantium quos quo illum nihil quisquam iure illo
-      corrupti facilis nobis est, doloremque tempore debitis sequi blanditiis
-      excepturi reprehenderit cum ducimus animi, praesentium rerum! Error maxime
-      architecto nulla consequuntur omnis ea, voluptatem nobis, deleniti,
-      assumenda incidunt dignissimos esse quisquam at illum modi eos repellendus
-      soluta nesciunt tenetur perferendis deserunt iusto. Id accusamus error
-      consectetur fugit nihil architecto, quam veniam recusandae sit,
-      perferendis fugiat. Dolorum nihil sit, porro vel possimus expedita modi
-      minima ex quo iusto ut hic veniam. Alias nemo dolores blanditiis expedita?
-      Ab error fuga nihil quidem iusto quae, eaque deleniti quisquam assumenda
-      ullam, repellendus veritatis qui aliquam quo ea accusantium nostrum nemo
-      debitis. Natus, dolorem? Iste, eos quis. Vitae iusto dolores similique cum
-      corrupti quia pariatur rerum, adipisci aspernatur cumque et accusantium
-      atque, iure ducimus vel facere, natus minima autem. Tempora neque
-      molestias reprehenderit odio consequuntur voluptatibus laborum minus?
-      Doloremque recusandae nobis optio blanditiis quo enim quaerat odit
-      distinctio molestias incidunt facere obcaecati, iste quasi atque ullam
-      unde tempore dolorum laboriosam aperiam nemo quia totam alias! Sed ipsum
-      repellat ut corrupti enim repellendus fugit officiis, sequi delectus dicta
-      quam libero reprehenderit neque vel incidunt alias est commodi aliquid ad
-      dignissimos! Reprehenderit numquam quos alias vitae, adipisci, dolores
-      animi consequuntur similique quam reiciendis repellendus? Quibusdam quis
-      necessitatibus nostrum debitis veritatis ratione reprehenderit inventore,
-      consequatur praesentium rerum, doloribus quia eveniet commodi sunt
-      perspiciatis! Accusamus consequatur neque in atque voluptatibus eum iure
-      ipsum modi doloribus sint necessitatibus minus omnis animi, ducimus
-      dolores, magni ullam eligendi cupiditate ea. Natus expedita perspiciatis
-      autem ad exercitationem corporis id! Vero iusto facere ipsam harum, saepe
-      necessitatibus qui soluta accusamus animi corporis recusandae commodi
-      dolorum eius laboriosam, reprehenderit repudiandae expedita! Cum, maxime
-      temporibus asperiores voluptatum totam nulla accusamus ab, amet quam
-      harum, assumenda perferendis iste hic magni libero itaque ut corrupti? Cum
-      quia distinctio necessitatibus nemo culpa nesciunt pariatur et rem odio!
-      Numquam recusandae error eligendi nihil temporibus ducimus illum?
-      Voluptate error non laudantium eveniet? Neque adipisci labore asperiores
-      fuga voluptatibus explicabo qui ipsa tenetur vel ullam repudiandae
-      recusandae commodi cupiditate fugiat blanditiis ratione nihil inventore
-      pariatur, omnis placeat necessitatibus illo? Sunt ratione rerum dicta
-      perferendis exercitationem nisi voluptatibus aspernatur, harum cumque
-      repellat dolores voluptates blanditiis ipsa labore. Assumenda dignissimos
-      omnis commodi illo provident dicta unde laboriosam maxime dolor saepe
-      officia amet facere nihil, mollitia incidunt expedita recusandae? Deleniti
-      quis earum at? Aliquid inventore quidem magni odit sunt assumenda veniam
-      ipsam error voluptatum, officiis, ex omnis quo exercitationem facere
-      obcaecati quisquam veritatis itaque fugiat accusamus asperiores cumque
-      saepe ut sint? Deleniti, illo maxime. Cum soluta eos sit ducimus fuga
-      exercitationem laborum amet, et perspiciatis accusantium ut ullam quia
-      sint inventore odio sapiente praesentium facere? Optio facere maiores
-      inventore illum eum alias non, in fugit porro dolore debitis nostrum
-      expedita laboriosam officiis vero nisi delectus distinctio! Itaque,
-      maiores expedita harum quos labore at explicabo eligendi maxime corrupti
-      numquam eum similique omnis. Cum totam ullam magni ea reprehenderit
-      ratione. Aliquid deleniti facilis repudiandae natus perspiciatis cum
-      suscipit, est sit velit laborum voluptatibus, dolor magnam rerum hic.
-      Earum sed perspiciatis iusto unde alias hic aperiam vero cumque, commodi
-      reprehenderit at saepe quia veniam? Nesciunt, rerum quia autem laboriosam
-      sint iusto culpa voluptates odit, consectetur debitis id voluptatum ipsam
-      quae aspernatur laudantium quibusdam fugiat animi fugit architecto maxime
-      sapiente magni molestiae praesentium! Quod voluptatem maiores, vitae
-      eligendi commodi porro natus alias debitis, labore officia exercitationem,
-      mollitia consequuntur minus sapiente ipsum non nesciunt aliquid nobis
-      illum! Minus aperiam ad odit! Numquam, voluptates. Labore, tenetur.
-      Dolores nulla soluta totam asperiores placeat molestiae recusandae saepe
-      perspiciatis odit rem ea ratione delectus, eum, sunt incidunt culpa
-      doloribus porro obcaecati autem inventore architecto ex! Ullam adipisci
-      dignissimos ipsam ipsum neque veritatis nobis optio blanditiis? Dolor
-      natus nobis recusandae impedit mollitia ad, aspernatur accusamus, rerum
-      repellat itaque eius, molestiae magni? Delectus praesentium maiores
-      eveniet nulla error exercitationem repudiandae velit alias sint dolorem
-      consequatur voluptates inventore, similique, assumenda tempora? Ipsam
-      natus atque suscipit quia dignissimos labore at dolore, eos optio repellat
-      rem quos eaque non deleniti tenetur quas dolorem, corporis nesciunt.
-      Explicabo vitae, eum nihil iusto est quas. Culpa debitis placeat modi
-      maxime similique in mollitia temporibus maiores. Maxime suscipit culpa,
-      est rem consectetur iste eveniet quasi deleniti fuga illo necessitatibus
-      molestias iure hic ipsam doloremque sit nisi pariatur nihil in, aliquam,
-      magnam voluptates porro praesentium at. Iste, ratione? Voluptatum
-      laudantium, similique quia doloribus necessitatibus nihil ipsa fuga amet
-      earum deleniti error id distinctio, deserunt maxime! Temporibus illum
-      dignissimos rem facere reprehenderit, ea aperiam itaque esse soluta
-      perspiciatis culpa ex omnis blanditiis eius illo voluptate commodi hic
-      quidem similique recusandae quia dolor repellat porro at! Quod eligendi
-      nihil officia quia adipisci? Nemo cum vero odit eos delectus eius sunt
-      libero placeat architecto, debitis quisquam mollitia voluptate dolor
-      officia deserunt tenetur et id quam magnam nostrum. Molestiae fugiat est
-      reiciendis consequatur quae quaerat blanditiis saepe assumenda sunt
-      itaque. Repellat ab ratione non ipsam odio porro earum corrupti!
-      Accusantium repudiandae consequatur odio fugiat quas ratione earum illo
-      explicabo rem a pariatur, temporibus repellendus aut? Earum quidem illo
-      aut excepturi, tempora natus, ea distinctio, quaerat itaque vero quas!
-      Magni optio, accusantium ad omnis velit, cumque id neque praesentium quia
-      quaerat quibusdam assumenda quo rerum maiores repellendus natus eos,
-      suscipit commodi eius non possimus sit modi placeat? Corrupti, temporibus
-      fugiat alias earum veniam a facilis perspiciatis commodi cupiditate
-      nesciunt iste eligendi quia quisquam ducimus quod delectus libero
-      expedita. Cupiditate obcaecati inventore nesciunt aut dolorum deleniti,
-      tenetur quaerat explicabo odio dolore molestiae aspernatur, id delectus
-      architecto nihil tempora, ducimus dolores. Nisi, aut. Nisi, facere
-      recusandae, laborum consequatur pariatur officia sint dolor cupiditate
-      totam sapiente, vitae porro. Illo, numquam neque doloribus qui minus in
-      inventore non? Illo earum ab ducimus, saepe numquam quis temporibus
-      inventore eligendi ex ut officiis, repudiandae veritatis dicta minus
-      voluptates sequi explicabo! Minus eaque beatae sequi ullam. Qui voluptatum
-      laborum esse iure blanditiis consequuntur, repellat, harum incidunt sint
-      sunt vel excepturi a, et deserunt est minus vitae quasi alias deleniti
-      atque ullam culpa. Dolore autem aspernatur repudiandae consequatur quasi,
-      sit dolores fugit provident dignissimos sequi voluptas quo labore.
-      Mollitia qui, veritatis soluta, eos rem minus officia suscipit fuga illum
-      distinctio magni laborum, dicta autem fugiat perferendis! Vel consequatur
-      sit eius sunt molestias. Voluptatibus nulla dolore doloremque odio
-      blanditiis commodi. Accusamus eius, dolor, ipsa id magni fugiat natus,
-      corporis quo quod enim voluptate cupiditate. Quas labore maxime illum
-      sequi vero rerum pariatur non asperiores incidunt obcaecati, ab
-      perferendis mollitia facere repellat dolorem iste porro voluptas quam
-      fuga. Harum in, laboriosam, iure voluptatem necessitatibus ullam, ipsum
-      nostrum atque incidunt facilis beatae pariatur assumenda natus accusantium
-      et veniam eaque? Vel nihil assumenda libero dolorum! Numquam iure, nam,
-      voluptatibus praesentium quisquam maiores eaque ut rerum voluptates,
-      minima quidem esse ea? Rem laboriosam minima laborum repellat maiores
-      magni mollitia? Ut, optio sint, nesciunt corporis nulla beatae
-      necessitatibus magnam placeat perspiciatis aut exercitationem aliquid
-      enim, nisi dicta fugit vero nam at consectetur inventore. Autem, ipsam.
-      Quod laboriosam obcaecati ex quos! Possimus debitis doloremque quibusdam
-      similique nihil vitae commodi natus magni quia quis harum, molestiae
-      maiores. Quo quas ullam tempora optio, fugit ut! Est consequuntur earum
-      non quam autem repellendus veniam corrupti, a eaque placeat voluptatibus!
-      Fugit nesciunt aperiam veritatis quidem! Sed sunt quis, ipsam cupiditate a
-      laboriosam laborum, in saepe, exercitationem reprehenderit nemo quo eum
-      omnis animi quam! Necessitatibus aliquam dolor, libero voluptas, dolore at
-      qui doloremque quidem ratione eveniet dicta aspernatur repudiandae, magni
-      autem sapiente temporibus recusandae esse molestiae maxime quo delectus!
-      Deserunt eaque, numquam quod voluptatum illo repudiandae adipisci
-      quibusdam voluptates commodi itaque natus quae sed corporis impedit
-      architecto mollitia repellat eos ea quam officiis inventore nisi minus.
-      Consectetur eligendi id quia officiis impedit ut quo, libero temporibus
-      ducimus magnam quisquam sapiente nihil blanditiis tempore laboriosam! Quos
-      excepturi veritatis, laborum recusandae id minus omnis labore, quidem
-      dolore, ab tempora fugit voluptatem animi magni soluta? Praesentium eum
-      corrupti amet repudiandae qui nulla corporis sit reiciendis nobis voluptas
-      eius ullam quibusdam dolorem, aspernatur facilis iure laboriosam excepturi
-      minus a dolore! Optio eum nihil earum unde quod magni provident possimus,
-      commodi iure consequatur blanditiis doloribus molestiae soluta dolor ullam
-      nobis quis officiis sunt quia est iusto omnis corrupti rerum laborum.
-      Culpa qui, dolorem veritatis voluptates, eius ipsum accusamus
-      necessitatibus ad tempora dolore labore est velit amet incidunt explicabo
-      cum nam nulla adipisci. Dolore earum ea omnis hic repellendus. Dignissimos
-      repellendus, at pariatur sequi, reiciendis fugiat unde nostrum totam
-      nesciunt quae magni consequatur sapiente modi molestiae, impedit aperiam
-      iure corrupti vero eos itaque magnam! Cumque odit magni consequuntur alias
-      facere laudantium et, similique repudiandae, repellendus laborum nihil!
-      Odio numquam placeat dignissimos cupiditate magnam ducimus rerum,
-      consequuntur soluta, totam quis dolorem aliquam architecto quaerat,
-      recusandae maxime asperiores possimus corporis laboriosam ex quasi
-      obcaecati. Et, minima laboriosam. Nemo quas et ipsam aliquam ab nostrum,
-      iste tempora commodi? Quibusdam possimus molestias cupiditate culpa
-      reiciendis et delectus, accusantium iste illum magnam eos autem architecto
-      nam. Exercitationem ut possimus ea earum autem assumenda voluptates
-      corporis amet doloremque accusamus voluptate sint quos fugiat laboriosam
-      ducimus qui, explicabo esse sit provident deserunt! Impedit ipsa, iusto a
-      repudiandae illum error provident cum aliquam. Vitae, dicta. Earum aliquid
-      odio libero reprehenderit eos quasi quos consequuntur ex neque repellat
-      beatae omnis autem, deserunt, ducimus tempore ullam modi asperiores aut
-      at. Quisquam, eos repellat expedita ex nostrum nam alias corrupti neque,
-      cumque eveniet quo unde tempore! Fuga dolores debitis unde velit
-      aspernatur obcaecati tempora repellendus, eaque ad, pariatur eveniet
-      numquam quod cumque alias corporis blanditiis. Rem debitis molestias,
-      assumenda dolores accusantium ipsam delectus architecto sed id. Laudantium
-      fuga temporibus recusandae voluptates ratione iusto similique non
-      blanditiis aspernatur architecto alias tempore eaque consectetur error
-      repellat nulla tempora suscipit distinctio vero assumenda, animi itaque
-      unde! Voluptates asperiores nam dolorem inventore similique doloremque
-      unde laborum a, quasi voluptatum provident quos libero vero deleniti
-      aliquam ea saepe id modi consectetur eveniet assumenda rerum. Repellat
-      officia, ad in impedit dolores excepturi nisi nesciunt quasi fuga odit,
-      quisquam repellendus veniam, adipisci nihil dolorum eos! Recusandae totam
-      unde similique officia maiores rem excepturi architecto ullam ut illo,
-      itaque, a culpa vitae exercitationem aliquid. Natus voluptatum praesentium
-      dignissimos laborum eius. Fugit quidem exercitationem laudantium esse,
-      itaque repellendus amet quas recusandae, tempore quaerat pariatur veniam
-      doloremque quam maiores! Necessitatibus pariatur nihil accusantium nemo
-      perferendis harum culpa. Eligendi minima aliquid, atque accusamus,
-      asperiores saepe quo dolore nam repudiandae a similique eaque quaerat hic
-      ratione? Excepturi architecto quia qui autem unde ipsa iste exercitationem
-      perspiciatis consectetur delectus, accusantium quas assumenda illo tempora
-      eum eveniet nisi veniam laboriosam aperiam! Consectetur repellat ipsam
-      facilis maxime dolores debitis beatae illo obcaecati laudantium sapiente
-      voluptatibus molestiae officia ducimus veniam, aperiam commodi cumque quod
-      sed sit nesciunt vel. Iusto suscipit obcaecati distinctio temporibus ut
-      earum cupiditate. Sit vel necessitatibus cumque excepturi! Neque
-      accusantium blanditiis similique ut voluptatum vero, non praesentium
-      ullam, sapiente quod facere aspernatur a amet. In nulla officiis odit
-      eveniet animi quo quaerat molestiae voluptates error aut exercitationem,
-      omnis repellendus hic non molestias eligendi asperiores ullam possimus at
-      sapiente sequi consequatur sint dolorum! Corrupti natus aliquid amet
-      soluta esse atque vero voluptatem officia officiis. Perferendis
-      repudiandae fuga facilis, inventore, voluptas id blanditiis voluptatibus
-      quaerat deserunt eveniet hic maiores. At, corrupti officiis quae
-      perspiciatis ab nulla deleniti quaerat est adipisci consequatur quis,
-      commodi pariatur sint error quibusdam facere minus illo fuga? Placeat ex
-      enim, eaque iusto porro maiores. Debitis, reiciendis molestiae inventore
-      magnam qui harum dicta maiores cumque nesciunt dolore dolorem rem at, modi
-      perferendis! Natus reprehenderit facilis quibusdam, eligendi assumenda ea
-      et consequuntur in deserunt ullam nam accusantium minima velit, doloremque
-      quasi expedita a aspernatur! Dolorem rem exercitationem, velit ullam
-      doloribus magnam iusto dolore ut eum delectus eveniet perferendis! Alias
-      voluptate praesentium voluptas nisi harum eligendi voluptatum repellendus
-      exercitationem. Veniam est ipsam consequuntur minus reiciendis voluptas.
-      Omnis incidunt architecto aut odit illum consequatur fugit neque. Deleniti
-      eius enim mollitia reiciendis neque veniam sunt fugit qui dolorem
-      necessitatibus cumque, nisi laudantium maxime assumenda tempore inventore
-      voluptatum optio, quasi labore beatae quaerat officia distinctio obcaecati
-      voluptas. Inventore similique suscipit reiciendis beatae, tempore sit! Eos
-      corporis, aut tempora similique fugit sequi sapiente voluptate deleniti
-      harum quae molestiae aspernatur earum minus, commodi facere ab recusandae!
-      Dolorem optio amet nemo quis dolore delectus laborum voluptatum, cum
-      suscipit nihil vel quod nobis ipsam dicta soluta omnis aspernatur
-      consectetur ipsa iusto, cupiditate velit magnam. Porro accusamus, quaerat
-      dolores eos ipsam sunt!
+      <div className='flex flex-col lg:flex-row gap-2'>
+        <div className='relative flex flex-col bg-clip-border rounded-xl w-full lg:w-2/5 bg-white dark:bg-boxDark-500 text-gray-700 shadow-md'>
+          <div className='p-4'>
+            <div className='card-body flex flex-row'>
+              <div className='img-wrapper w-40 h-40 flex justify-center items-center'>
+                <Image
+                  src={HappySvg.src}
+                  alt='Picture of the author'
+                  width={0}
+                  height={0}
+                  style={{
+                    minWidth: '100%',
+                    minHeight: '100%',
+                  }}
+                  objectFit='cover'
+                  className='rounded-full'
+                />
+              </div>
+
+              <div className='py-2 ml-10'>
+                <h1 className='h6 truncate text-black dark:text-white'>
+                  Good Job, {user?.fullName}
+                </h1>
+                <p className='text-xs mt-1 text-black dark:text-white'>
+                  {`You've finished all of your tasks for this week.`}
+                </p>
+
+                <ul className='mt-4 text-black dark:text-white'>
+                  <li className='flex text-sm font-light'>
+                    <FaCheckDouble className='mr-2 mb-2' />
+                    <span>Finish Dashboard Design</span>
+                  </li>
+                  <li className='flex text-sm font-light'>
+                    <FaCheckDouble className='mr-2 mb-2' />
+                    <span>Fix Issue #74</span>
+                  </li>
+                  <li className='flex text-sm font-light'>
+                    <FaCheckDouble className='mr-2 mb-2' />
+                    <span>Publish Version 1.0.6</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Card1
+          type='line'
+          title='Daily Orders'
+          elId='dailyOrder'
+          data={dailyOrders}
+        />
+
+        <Card1
+          type='line'
+          title='Weekly Orders'
+          elId='weeklyOrder'
+          data={weeklyOrders}
+        />
+
+        <Card1
+          type='line'
+          title='Monthly Orders'
+          elId='monthlyOrder'
+          data={monthlyOrders}
+        />
+      </div>
+
+      <div className='flex flex-col lg:flex-row gap-3 w-full'>
+        {weeklyUserTopPurchases.length === 0 && (
+          <div className='bg-white dark:bg-boxDark-500 p-4 w-full lg:w-1/3 rounded-lg shadow-lg'>
+            <h3 className='text-base font-bold'>No Data</h3>
+          </div>
+        )}
+        {weeklyUserTopPurchases.length > 0 && (
+          <div className='w-full lg:w-[37.5%]'>
+            <Carousel
+              title='Weekly top users purchases'
+              datas={weeklyUserTopPurchases}
+              from='user'
+            />
+          </div>
+        )}
+
+        {weeklyTopCategorySales.length === 0 && (
+          <div className='bg-white dark:bg-boxDark-500 p-4 w-full lg:w-1/3 rounded-lg shadow-lg'>
+            <h3 className='text-base font-bold'>No Data</h3>
+          </div>
+        )}
+        {weeklyTopCategorySales.length > 0 && (
+          <div className='w-full lg:w-[37.5%]'>
+            <Carousel
+              title='Weekly top categories sales'
+              datas={weeklyTopCategorySales}
+              from='category'
+            />
+          </div>
+        )}
+
+        <div className='bg-white flex flex-col dark:bg-boxDark-500 p-4 w-full lg:w-1/4 rounded-lg shadow-lg gap-2'>
+          <div className='flex justify-between'>
+            <div>Weekly Top Products</div>
+            <div>Quantity</div>
+          </div>
+          {weeklyTopProducts.length === 0 && (
+            <div className='mt-2 font-bold'>No Data</div>
+          )}
+          {weeklyTopProducts.length > 0 &&
+            weeklyTopProducts.map((product: any) => (
+              <div key={product._id[0]} className='flex justify-between'>
+                <div className='flex items-center w-4/5'>
+                  <div className='flex-shrink-0 h-10 w-10'>
+                    <Image
+                      src={`${BaseURLProduct}/${product.pic[0][0]}`}
+                      alt='product images'
+                      width={0}
+                      height={0}
+                      objectFit='cover'
+                      className='h-10 w-10 rounded-full'
+                    />
+                  </div>
+                  <div className='ml-2 truncate'>
+                    <div className='leading-5 text-sm'>
+                      {product.nmProduct[0]}
+                    </div>
+                    <div className='text-xs leading-5 text-gray-500'>
+                      {product.subCategory[0]}
+                    </div>
+                  </div>
+                </div>
+                <div className='leading-5 w-1/5 text-right text-green-700'>
+                  {formatAliasesNumber(product.count, '')}
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+
+      <div className='flex flex-col lg:flex-row gap-3'>
+        <div className='flex gap-3 w-full lg:w-1/2'>
+          {totalSales && (
+            <Card2
+              title='Total Sales'
+              svg={<BasketSvg />}
+              data={totalSales}
+              dataPercentage={totalSales.salesPercentage}
+              dataPrimary={totalSales.sales}
+            />
+          )}
+          {totalProfit && (
+            <Card2
+              title='Total Profit'
+              svg={<WalletSvg />}
+              data={totalProfit}
+              dataPercentage={totalProfit.profitPercentage}
+              dataPrimary={totalProfit.profit}
+            />
+          )}
+        </div>
+        <div className='flex gap-3 w-full lg:w-1/2'>
+          {newUsers && (
+            <Card2
+              title='New Users'
+              svg={<ProductsSvg />}
+              data={newUsers}
+              dataPercentage={newUsers.usersPercentage}
+              dataPrimary={newUsers.users}
+            />
+          )}
+          {newProducts && (
+            <Card2
+              title='New Products'
+              svg={<ProductsSvg />}
+              data={newProducts}
+              dataPercentage={newProducts.productsPercentage}
+              dataPrimary={newProducts.products}
+            />
+          )}
+        </div>
+      </div>
+
+      <div className='flex flex-row gap-3'>
+        <div className='flex-shrink max-w-full w-full lg:w-1/2 mb-6'>
+          <div className='p-6 bg-white dark:bg-boxDark-500 rounded-lg shadow-lg h-full'>
+            <div className='flex flex-row justify-between pb-6'>
+              <div className='flex flex-col'>
+                <h3 className='text-base font-bold'>Weekly Sales Overview</h3>
+                <span className='text-gray-500 font-semibold text-sm'>
+                  Today's Earning:{' '}
+                  <span className='text-green-500'>
+                    {weeklyTotalSales &&
+                      formatRupiah(weeklyTotalSales.todaySales, 'Rp. ')}
+                  </span>
+                </span>
+              </div>
+            </div>
+            <div className='relative'>
+              {weeklyTotalSales && (
+                <MultipleCharts
+                  type='line'
+                  value1={weeklyTotalSales.totalSales1}
+                  value2={weeklyTotalSales.totalSales2}
+                  labels={weeklyTotalSales.labels}
+                  elId='dailytest'
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className='flex-shrink max-w-full w-full lg:w-1/2  mb-6'>
+          <div className='p-6 bg-white dark:bg-boxDark-500 rounded-lg shadow-lg h-full'>
+            <div className='flex flex-row justify-between pb-6'>
+              <div className='flex flex-col'>
+                <h3 className='text-base font-bold'>
+                  Weekly Description Users
+                </h3>
+                <span className='text-gray-500 font-semibold text-sm'>
+                  Users already have purchased in this week
+                </span>
+              </div>
+            </div>
+            <div className='relative'>
+              {weeklyOrders && weeklyOrders.orders.length > 0 && (
+                <Chart
+                  type='pie'
+                  value={weeklyDetailsAgeUsers.detailsAges}
+                  labels={weeklyDetailsAgeUsers.labels}
+                  elId='weekly top users'
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className='flex flex-col lg:flex-row gap-3'>
+        <div className='bg-white dark:bg-boxDark-500 p-6 w-full rounded-lg shadow-lg'>
+          <h2 className='text-xl font-bold mb-2'>Order Transactions</h2>
+          <div className='relative left-0 shadow-md sm:rounded-lg bg-white dark:bg-boxDark-500'>
+            <Datatable columns={columns} data={users} title='Users' />
+          </div>
+        </div>
+      </div>
+
+      <div className='flex gap-3'>
+        <div className='bg-white dark:bg-boxDark-500 p-2 h-full w-1/3 rounded-lg shadow-lg'>
+          {dailyOrders && dailyOrders.orders.length > 0 && (
+            <Chart
+              type='bar'
+              value={dailyOrders.orders}
+              labels={dailyOrders.labels}
+              elId='daily order (trx)'
+            />
+          )}
+        </div>
+        <div className='bg-white dark:bg-boxDark-500 p-2 h-full w-1/3 rounded-lg shadow-lg'>
+          {weeklyOrders && weeklyOrders.orders.length > 0 && (
+            <Chart
+              type='bar'
+              value={weeklyOrders.orders}
+              labels={weeklyOrders.labels}
+              elId='weekly order (trx)'
+            />
+          )}
+        </div>
+        <div className='bg-white dark:bg-boxDark-500 p-2 h-full w-1/3 rounded-lg shadow-lg'>
+          {monthlyOrders && monthlyOrders.orders.length > 0 && (
+            <Chart
+              type='bar'
+              value={monthlyOrders.orders}
+              labels={monthlyOrders.labels}
+              elId='monthly order (trx)'
+            />
+          )}
+        </div>
+      </div>
     </Layout>
   )
 }

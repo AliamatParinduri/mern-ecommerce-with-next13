@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import draftToHtml from 'draftjs-to-html'
 import Layout from '@/components/Layout'
 import { useRouter } from 'next/navigation'
 import { FaArrowLeft, FaTrash } from 'react-icons/fa'
@@ -12,6 +13,8 @@ import { BaseURLV1 } from '@/config/api'
 import InputFile from '@/components/InputFile'
 import { UserState, userContextType } from '@/context/userContext'
 import { isUserLogin } from '@/validations/shared'
+import WysiwygDescription from '@/components/WysiwygDescription'
+import { EditorState, convertToRaw } from 'draft-js'
 
 const AddProduct = () => {
   let { user }: userContextType = UserState()
@@ -23,6 +26,9 @@ const AddProduct = () => {
   const [category, setCategory] = useState('')
   const [subCategory, setSubCategory] = useState('')
   const [files, setFiles] = useState([])
+  const [description, setDescription] = useState(() =>
+    EditorState.createEmpty()
+  )
   const [price, setPrice] = useState('')
   const [stock, setStock] = useState('')
   const [size, setSize] = useState('')
@@ -43,6 +49,10 @@ const AddProduct = () => {
       formData.append('nmProduct', nmProduct)
       formData.append('category', category)
       formData.append('subCategory', subCategory)
+      formData.append(
+        'description',
+        draftToHtml(convertToRaw(description.getCurrentContent()))
+      )
       formData.append('details', JSON.stringify(productDetails))
 
       const config = {
@@ -311,6 +321,11 @@ const AddProduct = () => {
                     </table>
                   </fieldset>
                 )}
+                <WysiwygDescription
+                  title='Description'
+                  editorState={description}
+                  setEditorState={setDescription}
+                />
                 <Button
                   title='Add Product'
                   isLoading={isLoading}
