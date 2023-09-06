@@ -6,18 +6,18 @@ import { ProductDTO } from './product.dto'
 import { OrderDTO } from './order.dto'
 
 export interface RatingDTO extends Document {
-  userId: UserDTO
-  orderId: OrderDTO
-  productId: ProductDTO
+  user: UserDTO
+  order: OrderDTO
+  product: ProductDTO
   detailsId: string
   rating: number
   komentar: string
 }
 
 export const RatingSchema = Joi.object({
-  userId: Joi.string().required(),
-  orderId: Joi.string().required(),
-  productId: Joi.string().required(),
+  user: Joi.string().required(),
+  order: Joi.string().required(),
+  product: Joi.string().required(),
   detailsId: Joi.string().required(),
   rating: Joi.number().required(),
   komentar: Joi.string()

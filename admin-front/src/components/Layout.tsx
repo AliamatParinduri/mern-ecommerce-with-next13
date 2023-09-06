@@ -5,13 +5,11 @@ import Footer from './Footer'
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
-    <main className='flex min-h-screen w-screen'>
+    <main className='flex h-screen bg-light-500 dark:bg-dark-500'>
       <Sidebar />
-      <div className='flex flex-col ml-0 md:ml-56 lg:ml-64 justify-between grow-1 px-2 md:px-3 lg:px-5 w-screen bg-light-500 dark:bg-dark-500 gap-2 '>
-        <div className='flex flex-col w-[screen-1rem)] md:w-[calc(100vw-16rem)] lg:w-[calc(100vw-18.5rem)] gap-4 transform transition duration-200 ease-in-out'>
-          <Navbar />
-          {children}
-        </div>
+      <div className='flex flex-col flex-grow overflow-y-auto px-2 md:px-3 lg:px-4 gap-4 transform transition duration-200 ease-in-out'>
+        <Navbar />
+        {children}
         <Footer />
       </div>
     </main>

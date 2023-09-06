@@ -6,8 +6,9 @@ import {
   FaFileInvoiceDollar,
   FaFileImage,
   FaUsers,
+  FaDollarSign,
 } from 'react-icons/fa'
-import { BiCategoryAlt } from 'react-icons/bi'
+import { BiCategoryAlt, BiExit } from 'react-icons/bi'
 
 const sidebarItems = [
   {
@@ -21,7 +22,7 @@ const sidebarItems = [
     ],
   },
   {
-    text: 'Title 1',
+    text: 'Master Data',
     menu: [
       {
         text: 'Categories',
@@ -41,6 +42,26 @@ const sidebarItems = [
       {
         text: 'Orders',
         link: 'orders',
+        icon: <FaDollarSign />,
+      },
+    ],
+  },
+  {
+    text: 'Reports',
+    menu: [
+      {
+        text: 'Report Users',
+        link: 'report-users',
+        icon: <FaFileInvoiceDollar />,
+      },
+      {
+        text: 'Report Products',
+        link: 'report-product',
+        icon: <FaFileInvoiceDollar />,
+      },
+      {
+        text: 'Report Orders',
+        link: 'report-orders',
         icon: <FaFileInvoiceDollar />,
       },
     ],
@@ -56,13 +77,19 @@ const Sidebar = () => {
   }, [])
 
   return (
-    <aside className='bg-light-500 dark:bg-boxDark-500 text-blue-100 w-56 lg:w-64 space-y-6 py-7 px-2 fixed border-r-2 dark:border-r-0 inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition duration-100 ease-in-out z-3'>
+    <aside
+      className='bg-light-500 dark:bg-boxDark-500 overflow-y-auto text-blue-100 space-y-6 py-7 px-2 flex-col border-r-2 dark:border-r-0 inset-y-0 left-0 transform hidden md:flex -translate-x-full md:translate-x-0 transition duration-100 ease-in-out z-3'
+      style={{
+        minWidth: '200px',
+        maxWidth: '200px',
+      }}
+    >
       <a
         href='#'
         className='text-black dark:text-white flex items-center space-x-2 justify-center'
       >
         <svg
-          className='w-8 h-8'
+          className='w-7 h-7'
           xmlns='http://www.w3.org/2000/svg'
           fill='none'
           viewBox='0 0 24 24'
@@ -75,7 +102,7 @@ const Sidebar = () => {
             d='M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z'
           />
         </svg>
-        <span className='text-2xl font-extrabold'>E-commerce</span>
+        <span className='text-xl font-extrabold'>E-Commerce</span>
       </a>
       <nav>
         <Link
@@ -92,10 +119,10 @@ const Sidebar = () => {
           <FaHome />
           <span className='mx-2 text-sm font-normal '>Dashboard</span>
         </Link>
-        <div className=' space-y-6 '>
+        <div className=' space-y-5'>
           {sidebarItems.map(({ text, menu }) => {
             return (
-              <div key={text} className='space-y-3 text-black'>
+              <div key={text} className='text-black'>
                 <label className='px-3 text-xs text-gray-500 font-bold uppercase dark:text-gray-400'>
                   {text}
                 </label>
@@ -104,7 +131,7 @@ const Sidebar = () => {
                     return (
                       <Link
                         key={text}
-                        className={`flex items-center px-3 py-2 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-boxDark-400 dark:hover:text-gray-200 hover:text-gray-700 hover:cursor-pointer ${
+                        className={`flex items-center mt-1 px-3 py-2 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-boxDark-400 dark:hover:text-gray-200 hover:text-gray-700 hover:cursor-pointer ${
                           active === link ? 'bg-ActiveMenu-500 text-white' : ''
                         }`}
                         href={'/' + link}

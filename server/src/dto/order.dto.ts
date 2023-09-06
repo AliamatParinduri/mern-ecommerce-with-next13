@@ -15,6 +15,10 @@ export interface OrderDTO extends Document {
       qty: number
     }
   ]
+  estimatedDeliveryDate: Date
+  deliveredOrder: Date
+  paymentStatus: string
+  paymentOrder: string
   discount: number
   ongkir: number
   totalPrice: number
@@ -24,6 +28,10 @@ export const OrderSchema = Joi.object({
   user: Joi.string(),
   address: Joi.string().required(),
   products: Joi.required(),
+  paymentStatus: Joi.string(),
+  paymentOrder: Joi.string(),
+  estimatedDeliveryDate: Joi.date(),
+  deliveredOrder: Joi.date(),
   discount: Joi.number().required(),
   ongkir: Joi.number().required(),
   totalPrice: Joi.number().required()

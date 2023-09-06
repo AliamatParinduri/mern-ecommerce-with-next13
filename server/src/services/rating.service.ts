@@ -2,12 +2,15 @@
 import { RatingDTO } from '@/dto'
 import { ProductRepository, RatingRepository } from '@/repository'
 import { UnprocessableEntityError } from '@/utils'
+import { Request } from 'express'
 
 class RatingService {
   ratingRepository = new RatingRepository()
   productRepository = new ProductRepository()
 
-  getRatings = async (keyword: any) => {
+  getRatings = async (req: Request) => {
+    const keyword = { ...req.query }
+
     const result = await this.ratingRepository.getRatings(keyword)
 
     if (result.length < 0) {
@@ -27,8 +30,8 @@ class RatingService {
 
   createRating = async (payload: RatingDTO) => {
     const isRatingExist = await this.ratingRepository.findOne({
-      orderId: payload.orderId,
-      userId: payload.userId,
+      order: payload.order,
+      user: payload.user,
       detailsId: payload.detailsId
     })
 
@@ -37,7 +40,7 @@ class RatingService {
     }
 
     const product: any = await this.productRepository.findOne({
-      _id: payload.productId,
+      _id: payload.product,
       'details._id': payload.detailsId
     })
 
@@ -52,7 +55,6 @@ class RatingService {
     }
 
     const productRating = await this.ratingRepository.getRatings({
-      orderId: payload.orderId,
       detailsId: payload.detailsId
     })
 

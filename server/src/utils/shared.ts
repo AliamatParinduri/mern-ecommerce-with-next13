@@ -1,3 +1,4 @@
+/* eslint-disable no-unneeded-ternary */
 import { ProductDTO } from '@/dto'
 import { BaseURL, LinkForgotPassword } from '@config/index'
 
@@ -25,13 +26,103 @@ export const SendEmail = (userId: string, info: string) => {
   ${Content(
     info === 'verify user' ? 'Confirm your email address' : 'Create new Password',
     info === 'verify user' ? `didn't create an account` : 'not forgot your password',
-    info === 'verify user'
-      ? `${BaseURL}/api/v1/auth/${userId}/verifyAccount`
-      : `${LinkForgotPassword}/reset/${userId}`,
+    info === 'verify user' ? `${BaseURL}/api/v1/auth/${userId}/verifyAccount` : `${LinkForgotPassword}/reset/${userId}`,
     info === 'verify user' ? 'Activate your Account' : 'Create new Password'
   )}  
   ${FooterEmail()}
   `
+}
+
+export const getDates = (diff: number, type: string, diff2?: number) => {
+  const daysIndex: any = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 }
+  const weekend = 7
+
+  let dates: any[] = []
+  let index
+  const d = diff2 ? diff2 : 0
+
+  switch (type) {
+    case 'daily':
+      for (let i = 0; i < diff; i++) {
+        const date = new Date()
+
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() - i + d)
+        const lastDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() - i + d)
+        firstDay.setUTCHours(17, 0, 0, 0)
+        lastDay.setUTCHours(40, 59, 59, 999)
+
+        dates = [
+          {
+            start: firstDay.toString(),
+            end: lastDay.toString()
+          },
+          ...dates
+        ]
+      }
+
+      break
+    case 'weekly':
+      for (let i = 0; i < diff; i++) {
+        const date = new Date()
+        const day = date.toString().split(' ')[0]
+        index = daysIndex[day]
+
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() - (index + i * weekend) + d)
+        const lastDay = new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate() + (weekend - index - 1) - i * weekend + d
+        )
+
+        firstDay.setUTCHours(17, 0, 0, 0)
+        lastDay.setUTCHours(40, 59, 59, 999)
+
+        dates = [
+          {
+            start: firstDay.toString(),
+            end: lastDay.toString()
+          },
+          ...dates
+        ]
+      }
+      break
+    case 'monthly':
+      for (let i = 0; i < diff; i++) {
+        const date = new Date()
+        const firstDay = new Date(date.getFullYear(), date.getMonth() - i + d, 1)
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1 - i + d, 0)
+        firstDay.setUTCHours(17, 0, 0, 0)
+        lastDay.setUTCHours(40, 59, 59, 999)
+
+        dates = [
+          {
+            start: firstDay.toString(),
+            end: lastDay.toString()
+          },
+          ...dates
+        ]
+      }
+      break
+    default:
+      for (let i = 0; i < diff; i++) {
+        const date = new Date()
+        const firstDay = new Date(date.getFullYear() - i + d, 1)
+        const lastDay = new Date(date.getFullYear() + 1 - i + d, 0)
+        firstDay.setUTCHours(17, 0, 0, 0)
+        lastDay.setUTCHours(40, 59, 59, 999)
+
+        dates = [
+          {
+            start: firstDay.toString(),
+            end: lastDay.toString()
+          },
+          ...dates
+        ]
+      }
+      break
+  }
+
+  return dates
 }
 
 export const containsDuplicates = (array: string[]) => {
@@ -50,6 +141,60 @@ export const ucWords = (text: string) => {
   }
 
   return words.join(' ')
+}
+
+export function formatRupiah(angka: string, prefix?: string) {
+  let separator
+  const numberString = angka.toString().replace(/[^,\d]/g, '')
+  const split = numberString.split(',')
+  const sisa = split[0].length % 3
+  let rupiah = split[0].substr(0, sisa)
+  const ribuan = split[0].substr(sisa).match(/\d{3}/gi)
+
+  // tambahkan titik jika yang di input sudah menjadi angka ribuan
+  if (ribuan) {
+    separator = sisa ? '.' : ''
+    rupiah += separator + ribuan.join('.')
+  }
+
+  rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah
+  return prefix === undefined || prefix === '' ? rupiah : rupiah ? prefix + rupiah : ''
+}
+export function formatAliasesNumber(angka: string, prefix: string) {
+  let aliases
+  let total
+
+  const angkaAliases = formatRupiah(angka)
+  const split = angkaAliases.split('.')
+
+  if (split.length > 1) {
+    const decimal = (Number(split[1]) / 1000).toFixed(2)
+    total = Number(split[0]) + Number(decimal)
+  }
+
+  switch (split.length) {
+    case 2:
+      aliases = `${total}K`
+      break
+    case 3:
+      aliases = `${total}M`
+      break
+    case 4:
+      aliases = `${total}T`
+      break
+    case 5:
+      aliases = `${total}${'.' + split[1]}T`
+      break
+    default:
+      aliases = `${split[0]}`
+      break
+  }
+
+  if (prefix === 'Trx') {
+    return `${aliases} ${prefix}`
+  }
+
+  return prefix === undefined || prefix === '' ? aliases : aliases ? prefix + aliases : ''
 }
 
 export const HeaderEmail = () => {
