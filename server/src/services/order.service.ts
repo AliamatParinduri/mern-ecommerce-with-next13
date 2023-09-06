@@ -4,7 +4,7 @@ import { Request } from 'express'
 
 import { OrderDTO } from '@/dto'
 import { ProductRepository, OrderRepository, UserRepository } from '@/repository'
-import { UnprocessableEntityError } from '@/utils'
+import { UnprocessableEntityError, getDates } from '@/utils'
 
 class OrderService {
   productRepository = new ProductRepository()
@@ -12,14 +12,7 @@ class OrderService {
   orderRepository = new OrderRepository()
 
   getOrders = async (req: Request) => {
-    const { userId } = req.query
-    console.log(userId)
-
-    const keyword = userId
-      ? {
-          user: userId
-        }
-      : {}
+    const keyword = { ...req.query }
 
     const result = await this.orderRepository.getOrders(keyword)
 
@@ -29,11 +22,90 @@ class OrderService {
     return result
   }
 
-  getOrderById = async (addressId: string) => {
-    const result = await this.orderRepository.findById(addressId)
+  getRekapOrders = async (req: Request) => {
+    const keyword = { ...req.query }
+
+    const daily = getDates(7, 'daily')
+    const weekly = getDates(6, 'weekly')
+    const monthly = getDates(12, 'monthly')
+    const yearly = getDates(6, 'yearly')
+
+    const dailyOrders = await this.orderRepository.getDifferentOrdersThanBefore(daily, keyword, 'daily')
+    const weeklyOrders = await this.orderRepository.getDifferentOrdersThanBefore(weekly, keyword, 'weekly')
+    const monthlyOrders = await this.orderRepository.getDifferentOrdersThanBefore(monthly, keyword, 'monthly')
+    const yearlyOrders = await this.orderRepository.getDifferentOrdersThanBefore(yearly, keyword, 'yearly')
+
+    const w1 = getDates(1, 'weekly')[0]
+
+    const weeklyUserTopPurchases: any = await this.orderRepository.getUserTopPurchases(w1, keyword)
+    const weeklyTopCategorySales = await this.orderRepository.getTopCategorySales(w1, keyword)
+    const weeklyTopSalesProducts = await this.orderRepository.getTopSalesProduct(w1, keyword)
+
+    const m2 = getDates(2, 'monthly')
+    const totalSales = await this.orderRepository.getDifferentTotalSalesThanBefore(m2, keyword)
+    const getDifferentNewUsers = await this.userRepository.getDifferentNewUsersThanBefore(m2, keyword, 'monthly')
+    const getDifferentProfit = await this.orderRepository.getDifferentProfitThanBefore(m2, keyword)
+    const getDifferentProducts = await this.productRepository.getDifferentProductsThanBefore(m2, keyword, 'monthly')
+
+    const newDate1 = new Date()
+    const newDate2 = new Date(w1.end)
+
+    const diff = newDate2.getTime() - newDate1.getTime()
+    const daydiff = diff / (1000 * 60 * 60 * 24)
+
+    const d1 = getDates(7, 'daily', Math.floor(daydiff))
+    const d2 = getDates(7, 'daily', Math.floor(daydiff) - 7)
+
+    const getWeeklyDiffTotalSales = await this.orderRepository.getDifferentTotalSalesThanBefore(d1, keyword)
+    const getWeeklyDiffTotalSales2 = await this.orderRepository.getDifferentTotalSalesThanBefore(d2, keyword)
+    const getDifferentTotalSales = [getWeeklyDiffTotalSales, getWeeklyDiffTotalSales2]
+
+    let age1: number[] = []
+    let age2: number[] = []
+    let age3: number[] = []
+    for (const userAges of weeklyUserTopPurchases) {
+      const userAge = userAges.age.getFullYear()
+
+      const year = new Date().getFullYear()
+      const diffAge = year - userAge
+
+      if (diffAge < 18) {
+        age1 = [...age1, 1]
+      } else if (diffAge >= 18 && diffAge <= 40) {
+        age2 = [...age2, 1]
+      } else if (diffAge > 40) {
+        age3 = [...age3, 1]
+      } else {
+        throw new UnprocessableEntityError('Failed your age not valid!')
+      }
+    }
+    const getDetailsAgeUsersPurchases = {
+      labels: ['<17', '18-40', '>40'],
+      detailsAges: [age1.length, age2.length, age3.length]
+    }
+
+    return {
+      dailyOrders,
+      weeklyOrders,
+      monthlyOrders,
+      yearlyOrders,
+      weeklyUserTopPurchases,
+      weeklyTopCategorySales,
+      weeklyTopSalesProducts,
+      totalSales,
+      getDifferentNewUsers,
+      getDifferentProfit,
+      getDifferentProducts,
+      getDifferentTotalSales,
+      getDetailsAgeUsersPurchases
+    }
+  }
+
+  getOrderById = async (orderId: string) => {
+    const result = await this.orderRepository.findById(orderId)
 
     if (!result) {
-      throw new UnprocessableEntityError('Failed get data address, Data not found')
+      throw new UnprocessableEntityError('Failed get data order, Data not found')
     }
     return result
   }
@@ -79,7 +151,7 @@ class OrderService {
     const result = await this.orderRepository.createOrder(payload)
 
     if (!result) {
-      throw new UnprocessableEntityError('Failed create data address')
+      throw new UnprocessableEntityError('Failed create data prder')
     }
 
     for (const tmp of tmpProductDetails) {
@@ -94,25 +166,25 @@ class OrderService {
     return { result, user }
   }
 
-  updateOrder = async (payload: OrderDTO, addressId: string) => {
-    const address = await this.orderRepository.findById(addressId)
+  updateOrder = async (payload: OrderDTO, orderId: string) => {
+    const order = await this.orderRepository.findById(orderId)
 
-    if (!address) {
+    if (!order) {
       throw new UnprocessableEntityError('User not found')
     }
-    const result = await this.orderRepository.updateOrder(address, payload)
+    const result = await this.orderRepository.updateOrder(order, payload)
 
     if (!result) {
-      throw new UnprocessableEntityError('Failed update data address')
+      throw new UnprocessableEntityError('Failed update data order')
     }
     return result
   }
 
-  deleteOrder = async (addressId: string) => {
-    const result = await this.orderRepository.deleteOrder(addressId)
+  deleteOrder = async (orderId: string) => {
+    const result = await this.orderRepository.deleteOrder(orderId)
 
     if (!result) {
-      throw new UnprocessableEntityError('Failed update data address')
+      throw new UnprocessableEntityError('Failed update data order')
     }
     return result
   }

@@ -7,7 +7,9 @@ import { InternalServerError, logger } from '@/utils'
 class RatingRepository {
   getRatings = async (keyword: any) => {
     try {
-      return await Rating.find(keyword)
+      return await Rating.find(keyword).populate('user').populate('order').populate('product').sort({
+        createdAt: 'desc'
+      })
     } catch (err: any) {
       logger.error('ERR = Get rating ', err.message)
       throw new InternalServerError(err.message)
@@ -17,9 +19,9 @@ class RatingRepository {
   createRating = async (payload: RatingDTO) => {
     try {
       return await Rating.create({
-        userId: payload.userId,
-        orderId: payload.orderId,
-        productId: payload.productId,
+        user: payload.user,
+        order: payload.order,
+        product: payload.product,
         detailsId: payload.detailsId,
         rating: payload.rating,
         komentar: payload.komentar

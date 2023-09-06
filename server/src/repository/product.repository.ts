@@ -29,6 +29,48 @@ class ProductRepository {
     }
   }
 
+  getDifferentProductsThanBefore = async (dates: any[], keyword: any, type: string) => {
+    try {
+      let products: any[] = []
+      let labels: any[] = []
+      let label
+
+      for (const [i, date] of dates.entries()) {
+        const product = await Product.find({
+          ...keyword,
+          createdAt: { $gte: dates[i].start, $lte: dates[i].end }
+        })
+          .sort({ createdAt: 'desc' })
+          .countDocuments()
+
+        const dateSplit = date.start.split(' ')
+        switch (type) {
+          case 'daily':
+            label = `${dateSplit[1]} ${dateSplit[2]} ${dateSplit[3]}`
+            break
+          case 'weekly':
+            label = `${dateSplit[1]} ${dateSplit[2]} ${dateSplit[3]}`
+            break
+          case 'monthly':
+            label = `${dateSplit[1]} ${dateSplit[3]}`
+            break
+
+          default:
+            label = dateSplit[3]
+            break
+        }
+
+        products = [...products, product]
+        labels = [...labels, label]
+      }
+
+      return { labels, products }
+    } catch (err: any) {
+      logger.error('ERR = Get Order ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
   createProduct = async (payload: ProductDTO, pic: string[]) => {
     try {
       return await Product.create({
@@ -57,7 +99,7 @@ class ProductRepository {
 
   findById = async (userId: string) => {
     try {
-      return await Product.findById(userId)
+      return await Product.findById(userId).populate('category')
     } catch (err: any) {
       logger.error('ERR = Find product by id ', err.message)
       throw new InternalServerError(err.message)

@@ -47,8 +47,7 @@ export const UserUpdateSchema = Joi.object({
   password: Joi.string()
     .min(8)
     .max(20)
-    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})'))
-    .required(),
+    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})')),
   noHP: Joi.string().min(11).max(13).required(),
   isActive: Joi.boolean(),
   userPic: Joi.string()

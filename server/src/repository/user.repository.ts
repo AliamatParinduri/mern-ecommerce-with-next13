@@ -104,6 +104,47 @@ class UserRepository {
     }
   }
 
+  getDifferentNewUsersThanBefore = async (dates: any[], keyword: any, type: string) => {
+    try {
+      let users: any[] = []
+      let labels: any[] = []
+      let label
+
+      for (const [i, date] of dates.entries()) {
+        const user = await User.find({
+          ...keyword,
+          createdAt: { $gte: dates[i].start, $lte: dates[i].end }
+        })
+          .sort({ createdAt: 'desc' })
+          .countDocuments()
+
+        const dateSplit = date.start.split(' ')
+        switch (type) {
+          case 'daily':
+            label = `${dateSplit[1]} ${dateSplit[2]} ${dateSplit[3]}`
+            break
+          case 'weekly':
+            label = `${dateSplit[1]} ${dateSplit[2]} ${dateSplit[3]}`
+            break
+          case 'monthly':
+            label = `${dateSplit[1]} ${dateSplit[3]}`
+            break
+
+          default:
+            label = dateSplit[3]
+            break
+        }
+        users = [...users, user]
+        labels = [...labels, label]
+      }
+
+      return { labels, users }
+    } catch (err: any) {
+      logger.error('ERR = Get Order ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
   updateUser = async (user: UserDTO, payload: UserDTO) => {
     try {
       user.fullName = payload.fullName
@@ -169,9 +210,7 @@ class UserRepository {
 
       if (isProductExist >= 0) {
         message = 'remove'
-        user.wishlist = user.wishlist.filter(
-          (wishlist: Wishlist) => String(wishlist.product._id) !== String(product._id)
-        )
+        user.wishlist = user.wishlist.filter((wishlist: Wishlist) => String(wishlist.product) !== String(product._id))
       } else {
         message = 'add'
         user.wishlist.push({ product })

@@ -1,10 +1,9 @@
 /* eslint-disable prefer-regex-literals */
 import Joi from 'joi'
 import { Document } from 'mongoose'
-import { UserDTO } from './user.dto'
 
 export interface AddressDTO extends Document {
-  userId: UserDTO
+  userId: string
   fullAddress: Text
   kecamatan: string
   kabKot: string
@@ -17,6 +16,5 @@ export const AddressSchema = Joi.object({
   fullAddress: Joi.string().required(),
   kecamatan: Joi.string().required(),
   kabKot: Joi.string().required(),
-  provinsi: Joi.string().required(),
-  isPrimary: Joi.boolean().required()
+  provinsi: Joi.string().required()
 })
