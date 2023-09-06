@@ -21,14 +21,15 @@ import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { tokens } from '@/theme'
 import MenuUserInfo from '@/components/MenuUserInfo'
-import { formatRupiah, isUserLogin } from '@/validations/shared'
-import { ArrowRightAlt } from '@mui/icons-material'
+import { Delete, Edit } from '@mui/icons-material'
 import Loading from '@/assets/svg/Loading'
+import ColorButton from '@/components/ColorButton'
 import { useNavigate } from 'react-router-dom'
-import { ToastError } from '@/components/Toast'
+import { ToastError, ToastSuccess } from '@/components/Toast'
+import { isUserLogin } from '@/validations/shared'
 
-const Orders = () => {
-  const [orders, setOrders] = useState([])
+const Addresses = () => {
+  const [addresses, setAddresses] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const { setUser }: userContextType = UserState()
   const theme = useTheme()
@@ -36,7 +37,7 @@ const Orders = () => {
   const navigate = useNavigate()
   let { user }: userContextType = UserState()
 
-  const getOrders = async () => {
+  const getAddresses = async () => {
     try {
       setIsLoading(true)
       const config = {
@@ -46,12 +47,12 @@ const Orders = () => {
       }
 
       const { data } = await axios.get(
-        `${BaseURLV1}/order?userId=${user!._id}`,
+        `${BaseURLV1}/address?userId=${user!._id}`,
         config
       )
 
       setIsLoading(false)
-      setOrders(data.data)
+      setAddresses(data.data)
     } catch (e: any) {
       setIsLoading(false)
       if (
@@ -70,12 +71,36 @@ const Orders = () => {
     }
   }
 
+  const deleteAddress = async (id: string) => {
+    try {
+      setIsLoading(true)
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user!.token}`,
+        },
+      }
+
+      const { data } = await axios.delete(`${BaseURLV1}/address/${id}`, config)
+
+      setAddresses(
+        addresses.filter((address: any) => address._id !== data.data._id)
+      )
+      setIsLoading(false)
+      ToastSuccess('Success delete Address')
+    } catch (e: any) {
+      setIsLoading(false)
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed delete Address')
+      return false
+    }
+  }
+
   useEffect(() => {
     if (isUserLogin(user)) {
       user = isUserLogin(user)
     }
 
-    getOrders()
+    getAddresses()
   }, [])
 
   const StyledTableCell = styled(TableCell)(({ theme: any }) => ({
@@ -101,45 +126,59 @@ const Orders = () => {
     <Stack p={2} flexDirection={{ sx: 'column', lg: 'row' }} gap={2}>
       <MenuUserInfo />
       <Stack flexGrow={1}>
-        <Typography gutterBottom variant='h3' mb={2}>
-          My Orders
-        </Typography>
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          mb={1}
+          alignItems='center'
+        >
+          <Typography gutterBottom variant='h3' mb={2}>
+            My Address
+          </Typography>
+          <ColorButton onClick={() => navigate('/addresses/create')}>
+            Add New Address
+          </ColorButton>
+        </Box>
         <Box bgcolor={colors.secondary[500]} p={2} sx={{ borderRadius: '8px' }}>
           <Box>{isLoading && <Loading value='80' />}</Box>
-          {!isLoading && orders.length <= 0 && (
+          {!isLoading && addresses.length <= 0 && (
             <Typography gutterBottom variant='h5'>
               No Data
             </Typography>
           )}
-          {!isLoading && orders.length > 0 && (
+          {!isLoading && addresses.length > 0 && (
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 700 }} aria-label='customized table'>
                 <TableHead>
                   <TableRow>
-                    <StyledTableCell>Order</StyledTableCell>
-                    <StyledTableCell>Status</StyledTableCell>
-                    <StyledTableCell>Date Purchased</StyledTableCell>
-                    <StyledTableCell>Total Order</StyledTableCell>
+                    <StyledTableCell>Kecamatan</StyledTableCell>
+                    <StyledTableCell>Kab/Kota</StyledTableCell>
+                    <StyledTableCell>Provinsi</StyledTableCell>
+                    <StyledTableCell>Full Address</StyledTableCell>
                     <StyledTableCell>Actions</StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {orders &&
-                    orders.map((order: any) => (
-                      <StyledTableRow key={order.name}>
+                  {addresses &&
+                    addresses.map((address: any) => (
+                      <StyledTableRow key={address.kecamatan}>
                         <StyledTableCell component='th' scope='row'>
-                          {order._id}
+                          {address.kecamatan}
                         </StyledTableCell>
-                        <StyledTableCell>{order.paymentOrder}</StyledTableCell>
-                        <StyledTableCell>{order.createdAt}</StyledTableCell>
-                        <StyledTableCell>
-                          {formatRupiah(order.totalPrice, 'Rp. ')}
-                        </StyledTableCell>
-                        <StyledTableCell
-                          onClick={() => navigate(`/orders/${order._id}`)}
-                          sx={{ cursor: 'pointer' }}
-                        >
-                          {<ArrowRightAlt />}
+                        <StyledTableCell>{address.kabKot}</StyledTableCell>
+                        <StyledTableCell>{address.provinsi}</StyledTableCell>
+                        <StyledTableCell>{address.fullAddress}</StyledTableCell>
+                        <StyledTableCell sx={{ cursor: 'pointer' }}>
+                          <Edit
+                            onClick={() =>
+                              navigate(`/addresses/${address._id}/edit`)
+                            }
+                          />
+                          <Delete
+                            onClick={() => {
+                              deleteAddress(address._id)
+                            }}
+                          />
                         </StyledTableCell>
                       </StyledTableRow>
                     ))}
@@ -153,4 +192,4 @@ const Orders = () => {
   )
 }
 
-export default Orders
+export default Addresses

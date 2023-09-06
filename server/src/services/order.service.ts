@@ -12,8 +12,8 @@ class OrderService {
   orderRepository = new OrderRepository()
 
   getOrders = async (req: Request) => {
-    const keyword = { ...req.query }
 
+    const keyword = { ...req.query }
     const result = await this.orderRepository.getOrders(keyword)
 
     if (result.length < 0) {

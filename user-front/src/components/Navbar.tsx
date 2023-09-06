@@ -18,18 +18,23 @@ import {
   LightModeOutlined,
   ShoppingBagOutlined,
   SearchOutlined,
+  Login,
 } from '@mui/icons-material'
 import { useTheme } from '@mui/material'
 import { ColorModeContext, tokens } from '@/theme'
 import { UserState, userContextType } from '@/context/userContext'
 import { useNavigate } from 'react-router-dom'
+import { BaseURLUsers } from '@/config/api'
 
 const pages = [
-  { title: 'Home', link: '/dashboard' },
-  { title: 'All Product', link: '/all-product' },
-  { title: 'My Orders', link: '/orders' },
+  { title: 'Home', link: '/dashboard', auth: false },
+  { title: 'All Product', link: '/all-product', auth: false },
+  { title: 'My Orders', link: '/orders', auth: true },
 ]
-const settings = ['Profile', 'Logout']
+const settings = [
+  { title: 'Profile', link: '/profile' },
+  { title: 'Logout', link: '/logout' },
+]
 
 const Navbar = () => {
   const theme = useTheme()
@@ -66,13 +71,61 @@ const Navbar = () => {
             justifyContent: 'space-between',
           }}
         >
-          <Box display='flex'>
+          <Box display='flex' alignItems='center'>
             <AdbIcon
               sx={{
-                display: { xs: `${!user ? 'flex' : 'none'}`, sm: 'flex' },
+                display: { xs: 'none', md: 'flex' },
                 mr: 1,
               }}
             />
+
+            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+              <IconButton
+                size='large'
+                aria-label='account of current user'
+                aria-controls='menu-appbar'
+                aria-haspopup='true'
+                onClick={handleOpenNavMenu}
+                color='inherit'
+              >
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                id='menu-appbar'
+                anchorEl={anchorElNav}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+                onClose={handleCloseNavMenu}
+                open={Boolean(anchorElNav)}
+                sx={{
+                  display: { xs: 'block', md: 'none' },
+                }}
+              >
+                {pages.map((page) => {
+                  const menuItem = (
+                    <MenuItem
+                      key={page.link}
+                      onClick={() => navigate(page.link)}
+                    >
+                      <Typography textAlign='center'>{page.title}</Typography>
+                    </MenuItem>
+                  )
+                  return (
+                    <Box>
+                      {!page.auth && menuItem}
+                      {user && page.auth && menuItem}
+                    </Box>
+                  )
+                })}
+              </Menu>
+            </Box>
             <Typography
               variant='h6'
               noWrap
@@ -80,7 +133,7 @@ const Navbar = () => {
               onClick={() => navigate('/dashboard')}
               sx={{
                 mr: 2,
-                display: { xs: `${!user ? 'flex' : 'none'}`, sm: 'flex' },
+                display: 'flex',
                 fontFamily: 'monospace',
                 fontWeight: 700,
                 letterSpacing: '.3rem',
@@ -91,63 +144,33 @@ const Navbar = () => {
             >
               E-Commerce
             </Typography>
-
-            {user && (
-              <Box sx={{ flexGrow: 1, display: { xs: 'flex', sm: 'none' } }}>
-                <IconButton
-                  size='large'
-                  aria-label='account of current user'
-                  aria-controls='menu-appbar'
-                  aria-haspopup='true'
-                  onClick={handleOpenNavMenu}
-                  color='inherit'
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Menu
-                  id='menu-appbar'
-                  anchorEl={anchorElNav}
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'left',
-                  }}
-                  open={Boolean(anchorElNav)}
-                  onClose={handleCloseNavMenu}
-                  sx={{
-                    display: { xs: 'block', sm: 'none' },
-                  }}
-                >
-                  {pages.map((page) => (
-                    <MenuItem key={page.link} onClick={handleCloseNavMenu}>
-                      <Typography textAlign='center'>{'page'}</Typography>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </Box>
-            )}
           </Box>
 
-          {user && (
-            <Box
-              sx={{ flexGrow: 1, display: { xs: 'none', sm: 'flex' } }}
-              justifyContent='center'
-            >
-              {pages.map((page) => (
+          <Box
+            sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}
+            justifyContent='center'
+          >
+            {pages.map((page) => {
+              const btn = (
                 <Button
                   key={page.link}
                   onClick={() => navigate(page.link)}
-                  sx={{ my: 2, color: 'white' }}
+                  sx={{
+                    my: 2,
+                    color: 'inherit',
+                  }}
                 >
                   {page.title}
                 </Button>
-              ))}
-            </Box>
-          )}
+              )
+              return (
+                <Box>
+                  {!page.auth && btn}
+                  {user && page.auth && btn}
+                </Box>
+              )
+            })}
+          </Box>
 
           <Box display='flex' gap={2}>
             <Box display='flex'>
@@ -156,11 +179,16 @@ const Navbar = () => {
               </IconButton>
               <IconButton onClick={colorMode.toggleColorMode}>
                 {theme.palette.mode === 'dark' ? (
-                  <DarkModeOutlined />
-                ) : (
                   <LightModeOutlined />
+                ) : (
+                  <DarkModeOutlined />
                 )}
               </IconButton>
+              {!user && (
+                <IconButton onClick={() => navigate('/login')}>
+                  <Login />
+                </IconButton>
+              )}
               {user && (
                 <IconButton onClick={() => navigate('/cart')}>
                   <Badge
@@ -179,8 +207,8 @@ const Navbar = () => {
                 <Tooltip title='Open settings'>
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                     <Avatar
-                      alt='Remy Sharp'
-                      src='/static/images/avatar/2.jpg'
+                      alt={user.fullName}
+                      src={`${BaseURLUsers}/${user.userPic}`}
                     />
                   </IconButton>
                 </Tooltip>
@@ -201,8 +229,13 @@ const Navbar = () => {
                   onClose={handleCloseUserMenu}
                 >
                   {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                      <Typography textAlign='center'>{setting}</Typography>
+                    <MenuItem
+                      key={setting.title}
+                      onClick={() => navigate(setting.link)}
+                    >
+                      <Typography textAlign='center'>
+                        {setting.title}
+                      </Typography>
                     </MenuItem>
                   ))}
                 </Menu>

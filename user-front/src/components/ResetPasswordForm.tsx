@@ -17,6 +17,7 @@ import { tokens } from '@/theme'
 import { RemoveRedEyeOutlined, VisibilityOff } from '@mui/icons-material'
 import { BaseURLV1 } from '@/config/api'
 import { NewPasswordSchema } from '@/validations/userValidation'
+import { ToastError, ToastSuccess } from './Toast'
 
 const easing = [0.6, -0.05, 0.01, 0.99]
 const animate = {
@@ -45,12 +46,12 @@ const ResetPasswordForm = ({ id }: any) => {
       } = await axios.put(`${BaseURLV1}/auth/${id}/createNewPassword`, {
         password: formik.values.password,
       })
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       navigate('/login')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 

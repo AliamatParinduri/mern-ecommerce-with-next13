@@ -6,6 +6,7 @@ import {
   CardContent,
   Typography,
   Checkbox,
+  makeStyles,
 } from '@mui/material'
 
 import { Favorite, FavoriteBorder } from '@mui/icons-material'
@@ -13,6 +14,7 @@ import { BaseURLProduct, BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { countTotalOrder, sortPriceList } from '@/validations/shared'
 import { useNavigate } from 'react-router-dom'
+import { ToastError, ToastSuccess } from './Toast'
 
 type Props = {
   product: any
@@ -22,8 +24,10 @@ const CardComponent = ({ product }: Props) => {
   const { user, setUser }: userContextType = UserState()
   const navigate = useNavigate()
 
-  const handleWishlish = async (e: any, productId: string) => {
+  const handleWishlist = async (e: any, productId: string) => {
     e.stopPropagation()
+
+    const isAddToWishlist = e.target.checked
 
     try {
       const config = {
@@ -38,9 +42,24 @@ const CardComponent = ({ product }: Props) => {
         config
       )
 
+      let newWishlist
+      if (isAddToWishlist) {
+        newWishlist = [
+          ...user!.wishlist,
+          data.data.wishlist[data.data.wishlist.length - 1],
+        ]
+      } else {
+        newWishlist = [
+          ...user!.wishlist.filter(
+            (wishlist: any) =>
+              String(wishlist.product._id) !== String(productId)
+          ),
+        ]
+      }
+
       const newUserWishlist = {
         ...user,
-        wishlist: data.data.wishlist,
+        wishlist: newWishlist,
       }
 
       localStorage.setItem('userLogin', JSON.stringify(newUserWishlist))
@@ -49,8 +68,14 @@ const CardComponent = ({ product }: Props) => {
         ...newUserWishlist,
       })
 
-      alert('success update wishlist')
+      ToastSuccess(
+        `Success ${isAddToWishlist ? 'add' : 'remove'} product ${
+          isAddToWishlist ? 'to' : 'from'
+        } Wishlist`
+      )
     } catch (e: any) {
+      const description = e.response?.data?.description
+      ToastError(description ? description : 'Failed update Wishlist')
       return false
     }
   }
@@ -82,33 +107,47 @@ const CardComponent = ({ product }: Props) => {
             zIndex: 10,
           }}
         >
-          <Checkbox
-            icon={
-              <FavoriteBorder
-                sx={{
-                  color: 'red',
-                  fontWeight: 'bold',
-                  fontSize: '26px',
-                }}
-              />
-            }
-            checked={
-              user!.wishlist.findIndex(
-                (wishlist: any) => wishlist.product._id === product._id
-              ) >= 0
-                ? true
-                : false
-            }
-            checkedIcon={<Favorite sx={{ color: 'red', fontSize: '26px' }} />}
-            onClick={(e) => handleWishlish(e, product._id)}
-          />
+          {user && (
+            <Checkbox
+              icon={
+                <FavoriteBorder
+                  sx={{
+                    color: 'red',
+                    fontWeight: 'bold',
+                    fontSize: '26px',
+                  }}
+                />
+              }
+              checked={
+                user &&
+                user!.wishlist.findIndex(
+                  (wishlist: any) => wishlist.product._id === product._id
+                ) >= 0
+                  ? true
+                  : false
+              }
+              checkedIcon={<Favorite sx={{ color: 'red', fontSize: '26px' }} />}
+              onClick={(e) => handleWishlist(e, product._id)}
+            />
+          )}
         </Box>
       </Box>
-      <CardContent>
-        <Typography gutterBottom variant='headline' component='h2'>
+      <CardContent sx={{ width: '100%' }}>
+        <Typography
+          gutterBottom
+          variant='headline'
+          component='h3'
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: '2',
+            WebkitBoxOrient: 'vertical',
+          }}
+        >
           {product.nmProduct}
         </Typography>
-        <Typography mb={2} component='p'>
+        <Typography mb={1} variant='subtitle2'>
           {`${product.category.category} / ${product.subCategory}`}
         </Typography>
         <Box

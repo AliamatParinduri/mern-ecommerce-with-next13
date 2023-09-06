@@ -18,7 +18,7 @@ const UserProvider = (props: any) => {
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem('userLogin')!)
     if (!userInfo) {
-      navigate('/login')
+      // navigate('/login')
     } else {
       setUser({ ...userInfo })
     }

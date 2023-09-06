@@ -9,6 +9,7 @@ import { Stack, Box, TextField, useTheme } from '@mui/material'
 import { tokens } from '@/theme'
 import { BaseURLV1 } from '@/config/api'
 import { ForgotPasswordSchema } from '@/validations/userValidation'
+import { ToastError, ToastSuccess } from './Toast'
 
 const easing = [0.6, -0.05, 0.01, 0.99]
 const animate = {
@@ -34,12 +35,12 @@ const ForgotPasswordForm = ({ setAuth }: any) => {
       } = await axios.post(`${BaseURLV1}/auth/forgotPassword`, {
         email: formik.values.email,
       })
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       navigate('/login')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 

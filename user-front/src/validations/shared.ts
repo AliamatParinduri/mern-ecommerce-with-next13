@@ -1,3 +1,5 @@
+import { ToastError } from '@/components/Toast'
+
 export type LoginDTO = {
   username: string
   password?: string
@@ -29,6 +31,16 @@ export type CategoriesDTO = {
   subCategory: string[]
 }
 
+export type AddressDTO = {
+  _id?: string
+  fullAddress: string
+  isPrimary: boolean
+  kabKot: string
+  kecamatan: string
+  provinsi: string
+  updatedAt: string
+}
+
 export type ProductsDTO = {
   _id?: string
   nmProduct: string
@@ -36,6 +48,37 @@ export type ProductsDTO = {
   subCategory: string
   pic: []
   details: []
+}
+
+export type RatingsDTO = {
+  _id?: string
+  user?: userDTO
+  komentar: string
+  rating: string
+  detailsId: string
+}
+
+export type OrderDTO = {
+  _id?: string
+  user: userDTO
+  address: AddressDTO
+  products: [
+    {
+      product: ProductsDTO
+      subTotal: number
+      qty: number
+    }
+  ]
+  estimatedDeliveryDate: string
+  deliveredOrder: string
+  paymentStatus: string
+  paymentOrder: string
+  discount: number
+  ongkir: number
+  totalPrice: number
+  createdAt?: string
+  updatedAt?: string
+  __v?: string
 }
 
 export const ucWords = (text: string) => {
@@ -71,6 +114,21 @@ export const countTotalOrder = (details: any) => {
   }
 
   return total
+}
+
+export const isUserLogin = (user: any) => {
+  let userLogin
+  if (!user) {
+    const userInfo = JSON.parse(localStorage.getItem('userLogin')!)
+    if (userInfo) {
+      userLogin = userInfo
+    } else {
+      return undefined
+    }
+  } else {
+    userLogin = user
+  }
+  return userLogin
 }
 
 export function formatRupiah(angka: string, prefix: string) {

@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { Form, FormikProvider, useFormik } from 'formik'
 import axios from 'axios'
 import {
   Box,
-  Checkbox,
-  FormControlLabel,
   IconButton,
   InputAdornment,
   Link,
@@ -20,6 +18,8 @@ import { tokens } from '@/theme'
 import { RemoveRedEyeOutlined, VisibilityOff } from '@mui/icons-material'
 import { BaseURLV1 } from '@/config/api'
 import { LoginSchema } from '@/validations/userValidation'
+import { ToastError, ToastSuccess } from './Toast'
+import { UserState, userContextType } from '@/context/userContext'
 
 const easing = [0.6, -0.05, 0.01, 0.99]
 const animate = {
@@ -32,14 +32,12 @@ const animate = {
   },
 }
 
-const LoginForm = ({ setAuth }: any) => {
+const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-  const location = useLocation()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
-
-  const from = location.state?.from?.pathname || '/'
+  const { setUser }: userContextType = UserState()
 
   const [showPassword, setShowPassword] = useState(false)
 
@@ -55,14 +53,14 @@ const LoginForm = ({ setAuth }: any) => {
         data: { data, token, message },
       } = await axios.post(`${BaseURLV1}/auth/login`, payload)
 
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       localStorage.setItem('userLogin', JSON.stringify({ ...data, token }))
-      // setUser({ ...data, token })
+      setUser({ ...data, token })
       navigate('/')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 
