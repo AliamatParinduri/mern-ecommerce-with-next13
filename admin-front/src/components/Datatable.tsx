@@ -60,7 +60,7 @@ const Datatable = ({ columns, data, title }: Props) => {
   )
 
   return (
-    <div className='flex flex-col items-center justify-between py-4 px-2 bg-white dark:bg-boxDark-500'>
+    <div className='flex flex-col justify-between py-4 px-2 bg-white dark:bg-boxDark-500'>
       <div className='flex justify-between mb-5 w-full'>
         <select
           value={pageSize}
@@ -83,60 +83,65 @@ const Datatable = ({ columns, data, title }: Props) => {
           title={title}
         />
       </div>
-      <table
-        {...getTableProps()}
-        className='w-full text-sm text-left text-gray-500 dark:text-gray-400'
-      >
-        <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
-          {headerGroups.map((headerGroup: any) => (
-            <tr key={Math.random() * 10} {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column: any) => (
-                <th
-                  key={Math.random() * 100}
-                  {...column.getHeaderProps()}
-                  className='text-center px-6 py-3'
-                >
-                  {column.render('Header')}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {page.length < 1 && (
-            <tr>
-              <td
-                colSpan={columns.length}
-                className='py-4 text-center border-b border-slate-50/10'
-              >
-                No Data
-              </td>
-            </tr>
-          )}
-          {page.map((row: any) => {
-            prepareRow(row)
-            return (
+      <div className='overflow-x-auto '>
+        <table
+          {...getTableProps()}
+          className='w-full text-sm text-left text-gray-500 dark:text-gray-400'
+        >
+          <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+            {headerGroups.map((headerGroup: any) => (
               <tr
-                key={Math.random() * 5}
-                {...row.getRowProps()}
-                className='bg-white border-b dark:bg-boxDark-500 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+                key={Math.random() * 10}
+                {...headerGroup.getHeaderGroupProps()}
               >
-                {row.cells.map((cell: any) => {
-                  return (
-                    <td
-                      key={Math.random() * 50}
-                      {...cell.getCellProps()}
-                      className='px-6 py-4'
-                    >
-                      {cell.render('Cell')}
-                    </td>
-                  )
-                })}
+                {headerGroup.headers.map((column: any) => (
+                  <th
+                    key={Math.random() * 100}
+                    {...column.getHeaderProps()}
+                    className='text-center px-6 py-3'
+                  >
+                    {column.render('Header')}
+                  </th>
+                ))}
               </tr>
-            )
-          })}
-        </tbody>
-      </table>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {page.length < 1 && (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className='py-4 text-center border-b border-slate-50/10'
+                >
+                  No Data
+                </td>
+              </tr>
+            )}
+            {page.map((row: any) => {
+              prepareRow(row)
+              return (
+                <tr
+                  key={Math.random() * 5}
+                  {...row.getRowProps()}
+                  className='bg-white border-b dark:bg-boxDark-500 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+                >
+                  {row.cells.map((cell: any) => {
+                    return (
+                      <td
+                        key={Math.random() * 50}
+                        {...cell.getCellProps()}
+                        className='px-6 py-4'
+                      >
+                        {cell.render('Cell')}
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
       <div className='flex items-center justify-between w-full mt-5'>
         <span>
           Page{' '}

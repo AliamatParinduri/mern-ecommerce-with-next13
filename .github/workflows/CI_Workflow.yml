@@ -32,3 +32,10 @@ jobs:
         npm i
         npm test
         npm run build --if-present
+
+    - name : Test User Frontend Service
+      working-directory: ./user-front
+      run: |
+        npm i
+        npm test
+        npm run build --if-present

@@ -10,6 +10,11 @@ export const connectDB = async () => {
     logger.info('Success - connect to database mongoose')
   } catch (err) {
     logger.error('Error - connect to database mongoose ', err)
-    process.exit()
+    // process.exit()
+    await closeDB()
   }
+}
+
+export const closeDB = async () => {
+  await mongoose.connection.close()
 }

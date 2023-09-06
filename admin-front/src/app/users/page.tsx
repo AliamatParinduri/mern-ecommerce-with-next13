@@ -127,7 +127,7 @@ const Users = () => {
             </Link>
           </div>
           <div className='mt-8'>
-            <div className='relative overflow-x-auto shadow-md sm:rounded-lg bg-white dark:bg-boxDark-500'>
+            <div className='relative shadow-md sm:rounded-lg bg-white dark:bg-boxDark-500'>
               <Datatable columns={columns} data={users} title='Users' />
             </div>
           </div>

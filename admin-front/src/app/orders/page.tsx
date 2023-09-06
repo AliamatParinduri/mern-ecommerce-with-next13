@@ -10,14 +10,16 @@ import Layout from '@/components/Layout'
 import Loading from '@/components/Loading'
 import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
-import { CategoriesDTO } from '@/validations/shared'
+import { formatRupiah, isUserLogin } from '@/validations/shared'
+import { useRouter } from 'next/navigation'
 
-const Categories = () => {
+const Orders = () => {
   const [isLoading, setIsLoading] = useState(false)
-  const [categories, setCategories] = useState<CategoriesDTO[]>([])
-  const { user }: userContextType = UserState()
+  const [orders, setOrders] = useState([])
+  const router = useRouter()
+  let { user }: userContextType = UserState()
 
-  const fetchCategories = async () => {
+  const fetchOrders = async () => {
     setIsLoading(true)
     try {
       const config = {
@@ -26,10 +28,10 @@ const Categories = () => {
         },
       }
 
-      const { data } = await axios.get(`${BaseURLV1}/category`, config)
+      const { data } = await axios.get(`${BaseURLV1}/order`, config)
 
       setIsLoading(false)
-      setCategories(data.data)
+      setOrders(data.data)
     } catch (e: any) {
       setIsLoading(false)
       return false
@@ -45,13 +47,13 @@ const Categories = () => {
         },
       }
 
-      await axios.delete(`${BaseURLV1}/category/${id}`, config)
+      await axios.delete(`${BaseURLV1}/order/${id}`, config)
 
-      const newCategory = categories.filter((category) => category._id !== id)
-      setCategories(newCategory)
+      const newOrder = orders.filter((order: any) => order._id !== id)
+      setOrders(newOrder)
 
       setIsLoading(false)
-      alert('success delete category')
+      alert('success delete order')
     } catch (e: any) {
       setIsLoading(false)
       alert(e.response.data.description)
@@ -60,18 +62,59 @@ const Categories = () => {
   }
 
   useEffect(() => {
-    fetchCategories()
-  }, [user])
+    isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
+
+    fetchOrders()
+  }, [])
 
   const columns = useMemo(
     () => [
       {
-        Header: 'Category',
-        accessor: 'category',
+        Header: 'Order',
+        accessor: '_id',
       },
       {
-        Header: 'Sub Category',
-        accessor: 'subCategory',
+        Header: 'Payment Status',
+        accessor: 'paymentStatus',
+        Cell: ({ row }: any) => {
+          const color =
+            row.original.paymentStatus === 'UnPaid' ? 'red' : 'green'
+          return (
+            <span
+              className={`bg-${color}-100 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-${color}-900 dark:text-white`}
+            >
+              {row.original.paymentStatus}
+            </span>
+          )
+        },
+      },
+      {
+        Header: 'Payment Order',
+        accessor: 'paymentOrder',
+        Cell: ({ row }: any) => {
+          let color
+          if (row.original.paymentOrder === 'Process') {
+            color = 'blue'
+          } else if (row.original.paymentOrder === 'Delivery') {
+            color = 'gray'
+          } else {
+            color = 'green'
+          }
+          return (
+            <span
+              className={`bg-${color}-100 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-${color}-900 dark:text-white`}
+            >
+              {row.original.paymentOrder}
+            </span>
+          )
+        },
+      },
+      {
+        Header: 'Total Order',
+        accessor: 'totalPrice',
+        Cell: ({ row }: any) => {
+          return <span>{formatRupiah(row.original.totalPrice, 'Rp. ')}</span>
+        },
       },
       {
         Header: 'Action',
@@ -79,7 +122,7 @@ const Categories = () => {
         Cell: ({ row }: any) => (
           <div className='flex items-center gap-2'>
             <Link
-              href={`categories/${row.original._id}/edit-category`}
+              href={`orders/${row.original._id}/edit-order`}
               className='font-medium text-white no-underline bg-ActiveMenu-500 px-3 py-1.5 rounded'
             >
               Edit
@@ -110,31 +153,21 @@ const Categories = () => {
           <div className='flex justify-between items-center'>
             <div className='flex flex-col gap-1 '>
               <span className='text-2xl font-semibold tracking-wide'>
-                Categories ({categories.length})
+                Order ({orders.length})
               </span>
-              <small className='text-xs'>
-                Manage categories for your store
-              </small>
+              <small className='text-xs'>Manage orders for your store</small>
             </div>
-            <Link
-              href='/categories/add-category'
-              className='flex items-center text-white gap-1 bg-ActiveMenu-500 rounded py-2 px-5'
-            >
-              <FaPlus />
-              <span>Add New</span>
-            </Link>
           </div>
           <div className='mt-8'>
             <div className='relative shadow-md sm:rounded-lg bg-white dark:bg-boxDark-500'>
               <Datatable
                 columns={columns}
-                data={categories.map((category: any) => {
+                data={orders.map((order: any) => {
                   return {
-                    ...category,
-                    subCategory: category.subCategory.toString(),
+                    ...order,
                   }
                 })}
-                title='Categories'
+                title='Orders'
               />
             </div>
           </div>
@@ -144,4 +177,4 @@ const Categories = () => {
   )
 }
 
-export default Categories
+export default Orders

@@ -9,17 +9,7 @@ class AddressController {
 
   getAddress = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { isPrimary = false } = req.params
-      const { user } = res.locals
-
-      const keyword = isPrimary
-        ? {
-            user: user._id,
-            isPrimary
-          }
-        : {}
-
-      const result = await this.addressService.getAddress(keyword)
+      const result = await this.addressService.getAddress(req)
 
       const message = 'Success get data address'
       logger.info(message)
