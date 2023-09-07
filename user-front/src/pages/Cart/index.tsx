@@ -155,7 +155,11 @@ const Cart = () => {
         setAddress(data.data)
       }
 
+      let totalProfit = 0
       const products = user?.cart.map((cart: any) => {
+        totalProfit +=
+          (cart.details.price - cart.details.capitalPrice) * cart.qty
+
         return {
           product: cart.product._id,
           details: cart.details,
@@ -171,6 +175,7 @@ const Cart = () => {
         user: user!._id,
         address: address._id,
         products,
+        totalProfit,
         discount: 0,
         paymentStatus: 'Paid',
         estimatedDeliveryDate: nextThreeDays,

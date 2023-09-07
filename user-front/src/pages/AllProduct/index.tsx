@@ -194,6 +194,10 @@ const AllProduct = () => {
       getParams({
         filterByCategories: FilterByCategories,
       })
+
+      if (newCheck.length === 0 || newCheck.length > 1) {
+        setSelectFilterBySubCategory('')
+      }
     }
   }
 
