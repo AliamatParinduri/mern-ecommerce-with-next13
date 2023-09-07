@@ -11,6 +11,7 @@ export interface RegisterDTO extends LoginDTO {
   fullName: string
   email: string
   noHP: string
+  dateOfBirth: string
 }
 
 export const LoginValidate = {
@@ -31,5 +32,6 @@ export const RegisterSchema = Joi.object({
     .required(),
   ...LoginValidate,
   isActive: Joi.boolean(),
+  dateOfBirth: Joi.date().required(),
   noHP: Joi.string().min(11).max(13).required()
 })

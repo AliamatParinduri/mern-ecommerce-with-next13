@@ -1,3 +1,4 @@
+// eslint-disable-next-line array-callback-return
 import { CategoryDTO } from '@/dto'
 import { CategoryRepository } from '@/repository'
 import { UnprocessableEntityError, containsDuplicates } from '@/utils'
@@ -6,21 +7,11 @@ class CategoryService {
   categoryRepository = new CategoryRepository()
 
   getCategories = async () => {
-    const result = await this.categoryRepository.getCategories()
-
-    if (result.length < 0) {
-      throw new UnprocessableEntityError('Failed get data category, Data not found')
-    }
-    return result
+    return await this.categoryRepository.getCategories()
   }
 
   getCategoryById = async (categoryId: string) => {
-    const result = await this.categoryRepository.findById(categoryId)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed get data category, Data not found')
-    }
-    return result
+    return await this.categoryRepository.findById(categoryId)
   }
 
   createCategory = async (payload: CategoryDTO) => {
@@ -30,19 +21,12 @@ class CategoryService {
       throw new UnprocessableEntityError('Category already exists')
     }
 
-    // eslint-disable-next-line array-callback-return
-    // check if sub category has same value
     const checkSubCategory = containsDuplicates(payload.subCategory)
     if (checkSubCategory) {
       throw new UnprocessableEntityError(`Sub Category can't have the same value`)
     }
 
-    const result = await this.categoryRepository.createCategory(payload)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed create data category')
-    }
-    return result
+    return await this.categoryRepository.createCategory(payload)
   }
 
   updateCategory = async (categoryId: string, payload: CategoryDTO) => {
@@ -56,25 +40,11 @@ class CategoryService {
 
     const category = await this.categoryRepository.findById(categoryId)
 
-    if (!category) {
-      throw new UnprocessableEntityError('Category not found')
-    }
-
-    const result = await this.categoryRepository.updateCategory(category, payload)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed update data category')
-    }
-    return result
+    return await this.categoryRepository.updateCategory(category, payload)
   }
 
   deleteCategory = async (categoryId: string) => {
-    const result = await this.categoryRepository.deleteCategory(categoryId)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed delete data category')
-    }
-    return result
+    return await this.categoryRepository.deleteCategory(categoryId)
   }
 }
 

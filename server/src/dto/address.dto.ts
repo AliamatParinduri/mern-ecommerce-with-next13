@@ -16,5 +16,6 @@ export const AddressSchema = Joi.object({
   fullAddress: Joi.string().required(),
   kecamatan: Joi.string().required(),
   kabKot: Joi.string().required(),
-  provinsi: Joi.string().required()
+  provinsi: Joi.string().required(),
+  isPrimary: Joi.boolean().required()
 })
