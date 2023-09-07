@@ -26,6 +26,7 @@ export default function Register() {
     username: '',
     email: '',
     noHP: '',
+    birthday: '',
     password: '',
     confirmPassword: '',
   }
@@ -35,6 +36,7 @@ export default function Register() {
     const payload = {
       fullName: formik.values.fullName,
       username: formik.values.username,
+      dateOfBirth: formik.values.birthday,
       email: formik.values.email.toLowerCase(),
       noHP: formik.values.noHP,
       password: formik.values.password,
@@ -111,6 +113,14 @@ export default function Register() {
           />
           <ErrorInputMessage
             errorMessage={formik.errors.email}
+            buttonClick={buttonClick}
+          />
+          <InputType
+            type='date'
+            title='Birthday'
+            placeholder='Birthday'
+            formik={formik}
+            name='birthday'
             buttonClick={buttonClick}
           />
           <InputType

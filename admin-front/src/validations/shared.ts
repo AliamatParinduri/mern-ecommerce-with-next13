@@ -6,6 +6,7 @@ export type LoginDTO = {
 export type RegisterDTO = LoginDTO & {
   fullName: string
   email: string
+  birthday: string
   noHP: string
   confirmPassword?: string
 }
