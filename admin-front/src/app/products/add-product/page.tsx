@@ -15,6 +15,7 @@ import { UserState, userContextType } from '@/context/userContext'
 import { isUserLogin } from '@/validations/shared'
 import WysiwygDescription from '@/components/WysiwygDescription'
 import { EditorState, convertToRaw } from 'draft-js'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const AddProduct = () => {
   let { user }: userContextType = UserState()
@@ -41,7 +42,7 @@ const AddProduct = () => {
     e.preventDefault()
 
     if (productDetails.length === 0) {
-      alert('Add Details Product First')
+      ToastError('Add Details Product First')
       return false
     }
 
@@ -71,12 +72,12 @@ const AddProduct = () => {
       const {
         data: { data, token, message },
       } = await axios.post(`${BaseURLV1}/product`, formData, config)
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       router.push('/products')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 
@@ -126,13 +127,13 @@ const AddProduct = () => {
       setCategory(e.target.value)
       setSubCategories(category.subCategory)
     } else {
-      alert(`didn't have sub category`)
+      ToastError(`didn't have sub category`)
     }
   }
 
   const handleDeleteProductDetail = async (id: string) => {
     if (productDetails.length === 1) {
-      alert('failed, product detail minimal 1 record')
+      ToastError('failed, product detail minimal 1 record')
       return false
     }
 

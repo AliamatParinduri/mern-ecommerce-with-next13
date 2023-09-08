@@ -13,6 +13,7 @@ import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { NewPasswordSchema } from '@/validations/userValidation'
 import { BaseURLV1 } from '@/config/api'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 type Props = {
   params: {
@@ -38,12 +39,12 @@ export default function ForgotPassword({ params: { id } }: Props) {
       } = await axios.put(`${BaseURLV1}/auth/${id}/createNewPassword`, {
         password: formik.values.password,
       })
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       router.push('/login')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 

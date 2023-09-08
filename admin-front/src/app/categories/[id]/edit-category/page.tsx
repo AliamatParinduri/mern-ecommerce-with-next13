@@ -15,6 +15,7 @@ import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { CategorySchema } from '@/validations/categoryValidation'
 import { CategoriesDTO, ucWords } from '@/validations/shared'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 type Props = {
   params: { id: string }
@@ -51,10 +52,11 @@ const EditCategory = ({ params: { id } }: Props) => {
       await axios.put(`${BaseURLV1}/category/${id}`, payload, config)
 
       setIsLoading(false)
-      alert('success update categories')
+      ToastSuccess('success update categories')
       router.push('/categories')
     } catch (e: any) {
       setIsLoading(false)
+      ToastError(e.response.data.description)
       return false
     }
   }
@@ -83,7 +85,7 @@ const EditCategory = ({ params: { id } }: Props) => {
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 

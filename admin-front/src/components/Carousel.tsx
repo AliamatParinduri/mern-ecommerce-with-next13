@@ -56,7 +56,12 @@ const Carousel = ({ from, title, datas }: any) => {
               >
                 <div className='flex flex-col p-4 w-full'>
                   <div className='flex'>
-                    <div className='flex h-8 w-8 relative text-xs bg-boxDark-500 rounded-full justify-center items-center'>
+                    <div
+                      className='flex h-8 w-8 relative text-xs rounded-full justify-center items-center'
+                      style={{
+                        backgroundColor: '#5A5FE0',
+                      }}
+                    >
                       {currentSlide + 1}
                     </div>
                   </div>
@@ -94,7 +99,12 @@ const Carousel = ({ from, title, datas }: any) => {
                           }
                           className='flex gap-1'
                         >
-                          <div className='flex justify-center text-xs items-center w-6 h-6 bg-boxDark-500 rounded '>
+                          <div
+                            className='flex justify-center text-xs items-center w-6 h-6 rounded'
+                            style={{
+                              backgroundColor: '#5A5FE0',
+                            }}
+                          >
                             {category.count}
                           </div>
                           <div>

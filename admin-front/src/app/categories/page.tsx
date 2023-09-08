@@ -11,6 +11,7 @@ import Loading from '@/components/Loading'
 import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { CategoriesDTO } from '@/validations/shared'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const Categories = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -51,10 +52,10 @@ const Categories = () => {
       setCategories(newCategory)
 
       setIsLoading(false)
-      alert('success delete category')
+      ToastSuccess('success delete category')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
       return false
     }
   }

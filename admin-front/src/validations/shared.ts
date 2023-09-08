@@ -17,6 +17,7 @@ export type userDTO = RegisterDTO & {
   isAdmin: boolean
   isActive: boolean
   cart: []
+  dateOfBirth: string
   wishlist: []
 }
 

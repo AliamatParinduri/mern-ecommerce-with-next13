@@ -11,6 +11,7 @@ import Loading from '@/components/Loading'
 import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { userDTO } from '@/validations/shared'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const Users = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -51,10 +52,10 @@ const Users = () => {
 
       setUsers(newUsers)
       setIsLoading(false)
-      alert('success delete user')
+      ToastSuccess('success delete user')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
       return false
     }
   }

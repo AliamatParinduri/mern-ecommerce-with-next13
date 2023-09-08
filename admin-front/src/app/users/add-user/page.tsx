@@ -13,6 +13,7 @@ import Button from '@/components/Button'
 import { BaseURLV1 } from '@/config/api'
 import { RegisterUserByAdminSchema } from '@/validations/userValidation'
 import { RegisterDTO } from '@/validations/shared'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const AddUser = () => {
   const [buttonClick, setButtonClick] = useState(false)
@@ -33,18 +34,19 @@ const AddUser = () => {
       const {
         data: { data, token, message },
       } = await axios.post(`${BaseURLV1}/auth/register`, payload)
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       router.push('/users')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 
   const initialValues: RegisterDTO = {
     fullName: '',
     username: '',
+    birthday: '',
     email: '',
     noHP: '',
   }
@@ -110,6 +112,18 @@ const AddUser = () => {
                 />
                 <ErrorInputMessage
                   errorMessage={formik.errors.email}
+                  buttonClick={buttonClick}
+                />
+                <InputType
+                  type='date'
+                  title='Birthday'
+                  placeholder='Birthday'
+                  formik={formik}
+                  name='birthday'
+                  buttonClick={buttonClick}
+                />
+                <ErrorInputMessage
+                  errorMessage={formik.errors.birthday}
                   buttonClick={buttonClick}
                 />
                 <InputType

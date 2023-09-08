@@ -12,6 +12,7 @@ import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { formatRupiah, isUserLogin } from '@/validations/shared'
 import { useRouter } from 'next/navigation'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const Orders = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -53,10 +54,10 @@ const Orders = () => {
       setOrders(newOrder)
 
       setIsLoading(false)
-      alert('success delete order')
+      ToastSuccess('success delete order')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
       return false
     }
   }

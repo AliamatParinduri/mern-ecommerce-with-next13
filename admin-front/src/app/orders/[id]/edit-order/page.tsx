@@ -14,6 +14,7 @@ import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { OrderSchema } from '@/validations/orderValidation'
 import { isUserLogin } from '@/validations/shared'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 type Props = {
   params: { id: string }
@@ -50,10 +51,11 @@ const EditOrder = ({ params: { id } }: Props) => {
       await axios.put(`${BaseURLV1}/order/${id}`, payload, config)
 
       setIsLoading(false)
-      alert('success update orders')
+      ToastSuccess('success update orders')
       router.push('/orders')
     } catch (e: any) {
       setIsLoading(false)
+      ToastError(e.response.data.description)
       return false
     }
   }
@@ -87,7 +89,7 @@ const EditOrder = ({ params: { id } }: Props) => {
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 

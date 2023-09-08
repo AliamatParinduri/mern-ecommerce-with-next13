@@ -22,6 +22,7 @@ import InputFile from '@/components/InputFile'
 import { UserState, userContextType } from '@/context/userContext'
 import { isUserLogin } from '@/validations/shared'
 import WysiwygDescription from '@/components/WysiwygDescription'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 type Props = {
   params: { id: string }
@@ -34,7 +35,7 @@ const EditProduct = ({ params: { id } }: Props) => {
   const [categories, setCategories] = useState<any[]>([])
   const [subCategories, setSubCategories] = useState<any[]>([])
   const [nmProduct, setNmProduct] = useState('')
-  const [category, setCategory] = useState('')
+  const [category, setCategory] = useState<any>('')
   const [subCategory, setSubCategory] = useState('')
   const [files, setFiles] = useState([])
   const [description, setDescription] = useState(() =>
@@ -77,12 +78,12 @@ const EditProduct = ({ params: { id } }: Props) => {
       const {
         data: { data, token, message },
       } = await axios.put(`${BaseURLV1}/product/${id}`, formData, config)
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       router.push('/products')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 
@@ -153,7 +154,7 @@ const EditProduct = ({ params: { id } }: Props) => {
       setCategory(e.target.value)
       setSubCategories(category.subCategory)
     } else {
-      alert(`didn't have sub category`)
+      ToastError(`didn't have sub category`)
     }
   }
 
@@ -182,7 +183,7 @@ const EditProduct = ({ params: { id } }: Props) => {
 
   const handleDeleteProductDetail = async (id: string) => {
     if (productDetails.length === 1) {
-      alert('failed, product detail minimal 1 record')
+      ToastError('failed, product detail minimal 1 record')
       return false
     }
 

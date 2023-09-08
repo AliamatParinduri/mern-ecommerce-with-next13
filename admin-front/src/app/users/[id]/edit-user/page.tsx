@@ -15,6 +15,7 @@ import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { RegisterUserByAdminSchema } from '@/validations/userValidation'
 import { RegisterDTO } from '@/validations/shared'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 type Props = {
   params: { id: string }
@@ -30,6 +31,7 @@ const EditUser = ({ params: { id } }: Props) => {
     fullName: '',
     username: '',
     email: '',
+    birthday: '',
     noHP: '',
     password: '',
     confirmPassword: '',
@@ -54,10 +56,11 @@ const EditUser = ({ params: { id } }: Props) => {
       await axios.put(`${BaseURLV1}/users/${id}`, payload, config)
 
       setIsLoading(false)
-      alert('success update user')
+      ToastSuccess('success update user')
       router.push('/users')
     } catch (e: any) {
       setIsLoading(false)
+      ToastError(e.response.data.description)
       return false
     }
   }
@@ -160,6 +163,18 @@ const EditUser = ({ params: { id } }: Props) => {
                   />
                   <ErrorInputMessage
                     errorMessage={formik.errors.email}
+                    buttonClick={buttonClick}
+                  />
+                  <InputType
+                    type='date'
+                    title='Birthday'
+                    placeholder='Birthday'
+                    formik={formik}
+                    name='birthday'
+                    buttonClick={buttonClick}
+                  />
+                  <ErrorInputMessage
+                    errorMessage={formik.errors.birthday}
                     buttonClick={buttonClick}
                   />
                   <InputType
