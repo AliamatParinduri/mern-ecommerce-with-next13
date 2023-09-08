@@ -81,6 +81,12 @@ class ProductRepository {
         subCategory: payload.subCategory,
         pic,
         details: payload.details
+      }).then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed create data product')
+        }
+
+        return result
       })
     } catch (err: any) {
       logger.error('ERR = Create new product ', err.message)
@@ -99,7 +105,15 @@ class ProductRepository {
 
   findById = async (userId: string) => {
     try {
-      return await Product.findById(userId).populate('category')
+      return await Product.findById(userId)
+        .populate('category')
+        .then((result) => {
+          if (!result) {
+            throw new InternalServerError('Failed get data product, Data not found')
+          }
+
+          return result
+        })
     } catch (err: any) {
       logger.error('ERR = Find product by id ', err.message)
       throw new InternalServerError(err.message)
@@ -112,6 +126,12 @@ class ProductRepository {
         details: {
           $elemMatch: { _id: detailsId }
         }
+      }).then((result) => {
+        if (!result) {
+          throw new InternalServerError('Product Not Found')
+        }
+
+        return result
       })
     } catch (err: any) {
       logger.error('ERR = Find user by id ', err.message)
@@ -136,7 +156,13 @@ class ProductRepository {
         category.pic = [...category.pic, ...productImages]
       }
 
-      return await category.save()
+      return await category.save().then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed update data product')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = Update data product ', err.message)
       throw new InternalServerError(err.message)
@@ -156,7 +182,13 @@ class ProductRepository {
         product.pic = product.pic.filter((pic) => pic !== picId)
       }
 
-      return await product.save()
+      return await product.save().then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed delete data product')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = Delete data product ', err.message)
       throw new InternalServerError(err.message)
@@ -174,7 +206,13 @@ class ProductRepository {
         }
       }
 
-      return await product.deleteOne()
+      return await product.deleteOne().then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed delete data product')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = Delete data product ', err.message)
       throw new InternalServerError(err.message)

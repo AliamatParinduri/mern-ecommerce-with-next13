@@ -11,21 +11,11 @@ class RatingService {
   getRatings = async (req: Request) => {
     const keyword = { ...req.query }
 
-    const result = await this.ratingRepository.getRatings(keyword)
-
-    if (result.length < 0) {
-      throw new UnprocessableEntityError('Failed get data ratings, Data not found')
-    }
-    return result
+    return await this.ratingRepository.getRatings(keyword)
   }
 
   getRatingById = async (ratingId: string) => {
-    const result = await this.ratingRepository.findById(ratingId)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed get data address, Data not found')
-    }
-    return result
+    return await this.ratingRepository.findById(ratingId)
   }
 
   createRating = async (payload: RatingDTO) => {
@@ -48,12 +38,6 @@ class RatingService {
       throw new UnprocessableEntityError('Product details not found')
     }
 
-    const result = await this.ratingRepository.createRating(payload)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed create rating')
-    }
-
     const productRating = await this.ratingRepository.getRatings({
       detailsId: payload.detailsId
     })
@@ -71,7 +55,7 @@ class RatingService {
     product.details[index].totalRating = productRating.length
     product.save()
 
-    return result
+    return await this.ratingRepository.createRating(payload)
   }
 }
 

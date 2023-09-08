@@ -32,7 +32,8 @@ const OrderSchema = new Schema(
     deliveredOrder: { type: Date },
     discount: { type: Number, default: 0 },
     ongkir: { type: Number, default: 0, trim: true },
-    totalPrice: { type: Number, trim: true, required: true }
+    totalPrice: { type: Number, trim: true, required: true },
+    totalProfit: { type: Number, trim: true }
   },
   { timestamps: true }
 )

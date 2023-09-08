@@ -8,6 +8,7 @@ export interface UserDTO extends Document {
   username: string
   email: string
   noHP: string
+  dateOfBirth: Date
   password: string
   userPic: string
   isAdmin: boolean
@@ -36,6 +37,7 @@ export const UserSchema = Joi.object({
     .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})'))
     .required(),
   noHP: Joi.string().min(11).max(13).required(),
+  dateOfBirth: Joi.date().required(),
   isActive: Joi.boolean(),
   userPic: Joi.string()
 })
@@ -49,6 +51,7 @@ export const UserUpdateSchema = Joi.object({
     .max(20)
     .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})')),
   noHP: Joi.string().min(11).max(13).required(),
+  dateOfBirth: Joi.date().required(),
   isActive: Joi.boolean(),
   userPic: Joi.string()
 })

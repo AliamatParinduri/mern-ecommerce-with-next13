@@ -3,9 +3,12 @@ import { PORT as port } from '@config/index'
 import app from './app'
 import { logger, connectDB } from './utils'
 
-const setupServer = async () => {
-  await connectDB()
-  app.listen(port, () => logger.info(`Server running on http:localhost:${port}`))
-}
-
-setupServer()
+const server = app.listen(port)
+connectDB()
+  .then(() => {
+    logger.info(`Server running on http:localhost:${port}`)
+  })
+  .catch((err) => {
+    logger.error('Error - connect to Server ', err)
+    server.close()
+  })

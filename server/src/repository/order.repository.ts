@@ -8,7 +8,17 @@ import { InternalServerError, logger } from '@/utils'
 class OrderRepository {
   getOrders = async (keyword: any) => {
     try {
-      return await Order.find(keyword).sort({ createdAt: 'desc' }).populate('products.product').populate('address')
+      return await Order.find(keyword)
+        .sort({ createdAt: 'desc' })
+        .populate('products.product')
+        .populate('address')
+        .then((result) => {
+          if (result.length < 0) {
+            throw new InternalServerError('Failed get data order, Data not found')
+          }
+
+          return result
+        })
     } catch (err: any) {
       logger.error('ERR = Get Order ', err.message)
       throw new InternalServerError(err.message)
@@ -335,9 +345,16 @@ class OrderRepository {
         products: payload.products,
         paymentStatus: payload.paymentStatus,
         estimatedDeliveryDate: payload.estimatedDeliveryDate,
+        totalProfit: payload.totalProfit,
         discount: payload.discount,
         ongkir: payload.ongkir,
         totalPrice: payload.totalPrice
+      }).then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed create data prder')
+        }
+
+        return result
       })
     } catch (err: any) {
       logger.error('ERR = Create new Order ', err.message)
@@ -356,7 +373,17 @@ class OrderRepository {
 
   findById = async (OrderId: string) => {
     try {
-      return await Order.findById(OrderId).populate('address').populate('user').populate('products.product')
+      return await Order.findById(OrderId)
+        .populate('address')
+        .populate('user')
+        .populate('products.product')
+        .then((result) => {
+          if (!result) {
+            throw new InternalServerError('Failed get data order, Data not found')
+          }
+
+          return result
+        })
     } catch (err: any) {
       logger.error('ERR = Find Order by id ', err.message)
       throw new InternalServerError(err.message)
@@ -371,9 +398,16 @@ class OrderRepository {
       order.paymentStatus = payload.paymentStatus
       order.paymentOrder = payload.paymentOrder
       order.deliveredOrder = payload.deliveredOrder
+      order.totalProfit = payload.totalProfit
       order.ongkir = payload.ongkir
       order.totalPrice = payload.totalPrice
-      return await order.save()
+      return await order.save().then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed update data order')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = Update data category ', err.message)
       throw new InternalServerError(err.message)
@@ -382,7 +416,13 @@ class OrderRepository {
 
   deleteOrder = async (OrderId: string) => {
     try {
-      return await Order.findByIdAndRemove(OrderId)
+      return await Order.findByIdAndRemove(OrderId).then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed update data order')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = Update data category ', err.message)
       throw new InternalServerError(err.message)

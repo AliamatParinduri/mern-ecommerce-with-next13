@@ -30,10 +30,6 @@ class UserService {
   getCarts = async (id: string, page: number, limit: number) => {
     const user = await this.userRepository.findById(id)
 
-    if (!user) {
-      throw new NotFoundError('Users Not Found')
-    }
-
     const result = await this.userRepository.getCarts(user, page, limit)
 
     if (!result) {
@@ -58,12 +54,7 @@ class UserService {
   }
 
   getUserById = async (id: string) => {
-    const result = await this.userRepository.findById(id)
-
-    if (!result) {
-      throw new NotFoundError('Users Not Found')
-    }
-    return result
+    return await this.userRepository.findById(id)
   }
 
   updateUser = async (id: string, payload: UserDTO) => {
@@ -81,25 +72,13 @@ class UserService {
 
     const user = await this.userRepository.findById(id)
 
-    if (!user) {
-      throw new NotFoundError('Users Not Found')
-    }
-
-    const result = await this.userRepository.updateUser(user, payload)
-
-    return result
+    return await this.userRepository.updateUser(user, payload)
   }
 
   addToCart = async (detailsId: string, qty: number, userId: string) => {
     const user = await this.userRepository.findById(userId)
-    if (!user) {
-      throw new NotFoundError('User Not Found')
-    }
 
     const prod = await this.productRepository.findDetailsProduct(detailsId)
-    if (!prod) {
-      throw new NotFoundError('Product Not Found')
-    }
 
     const newProductDetail = prod.details.filter((detail: any) => detail._id.equals(detailsId)) as []
     prod.details = [...newProductDetail]
@@ -110,14 +89,8 @@ class UserService {
 
   removeFromCart = async (detailsId: string, userId: string) => {
     const user = await this.userRepository.findById(userId)
-    if (!user) {
-      throw new NotFoundError('User Not Found')
-    }
 
     const prod = await this.productRepository.findDetailsProduct(detailsId)
-    if (!prod) {
-      throw new NotFoundError('Product Not Found')
-    }
 
     const result = await this.userRepository.removeFromCart(user, prod, detailsId)
     return result
@@ -125,14 +98,8 @@ class UserService {
 
   productWishlist = async (product: string, userId: string) => {
     const user = await this.userRepository.findById(userId)
-    if (!user) {
-      throw new NotFoundError('User Not Found')
-    }
 
     const prod = await this.productRepository.findById(product)
-    if (!prod) {
-      throw new NotFoundError('Product Not Found')
-    }
 
     const result = await this.userRepository.productWishlist(user, prod)
 
@@ -141,9 +108,6 @@ class UserService {
 
   updateProfilePicture = async (fileName: string, userId: string) => {
     const user = await this.userRepository.findById(userId)
-    if (!user) {
-      throw new NotFoundError('User Not Found')
-    }
 
     const result = await this.userRepository.updateProfilePicture(user, fileName)
 
@@ -151,12 +115,7 @@ class UserService {
   }
 
   deleteUser = async (id: string) => {
-    const result = await this.userRepository.deleteUser(id)
-
-    if (!result) {
-      throw new NotFoundError('Users Not Found')
-    }
-    return result
+    return await this.userRepository.deleteUser(id)
   }
 }
 

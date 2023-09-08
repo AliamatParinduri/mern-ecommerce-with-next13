@@ -78,6 +78,7 @@ class UserRepository {
         username: payload.username,
         email: payload.email,
         noHP: payload.noHP,
+        dateOfBirth: payload.dateOfBirth,
         password: payload.password
       })
     } catch (err: any) {
@@ -97,7 +98,16 @@ class UserRepository {
 
   findById = async (userId: string) => {
     try {
-      return await User.findById(userId).populate('cart.product').populate('wishlist.product')
+      return await User.findById(userId)
+        .populate('cart.product')
+        .populate('wishlist.product')
+        .then((result) => {
+          if (!result) {
+            throw new InternalServerError('User not found')
+          }
+
+          return result
+        })
     } catch (err: any) {
       logger.error('ERR = Find user by id ', err.message)
       throw new InternalServerError(err.message)
@@ -149,9 +159,17 @@ class UserRepository {
     try {
       user.fullName = payload.fullName
       user.username = payload.username
+      user.email = payload.email
       user.noHP = payload.noHP
+      user.dateOfBirth = payload.dateOfBirth
 
-      return await user.save()
+      return await user.save().then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed update data user')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = update user data ', err.message)
       throw new InternalServerError(err.message)
@@ -252,7 +270,13 @@ class UserRepository {
 
   deleteUser = async (userId: string) => {
     try {
-      return await User.findByIdAndRemove(userId)
+      return await User.findByIdAndRemove(userId).then((result) => {
+        if (!result) {
+          throw new InternalServerError('Users Not Found')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = Delete user data ', err.message)
       throw new InternalServerError(err.message)

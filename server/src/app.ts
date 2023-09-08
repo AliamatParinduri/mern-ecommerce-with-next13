@@ -39,8 +39,7 @@ app.use((err: BaseError, req: Request, res: Response, next: NextFunction) => {
   const description: string = err.description
   const statusCode: number = err.statusCode ?? 500
 
-  logger.error(`ERR = ${description}`)
-  logger.error(`ERR = ${message}`)
+  logger.error(`ERR = ${description ?? message}`)
 
   return res.status(statusCode).json({ status: 'error', message, description })
 })
