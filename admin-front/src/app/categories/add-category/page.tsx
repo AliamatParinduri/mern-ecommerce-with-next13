@@ -14,6 +14,7 @@ import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { CategorySchema } from '@/validations/categoryValidation'
 import { CategoriesDTO, ucWords } from '@/validations/shared'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const AddCategory = () => {
   const [buttonClick, setButtonClick] = useState(false)
@@ -41,11 +42,11 @@ const AddCategory = () => {
       await axios.post(`${BaseURLV1}/category`, payload, config)
 
       setIsLoading(false)
-      alert('success add categories')
+      ToastSuccess('success add categories')
       router.push('/categories')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
       return false
     }
   }

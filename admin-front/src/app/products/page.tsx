@@ -12,6 +12,7 @@ import { BaseURLProduct, BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { ProductsDTO } from '@/validations/shared'
 import Image from 'next/image'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const Products = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -47,9 +48,9 @@ const Products = () => {
       await axios.delete(`${BaseURLV1}/product/${id}`, config)
       const newProducts = products.filter((product) => product._id !== id)
       setProducts(newProducts)
-      alert('success delete product')
+      ToastSuccess('success delete product')
     } catch (e: any) {
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
       return false
     }
   }

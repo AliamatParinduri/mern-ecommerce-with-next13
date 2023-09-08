@@ -5,6 +5,14 @@ import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { FaArrowLeft, FaEdit, FaTimes, FaTrash } from 'react-icons/fa'
 import Image from 'next/image'
+import draftToHtml from 'draftjs-to-html'
+import {
+  EditorState,
+  ContentState,
+  convertFromHTML,
+  convertToRaw,
+  convertFromRaw,
+} from 'draft-js'
 
 import Layout from '@/components/Layout'
 import InputType from '@/components/InputType'
@@ -14,12 +22,7 @@ import InputFile from '@/components/InputFile'
 import { UserState, userContextType } from '@/context/userContext'
 import { isUserLogin } from '@/validations/shared'
 import WysiwygDescription from '@/components/WysiwygDescription'
-import {
-  EditorState,
-  ContentState,
-  convertFromHTML,
-  convertFromRaw,
-} from 'draft-js'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 type Props = {
   params: { id: string }
@@ -32,12 +35,13 @@ const EditProduct = ({ params: { id } }: Props) => {
   const [categories, setCategories] = useState<any[]>([])
   const [subCategories, setSubCategories] = useState<any[]>([])
   const [nmProduct, setNmProduct] = useState('')
-  const [category, setCategory] = useState('')
+  const [category, setCategory] = useState<any>('')
   const [subCategory, setSubCategory] = useState('')
   const [files, setFiles] = useState([])
   const [description, setDescription] = useState(() =>
     EditorState.createEmpty()
   )
+  const [capitalPrice, setCapitalPrice] = useState('')
   const [price, setPrice] = useState('')
   const [stock, setStock] = useState('')
   const [size, setSize] = useState('')
@@ -57,6 +61,10 @@ const EditProduct = ({ params: { id } }: Props) => {
       }
 
       formData.append('nmProduct', nmProduct)
+      formData.append(
+        'description',
+        draftToHtml(convertToRaw(description.getCurrentContent()))
+      )
       formData.append('category', category)
       formData.append('subCategory', subCategory)
       formData.append('details', JSON.stringify(productDetails))
@@ -70,12 +78,12 @@ const EditProduct = ({ params: { id } }: Props) => {
       const {
         data: { data, token, message },
       } = await axios.put(`${BaseURLV1}/product/${id}`, formData, config)
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       router.push('/products')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 
@@ -128,8 +136,9 @@ const EditProduct = ({ params: { id } }: Props) => {
       setProductImages(dt.data.pic)
 
       const subCategories = data.data.find(
-        (category: any) => category._id === dt.data.category
+        (category: any) => category._id === dt.data.category._id
       )
+
       setSubCategories(subCategories.subCategory)
     } catch (e: any) {
       return false
@@ -145,7 +154,7 @@ const EditProduct = ({ params: { id } }: Props) => {
       setCategory(e.target.value)
       setSubCategories(category.subCategory)
     } else {
-      alert(`didn't have sub category`)
+      ToastError(`didn't have sub category`)
     }
   }
 
@@ -174,7 +183,7 @@ const EditProduct = ({ params: { id } }: Props) => {
 
   const handleDeleteProductDetail = async (id: string) => {
     if (productDetails.length === 1) {
-      alert('failed, product detail minimal 1 record')
+      ToastError('failed, product detail minimal 1 record')
       return false
     }
 
@@ -238,7 +247,7 @@ const EditProduct = ({ params: { id } }: Props) => {
                           <option
                             key={dt._id}
                             value={dt._id}
-                            selected={dt._id === category}
+                            selected={dt._id === category._id}
                           >
                             {dt.category}
                           </option>
@@ -299,55 +308,53 @@ const EditProduct = ({ params: { id } }: Props) => {
                     ))}
                   </div>
                 </div>
-                <div className='flex gap-4'>
-                  <div className='w-1/5'>
-                    <InputType
-                      type='text'
-                      title='Price'
-                      placeholder='Enter your Price'
-                      name='price'
-                      value={price}
-                      setValue={setPrice}
-                      buttonClick={buttonClick}
-                    />
-                  </div>
-                  <div className='w-1/5'>
-                    <InputType
-                      type='text'
-                      title='Stock'
-                      placeholder='Enter your Stock'
-                      name='stock'
-                      value={stock}
-                      setValue={setStock}
-                      buttonClick={buttonClick}
-                    />
-                  </div>
-                  <div className='w-1/5'>
-                    <InputType
-                      type='text'
-                      title='Size/Type'
-                      placeholder='Ex: 128GB/M/L/XL'
-                      name='size'
-                      value={size}
-                      setValue={setSize}
-                      buttonClick={buttonClick}
-                    />
-                  </div>
-                  <div className='w-1/5'>
-                    <InputType
-                      type='text'
-                      title='Color&HexColor'
-                      placeholder='Ex: red,#880808'
-                      name='color'
-                      value={color}
-                      setValue={setColor}
-                      buttonClick={buttonClick}
-                    />
-                  </div>
-                  <div className='flex w-1/5 flex-col gap-2'>
-                    <span className='text-transparent'>
-                      Add Details Products
-                    </span>
+                <div className='grid grid-cols-2 lg:grid-cols-3 gap-4'>
+                  <InputType
+                    type='text'
+                    title='Capital Price'
+                    placeholder='Enter your Capital Price'
+                    name='capitalPrice'
+                    value={capitalPrice}
+                    setValue={setCapitalPrice}
+                    buttonClick={buttonClick}
+                  />
+                  <InputType
+                    type='text'
+                    title='Price'
+                    placeholder='Enter your Price'
+                    name='price'
+                    value={price}
+                    setValue={setPrice}
+                    buttonClick={buttonClick}
+                  />
+                  <InputType
+                    type='text'
+                    title='Stock'
+                    placeholder='Enter your Stock'
+                    name='stock'
+                    value={stock}
+                    setValue={setStock}
+                    buttonClick={buttonClick}
+                  />
+                  <InputType
+                    type='text'
+                    title='Size/Type'
+                    placeholder='Ex: 128GB/M/L/XL'
+                    name='size'
+                    value={size}
+                    setValue={setSize}
+                    buttonClick={buttonClick}
+                  />
+                  <InputType
+                    type='text'
+                    title='Color&HexColor'
+                    placeholder='Ex: red,#880808'
+                    name='color'
+                    value={color}
+                    setValue={setColor}
+                    buttonClick={buttonClick}
+                  />
+                  <div className='flex items-end pb-1'>
                     <button
                       type='button'
                       onClick={handleDetailProduct}

@@ -15,6 +15,7 @@ import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { RegisterDTO } from '@/validations/shared'
 import { RegisterSchema } from '@/validations/userValidation'
 import { BaseURLV1 } from '@/config/api'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 export default function Register() {
   const [buttonClick, setButtonClick] = useState(false)
@@ -26,6 +27,7 @@ export default function Register() {
     username: '',
     email: '',
     noHP: '',
+    birthday: '',
     password: '',
     confirmPassword: '',
   }
@@ -35,6 +37,7 @@ export default function Register() {
     const payload = {
       fullName: formik.values.fullName,
       username: formik.values.username,
+      dateOfBirth: formik.values.birthday,
       email: formik.values.email.toLowerCase(),
       noHP: formik.values.noHP,
       password: formik.values.password,
@@ -43,12 +46,12 @@ export default function Register() {
       const {
         data: { data, token, message },
       } = await axios.post(`${BaseURLV1}/auth/register`, payload)
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       router.push('/login')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 
@@ -62,15 +65,7 @@ export default function Register() {
     <AuthLayout>
       <div className='flex flex-col w-3/4 justify-center text-center gap-3 align-middle'>
         <span className='flex font-semibold text-2xl justify-center '>
-          Hi
-          {/* <Image
-              src='https://twemoji.maxcdn.com/v/13.1.0/72x72/1f44b.png'
-              width={12}
-              height={4}
-              alt=''
-              className='ml-2 mr-1'
-            /> */}
-          , let’s get familiar.
+          Hi , let’s get familiar.
         </span>
         <span className='text-gray-500 mb-5'>
           Let's create forms and collect submissions
@@ -114,6 +109,18 @@ export default function Register() {
             buttonClick={buttonClick}
           />
           <InputType
+            type='date'
+            title='Birthday'
+            placeholder='Birthday'
+            formik={formik}
+            name='birthday'
+            buttonClick={buttonClick}
+          />
+          <ErrorInputMessage
+            errorMessage={formik.errors.birthday}
+            buttonClick={buttonClick}
+          />
+          <InputType
             type='text'
             title='No Handphone'
             placeholder='No Handphone'
@@ -128,6 +135,7 @@ export default function Register() {
           <InputType
             type='password'
             title='Password'
+            passwordIcon={true}
             placeholder='Enter your password'
             formik={formik}
             name='password'
@@ -140,6 +148,7 @@ export default function Register() {
           <InputType
             type='password'
             title='Confirm Password'
+            passwordIcon={true}
             placeholder='Enter your confirm password'
             formik={formik}
             name='confirmPassword'
@@ -154,7 +163,7 @@ export default function Register() {
             isLoading={isLoading}
             setButtonClick={setButtonClick}
           />
-          <Link href='/' className='text-blue-500 font-semibold'>
+          <Link href='/login' className='text-blue-500 font-semibold'>
             I have an account
           </Link>
         </form>

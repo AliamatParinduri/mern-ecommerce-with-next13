@@ -1,9 +1,13 @@
-import React from 'react'
+'use client'
+
+import { useState } from 'react'
+import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 
 type Props = {
   type: string
   title: string
   placeholder: string
+  passwordIcon?: boolean
   formik?: any
   setValue?: any
   value?: any
@@ -17,6 +21,7 @@ const InputType = ({
   type,
   title,
   placeholder,
+  passwordIcon = false,
   formik,
   setValue,
   value,
@@ -25,12 +30,14 @@ const InputType = ({
   readonly = false,
   buttonClick,
 }: Props) => {
+  const [show, setShow] = useState(false)
+
   return (
-    <div className='flex flex-col text-start justify-start gap-2'>
+    <div className='flex flex-col relative text-start justify-start gap-2'>
       <span className='font-semibold dark:text-white'>{title}</span>
       <input
         value={formik ? formik.values[name.toString()] : value}
-        type={type}
+        type={show ? 'text' : type}
         placeholder={placeholder}
         readOnly={readonly}
         onChange={(e) =>
@@ -48,6 +55,22 @@ const InputType = ({
         }  
         text-gray-900 border rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ring-1 py-2 px-4 `}
       />
+      {passwordIcon && (
+        <div className='absolute bottom-3 right-0 pr-3 flex items-center text-sm leading-5'>
+          {!show && (
+            <FaRegEye
+              className='w-5 h-5 cursor-pointer'
+              onClick={() => setShow(true)}
+            />
+          )}
+          {show && (
+            <FaRegEyeSlash
+              className='w-5 h-5 cursor-pointer'
+              onClick={() => setShow(false)}
+            />
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -6,6 +6,7 @@ export type LoginDTO = {
 export type RegisterDTO = LoginDTO & {
   fullName: string
   email: string
+  birthday: string
   noHP: string
   confirmPassword?: string
 }
@@ -16,6 +17,7 @@ export type userDTO = RegisterDTO & {
   isAdmin: boolean
   isActive: boolean
   cart: []
+  dateOfBirth: string
   wishlist: []
 }
 

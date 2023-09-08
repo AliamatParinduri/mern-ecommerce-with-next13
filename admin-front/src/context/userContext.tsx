@@ -19,7 +19,7 @@ const UserProvider = (props: any) => {
   const userLogin = () => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo')!)
     if (!userInfo) {
-      router.push('/login')
+      // router.push('/login')
     } else {
       setUser({ ...userInfo })
     }

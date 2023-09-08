@@ -74,6 +74,7 @@ type multipleOrdersType = {
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [users, setUsers] = useState<userDTO[]>([])
+  const [orders, setOrders] = useState<any[]>([])
   const [dailyOrders, setdailyOrders] = useState<ordersType>()
   const [weeklyOrders, setWeeklyOrders] = useState<ordersType>()
   const [monthlyOrders, setMonthlyOrders] = useState<ordersType>()
@@ -103,6 +104,25 @@ const Dashboard = () => {
 
       setIsLoading(false)
       setUsers(data.data.users)
+    } catch (e: any) {
+      setIsLoading(false)
+      return false
+    }
+  }
+
+  const fetchOrders = async () => {
+    setIsLoading(true)
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user!.token}`,
+        },
+      }
+
+      const { data } = await axios.get(`${BaseURLV1}/order`, config)
+
+      setIsLoading(false)
+      setOrders(data.data)
     } catch (e: any) {
       setIsLoading(false)
       return false
@@ -244,8 +264,6 @@ const Dashboard = () => {
 
       setIsLoading(false)
     } catch (e: any) {
-      console.log(e)
-
       setIsLoading(false)
       return false
     }
@@ -287,7 +305,6 @@ const Dashboard = () => {
             </Link>
             <Link
               href='#'
-              // onClick={() => handleDelete(row.original._id)}
               onClick={() => alert('delete')}
               className='font-medium text-white no-underline bg-red-500 px-3 py-1.5 rounded'
             >
@@ -304,8 +321,8 @@ const Dashboard = () => {
 
   const Card1 = ({ type, title, elId, data }: Props) => {
     return (
-      <div className='relative flex flex-col justify-around bg-clip-border rounded-xl w-full lg:w-1/5 bg-white dark:bg-boxDark-500 text-gray-700 shadow-md'>
-        <div className='flex '>
+      <div className='relative flex flex-col overflow-x-auto justify-around bg-clip-border rounded-xl w-full lg:w-1/5 bg-white dark:bg-boxDark-500 text-gray-700 shadow-md'>
+        <div className='flex'>
           <div className='p-4 w-3/5'>
             <p className='block antialiased font-sans text-sm leading-normal font-normal text-blue-gray-600 dark:text-white'>
               {title}
@@ -378,7 +395,13 @@ const Dashboard = () => {
             {svg}
           </div>
           <h2 className='block antialiased font-sans self-center text-3xl leading-normal font-normal text-blue-gray-600 dark:text-white'>
-            {data && formatAliasesNumber(dataPrimary, 'Rp. ')}
+            {data &&
+              formatAliasesNumber(
+                dataPrimary,
+                title === 'Total Sales' || title === 'Total Profit'
+                  ? 'Rp. '
+                  : ''
+              )}
           </h2>
         </div>
         <div className='px-6'>
@@ -583,7 +606,7 @@ const Dashboard = () => {
               <div className='flex flex-col'>
                 <h3 className='text-base font-bold'>Weekly Sales Overview</h3>
                 <span className='text-gray-500 font-semibold text-sm'>
-                  Today's Earning:{' '}
+                  {`Today's Earning: `}
                   <span className='text-green-500'>
                     {weeklyTotalSales &&
                       formatRupiah(weeklyTotalSales.todaySales, 'Rp. ')}
@@ -635,7 +658,7 @@ const Dashboard = () => {
         <div className='bg-white dark:bg-boxDark-500 p-6 w-full rounded-lg shadow-lg'>
           <h2 className='text-xl font-bold mb-2'>Order Transactions</h2>
           <div className='relative left-0 shadow-md sm:rounded-lg bg-white dark:bg-boxDark-500'>
-            <Datatable columns={columns} data={users} title='Users' />
+            <Datatable columns={columns} data={orders} title='Order' />
           </div>
         </div>
       </div>
