@@ -23,6 +23,7 @@ import { ProductsContextType, ProductsState } from '@/context/productContext'
 import { formatRupiah, onlyGetNumberValue } from '@/validations/shared'
 import Loading from '@/assets/svg/Loading'
 import { ToastError } from '@/components/Toast'
+import { Star } from '@mui/icons-material'
 
 const AllProduct = () => {
   const [categories, setCategories] = useState([])
@@ -35,6 +36,7 @@ const AllProduct = () => {
   const [sort, setSort] = useState('')
   const [selectFilterByCategories, setSelectFilterByCategories] = useState('')
   const [selectFilterBySubCategory, setSelectFilterBySubCategory] = useState('')
+  const [selectFilterByRating, setSelectFilterByRating] = useState('')
   const [filterByMinPrice, setFilterByMinPrice] = useState('')
   const [filterByMaxPrice, setFilterByMaxPrice] = useState('')
   const [sortByDisplayOrder, setSortByDisplayOrder] = useState('')
@@ -63,12 +65,14 @@ const AllProduct = () => {
     minPrice = onlyGetNumberValue(filterByMinPrice),
     maxPrice = onlyGetNumberValue(filterByMaxPrice),
     displayOrder = sortByDisplayOrder,
+    rating = selectFilterByRating,
   }: {
     filterByCategories?: string
     filterBySubCategory?: string
     minPrice?: number
     maxPrice?: number
     displayOrder?: string
+    rating?: string
   }) => {
     let sort = ''
 
@@ -101,6 +105,14 @@ const AllProduct = () => {
         sort = 'displayOrder=' + displayOrder
       } else {
         sort = sort!.concat('&displayOrder=' + displayOrder)
+      }
+    }
+
+    if (rating !== '') {
+      if (sort === '') {
+        sort = 'rating=' + rating
+      } else {
+        sort = sort!.concat('&rating=' + rating)
       }
     }
 
@@ -235,6 +247,14 @@ const AllProduct = () => {
     })
   }
 
+  const handleRatingProduct = (e: any) => {
+    const newValue = e.target.value
+
+    setSelectFilterByRating(newValue)
+
+    getParams({ rating: newValue })
+  }
+
   useEffect(() => {
     getCategories()
   }, [])
@@ -246,8 +266,6 @@ const AllProduct = () => {
   return (
     <Box p={2} display='flex' flexDirection='column' gap={2}>
       <Box
-        mt={1}
-        mb={2}
         p={1}
         display='flex'
         justifyContent='space-between'
@@ -399,9 +417,36 @@ const AllProduct = () => {
               />
             </Box>
           </Stack>
-          {/* <Box>
-            <Typography variant='h5'>Ratings:</Typography>
-          </Box> */}
+          <Stack gap={1}>
+            <Typography variant='h5'>Ratings (Above):</Typography>
+            {[5, 4, 3, 2, 1].map((i) => (
+              <Box
+                display='flex'
+                justifyItems='center'
+                alignItems='center'
+                gap={0.3}
+              >
+                <input
+                  type='radio'
+                  name='rating'
+                  value={i}
+                  onChange={handleRatingProduct}
+                />
+                <Star sx={{ color: '#FAAF00' }} />
+                <Typography>{i}</Typography>
+              </Box>
+            ))}
+            <Box display='flex' gap={1}>
+              <input
+                type='radio'
+                name='rating'
+                value=''
+                onChange={handleRatingProduct}
+                defaultChecked={true}
+              />
+              <Typography>All Rating</Typography>
+            </Box>
+          </Stack>
         </Stack>
         <Box
           bgcolor={colors.secondary[500]}

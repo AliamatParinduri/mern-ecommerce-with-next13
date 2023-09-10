@@ -6,7 +6,6 @@ import {
   CardContent,
   Typography,
   Checkbox,
-  makeStyles,
 } from '@mui/material'
 
 import { Favorite, FavoriteBorder } from '@mui/icons-material'
@@ -135,9 +134,9 @@ const CardComponent = ({ product }: Props) => {
       <CardContent sx={{ width: '100%' }}>
         <Typography
           gutterBottom
-          variant='headline'
-          component='h3'
+          variant='h5'
           sx={{
+            fontWeight: 'bold',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',

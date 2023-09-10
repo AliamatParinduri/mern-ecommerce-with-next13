@@ -46,7 +46,7 @@ const Orders = () => {
       }
 
       const { data } = await axios.get(
-        `${BaseURLV1}/order?userId=${user!._id}`,
+        `${BaseURLV1}/order?user=${user!._id}`,
         config
       )
 
@@ -78,7 +78,7 @@ const Orders = () => {
     getOrders()
   }, [])
 
-  const StyledTableCell = styled(TableCell)(({ theme: any }) => ({
+  const StyledTableCell = styled(TableCell)(() => ({
     [`&.${tableCellClasses.head}`]: {
       backgroundColor: theme.palette.primary.main,
     },
@@ -87,7 +87,7 @@ const Orders = () => {
     },
   }))
 
-  const StyledTableRow = styled(TableRow)(({ theme: any }) => ({
+  const StyledTableRow = styled(TableRow)(() => ({
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.action.hover,
     },

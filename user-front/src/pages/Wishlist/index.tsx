@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState, useEffect } from 'react'
+import {  useEffect } from 'react'
 import { Box, Grid, Stack, Typography, useTheme } from '@mui/material'
 
 import { UserState, userContextType } from '@/context/userContext'

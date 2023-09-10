@@ -51,7 +51,7 @@ const EditProfile = () => {
         email,
       }
 
-      const { data } = await axios.put(
+       await axios.put(
         `${BaseURLV1}/users/${user!._id}`,
         payload,
         config

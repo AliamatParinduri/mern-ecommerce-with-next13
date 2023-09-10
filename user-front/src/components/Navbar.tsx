@@ -21,10 +21,11 @@ import {
   Login,
 } from '@mui/icons-material'
 import { useTheme } from '@mui/material'
-import { ColorModeContext, tokens } from '@/theme'
+import { ColorModeContext } from '@/theme'
 import { UserState, userContextType } from '@/context/userContext'
 import { useNavigate } from 'react-router-dom'
 import { BaseURLUsers } from '@/config/api'
+import { ToastSuccess } from './Toast'
 
 const pages = [
   { title: 'Home', link: '/dashboard', auth: false },
@@ -38,7 +39,6 @@ const settings = [
 
 const Navbar = () => {
   const theme = useTheme()
-  const colors = tokens(theme.palette.mode)
   const colorMode = useContext(ColorModeContext)
   const navigate = useNavigate()
   const { user }: userContextType = UserState()
@@ -59,6 +59,12 @@ const Navbar = () => {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null)
+  }
+
+  const logoutHandler = () => {
+    localStorage.removeItem('userInfo')
+    ToastSuccess('logout success')
+    navigate('/login')
   }
 
   return (
@@ -231,7 +237,11 @@ const Navbar = () => {
                   {settings.map((setting) => (
                     <MenuItem
                       key={setting.title}
-                      onClick={() => navigate(setting.link)}
+                      onClick={() => {
+                        return setting.link === '/logout'
+                          ? logoutHandler
+                          : navigate(setting.link)
+                      }}
                     >
                       <Typography textAlign='center'>
                         {setting.title}

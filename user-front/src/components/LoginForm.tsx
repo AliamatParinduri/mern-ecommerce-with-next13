@@ -33,7 +33,6 @@ const animate = {
 }
 
 const LoginForm = () => {
-  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
@@ -42,7 +41,6 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
 
   const handleLoginUser = async () => {
-    setIsLoading(true)
     try {
       const payload = {
         username: formik.values.username,
@@ -54,12 +52,10 @@ const LoginForm = () => {
       } = await axios.post(`${BaseURLV1}/auth/login`, payload)
 
       ToastSuccess(message)
-      setIsLoading(false)
       localStorage.setItem('userLogin', JSON.stringify({ ...data, token }))
       setUser({ ...data, token })
       navigate('/')
     } catch (e: any) {
-      setIsLoading(false)
       ToastError(e.response.data.description)
     }
   }
@@ -73,8 +69,7 @@ const LoginForm = () => {
     onSubmit: handleLoginUser,
   })
 
-  const { errors, touched, values, isSubmitting, handleSubmit, getFieldProps } =
-    formik
+  const { errors, touched, isSubmitting, handleSubmit, getFieldProps } = formik
 
   return (
     <FormikProvider value={formik}>

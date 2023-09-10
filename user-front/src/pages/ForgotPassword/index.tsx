@@ -34,7 +34,7 @@ const fadeInUp = {
   },
 }
 
-const ForgotPassword = ({ setAuth }: any) => {
+const ForgotPassword = () => {
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
 
@@ -56,7 +56,7 @@ const ForgotPassword = ({ setAuth }: any) => {
             </Typography>
           </Box>
 
-          <ForgotPasswordForm setAuth={setAuth} />
+          <ForgotPasswordForm />
 
           <Typography
             component={motion.p}

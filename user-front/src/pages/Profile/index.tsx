@@ -105,7 +105,7 @@ const Profile = () => {
     getOrders()
   }, [])
 
-  const StyledTableCell = styled(TableCell)(({ theme: any }) => ({
+  const StyledTableCell = styled(TableCell)(() => ({
     [`&.${tableCellClasses.head}`]: {
       backgroundColor: theme.palette.primary.main,
     },
@@ -114,7 +114,7 @@ const Profile = () => {
     },
   }))
 
-  const StyledTableRow = styled(TableRow)(({ theme: any }) => ({
+  const StyledTableRow = styled(TableRow)(() => ({
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.action.hover,
     },

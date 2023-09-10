@@ -20,6 +20,7 @@ import Addresses from './pages/Addresses'
 import CreateAddress from './pages/Addresses/create'
 import EditAddress from './pages/Addresses/edit'
 import EditProfile from './pages/EditProfile'
+import Invoice from './pages/Invoice'
 
 function App() {
   const [theme, colorMode]: any = useMode()
@@ -38,6 +39,7 @@ function App() {
               <Route path='/cart' element={<Cart />} />
               <Route path='/orders' element={<Orders />} />
               <Route path='/orders/:id' element={<OrderDetail />} />
+              <Route path='/invoice/:id' element={<Invoice />} />
               <Route path='/wishlist' element={<Wishlist />} />
               <Route path='/profile' element={<Profile />} />
               <Route path='/profile/edit-profile' element={<EditProfile />} />

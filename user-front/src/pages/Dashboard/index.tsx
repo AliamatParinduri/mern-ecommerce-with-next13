@@ -97,7 +97,7 @@ const Dashboard = () => {
       </Box>
       <Stack>
         <Box display='flex' justifyContent='space-between' py={1}>
-          <Typography gutterBottom variant='headline' component='h1'>
+          <Typography gutterBottom variant='h3' fontWeight='bold' mb={2}>
             New Arrival {isLoading}
           </Typography>
           <Typography
@@ -170,7 +170,7 @@ const Dashboard = () => {
 
       <Stack>
         <Box display='flex' justifyContent='space-between' py={1}>
-          <Typography gutterBottom variant='headline' component='h1'>
+          <Typography gutterBottom variant='h3' fontWeight='bold' mb={2}>
             More For You
           </Typography>
           <Typography

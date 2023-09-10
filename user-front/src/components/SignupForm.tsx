@@ -31,8 +31,7 @@ const animate = {
   },
 }
 
-const SignupForm = ({ setAuth }: any) => {
-  const [isLoading, setIsLoading] = useState(false)
+const SignupForm = () => {
   const navigate = useNavigate()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
@@ -40,7 +39,6 @@ const SignupForm = ({ setAuth }: any) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const handleSignupUser = async () => {
-    setIsLoading(true)
     const payload = {
       fullName: formik.values.fullName,
       username: formik.values.username,
@@ -50,13 +48,11 @@ const SignupForm = ({ setAuth }: any) => {
     }
     try {
       const {
-        data: { data, token, message },
+        data: { message },
       } = await axios.post(`${BaseURLV1}/auth/register`, payload)
       ToastSuccess(message)
-      setIsLoading(false)
       navigate('/login')
     } catch (e: any) {
-      setIsLoading(false)
       ToastError(e.response.data.description)
     }
   }

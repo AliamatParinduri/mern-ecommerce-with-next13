@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import {
   Container,
@@ -14,7 +13,6 @@ import { motion } from 'framer-motion'
 import LoginForm from '@/components/LoginForm'
 import SocialAuth from '@/components/SocialAuth'
 import { tokens } from '@/theme'
-import Logo from '@/assets/svg/Logo'
 
 const ContentStyle = styled(Box)(({ theme }: any) => ({
   maxWidth: 480,
@@ -44,7 +42,7 @@ const fadeInUp = {
   },
 }
 
-const Login = ({ setAuth }: any) => {
+const Login = () => {
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
 
@@ -76,7 +74,7 @@ const Login = ({ setAuth }: any) => {
             </Typography>
           </Divider>
 
-          <LoginForm setAuth={setAuth} />
+          <LoginForm />
 
           <Typography
             component={motion.p}
