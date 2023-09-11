@@ -11,7 +11,7 @@ const ThemeSwitcher = ({ size = 32 }: { size?: number }) => {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    if (typeof window !== undefined) {
+    if (typeof window === 'object') {
       setUserMode(localStorage.getItem('theme'))
       setSystemMode(window.matchMedia('(prefers-color-scheme: dark)').matches)
     }

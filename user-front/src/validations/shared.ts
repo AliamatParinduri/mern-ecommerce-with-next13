@@ -1,5 +1,3 @@
-import { ToastError } from '@/components/Toast'
-
 export type LoginDTO = {
   username: string
   password?: string
@@ -151,4 +149,34 @@ export function formatRupiah(angka: string, prefix: string) {
 
 export function onlyGetNumberValue(value: string) {
   return Number(value.replace(/[^0-9]/g, ''))
+}
+
+export function getDates(date: string) {
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ]
+
+  const newDate = new Date(date)
+
+  const y = newDate.getFullYear()
+  const m = newDate.getMonth() + 1
+  const d = newDate.getDate().toString()
+  const h = newDate.getHours().toString()
+  const i = newDate.getMinutes().toString()
+  const s = newDate.getSeconds().toString()
+
+  return `${d.length === 1 ? '0' + d : d} ${monthNames[m]} ${y} ${
+    h.length === 1 ? '0' + h : h
+  }:${i.length === 1 ? '0' + i : i}:${s.length === 1 ? '0' + s : s}`
 }

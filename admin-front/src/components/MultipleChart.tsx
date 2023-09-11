@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from 'react'
 import { Chart } from 'chart.js'
 
@@ -23,13 +24,6 @@ function MultipleCharts({
     const myChart: any = document.getElementById(elId)!
     const ctx = myChart.getContext('2d')
     let detailsObject = {}
-    let borderColor = '#3e95cd'
-    let backgroundColor = '#7bb6dd'
-
-    // if (diffPercentage != '' && !detail) {
-    //   borderColor = diffPercentage.charAt(0) === '+' ? '#22c55e' : '#e44345'
-    //   backgroundColor = diffPercentage.charAt(0) === '+' ? '#7adc9e' : '#ef8e8f'
-    // }
 
     if (!detail) {
       detailsObject = {
@@ -45,7 +39,6 @@ function MultipleCharts({
         ],
         yAxes: [
           {
-            // stacked: true,
             gridLines: {
               display: false,
             },
@@ -57,11 +50,7 @@ function MultipleCharts({
       }
     } else {
       detailsObject = {
-        yAxes: [
-          {
-            // stacked: true,
-          },
-        ],
+        yAxes: [{}],
       }
     }
 

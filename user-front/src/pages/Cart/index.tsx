@@ -131,6 +131,7 @@ const Cart = () => {
 
     setIsLoading(true)
     try {
+      let newAddress
       const config = {
         headers: {
           Authorization: `Bearer ${user!.token}`,
@@ -153,9 +154,15 @@ const Cart = () => {
           config
         )
         setAddress(data.data)
+        newAddress = data.data._id
+        console.log(data.data)
       }
 
+      let totalProfit = 0
       const products = user?.cart.map((cart: any) => {
+        totalProfit +=
+          (cart.details.price - cart.details.capitalPrice) * cart.qty
+
         return {
           product: cart.product._id,
           details: cart.details,
@@ -169,8 +176,9 @@ const Cart = () => {
 
       const payload = {
         user: user!._id,
-        address: address._id,
+        address: newAddress ?? address._id,
         products,
+        totalProfit,
         discount: 0,
         paymentStatus: 'Paid',
         estimatedDeliveryDate: nextThreeDays,
@@ -204,7 +212,7 @@ const Cart = () => {
       gap={2}
     >
       <Box sx={{ width: { xs: '100%', md: 1 / 2 } }}>
-        <Typography gutterBottom variant='headline' component='h1' mb={2}>
+        <Typography gutterBottom variant='h3' fontWeight='bold' mb={2}>
           Shopping Cart
         </Typography>
         {user &&
@@ -236,7 +244,18 @@ const Cart = () => {
                   }}
                 />
                 <Stack>
-                  <Typography gutterBottom variant='headline' component='h2'>
+                  <Typography
+                    gutterBottom
+                    variant='h5'
+                    fontWeight='bold'
+                    sx={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: '1',
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
                     {cart.product.nmProduct}
                   </Typography>
                   <Typography gutterBottom variant='subtitle1' component='h5'>
@@ -301,7 +320,7 @@ const Cart = () => {
           ))}
       </Box>
       <Box sx={{ width: { xs: '100%', md: 1 / 3 } }}>
-        <Typography gutterBottom variant='headline' component='h1' mb={2}>
+        <Typography gutterBottom variant='h3' fontWeight='bold' mb={2}>
           Order Information
         </Typography>
         <Box

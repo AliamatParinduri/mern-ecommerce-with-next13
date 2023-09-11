@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { FaPlus } from 'react-icons/fa'
 
 import Datatable from '@/components/Datatable'
@@ -10,12 +12,16 @@ import Layout from '@/components/Layout'
 import Loading from '@/components/Loading'
 import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
-import { userDTO } from '@/validations/shared'
+import { isUserLogin, userDTO } from '@/validations/shared'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const Users = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [users, setUsers] = useState<userDTO[]>([])
-  const { user }: userContextType = UserState()
+  const router = useRouter()
+  const { setUser }: userContextType = UserState()
+  let { user }: userContextType = UserState()
+  let xx: any[] = []
 
   const fetchUsers = async () => {
     setIsLoading(true)
@@ -30,9 +36,21 @@ const Users = () => {
 
       setIsLoading(false)
       setUsers(data.data.users)
+      xx = [...xx, ...data.data.users]
     } catch (e: any) {
       setIsLoading(false)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -47,19 +65,32 @@ const Users = () => {
 
       await axios.delete(`${BaseURLV1}/users/${id}`, config)
 
-      const newUsers = users.filter((user) => user._id !== id)
+      const newUsers = xx.filter((user) => user._id !== id)
 
       setUsers(newUsers)
+      xx = newUsers
       setIsLoading(false)
-      alert('success delete user')
+      ToastSuccess('success delete user')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
   useEffect(() => {
+    isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
+
     fetchUsers()
   }, [user])
 

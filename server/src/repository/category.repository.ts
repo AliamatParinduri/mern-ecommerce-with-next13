@@ -6,7 +6,13 @@ import { InternalServerError, logger } from '@/utils'
 class CategoryRepository {
   getCategories = async () => {
     try {
-      return await Category.find()
+      return await Category.find().then((result) => {
+        if (result.length < 0) {
+          throw new InternalServerError('Failed get data category, Data not found')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = Get Categories ', err.message)
       throw new InternalServerError(err.message)
@@ -18,6 +24,12 @@ class CategoryRepository {
       return await Category.create({
         category: payload.category,
         subCategory: payload.subCategory
+      }).then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed create data category')
+        }
+
+        return result
       })
     } catch (err: any) {
       logger.error('ERR = Create new category ', err.message)
@@ -36,7 +48,13 @@ class CategoryRepository {
 
   findById = async (userId: string) => {
     try {
-      return await Category.findById(userId)
+      return await Category.findById(userId).then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed get data category, Data not found')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = Find by category id ', err.message)
       throw new InternalServerError(err.message)
@@ -48,7 +66,13 @@ class CategoryRepository {
       category.category = payload.category
       category.subCategory = payload.subCategory ?? []
 
-      return await category.save()
+      return await category.save().then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed update data category')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = Update data category ', err.message)
       throw new InternalServerError(err.message)
@@ -57,7 +81,13 @@ class CategoryRepository {
 
   deleteCategory = async (categoryId: string) => {
     try {
-      return await Category.findByIdAndRemove(categoryId)
+      return await Category.findByIdAndRemove(categoryId).then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed delete data category')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = Delete data category ', err.message)
       throw new InternalServerError(err.message)

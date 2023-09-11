@@ -65,7 +65,7 @@ const AddressForm = ({ title }: Props) => {
         provinsi,
       }
 
-      const { data } = await axios.post(`${BaseURLV1}/address`, payload, config)
+      await axios.post(`${BaseURLV1}/address`, payload, config)
 
       setIsLoading(false)
       ToastSuccess('Success create Address')
@@ -96,11 +96,7 @@ const AddressForm = ({ title }: Props) => {
         provinsi,
       }
 
-      const { data } = await axios.put(
-        `${BaseURLV1}/address/${id}`,
-        payload,
-        config
-      )
+      await axios.put(`${BaseURLV1}/address/${id}`, payload, config)
 
       setIsLoading(false)
       ToastSuccess('Success update Address')

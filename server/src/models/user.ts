@@ -10,6 +10,7 @@ const UserSchema = new Schema(
     email: { type: String, trim: true, required: true, unique: true },
     password: { type: String, trim: true, required: true },
     noHP: { type: String, trim: true, required: true },
+    dateOfBirth: { type: Date, trim: true, required: true },
     userPic: { type: String, default: DefaultPicture, trim: true },
     isAdmin: { type: Boolean, default: false },
     isActive: { type: Boolean, default: false },

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -14,16 +15,18 @@ import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { OrderSchema } from '@/validations/orderValidation'
 import { isUserLogin } from '@/validations/shared'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 type Props = {
   params: { id: string }
 }
 
 const EditOrder = ({ params: { id } }: Props) => {
-  let { user }: userContextType = UserState()
+  const { setUser }: userContextType = UserState()
   const [buttonClick, setButtonClick] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  let { user }: userContextType = UserState()
 
   const initialValues: any = {
     order: {},
@@ -50,11 +53,22 @@ const EditOrder = ({ params: { id } }: Props) => {
       await axios.put(`${BaseURLV1}/order/${id}`, payload, config)
 
       setIsLoading(false)
-      alert('success update orders')
+      ToastSuccess('success update orders')
       router.push('/orders')
     } catch (e: any) {
       setIsLoading(false)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -87,12 +101,24 @@ const EditOrder = ({ params: { id } }: Props) => {
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
   useEffect(() => {
     isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
+
     getOrderById()
   }, [])
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -56,7 +57,7 @@ const sidebarItems = [
       },
       {
         text: 'Report Products',
-        link: 'report-product',
+        link: 'report-products',
         icon: <FaFileInvoiceDollar />,
       },
       {
@@ -78,7 +79,7 @@ const Sidebar = () => {
 
   return (
     <aside
-      className='bg-light-500 dark:bg-boxDark-500 overflow-y-auto text-blue-100 space-y-6 py-7 px-2 flex-col border-r-2 dark:border-r-0 inset-y-0 left-0 transform hidden md:flex -translate-x-full md:translate-x-0 transition duration-100 ease-in-out z-3'
+      className='bg-white dark:bg-boxDark-500 overflow-y-auto text-blue-100 space-y-6 py-7 px-2 flex-col border-r-2 dark:border-r-0 inset-y-0 left-0 transform hidden md:flex -translate-x-full md:translate-x-0 transition duration-100 ease-in-out z-3'
       style={{
         minWidth: '200px',
         maxWidth: '200px',

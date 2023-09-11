@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { FaRegBell, FaBars, FaSearch } from 'react-icons/fa'
@@ -7,6 +8,8 @@ import ThemeSwitcher from './ThemeSwitcher'
 import { UserState, userContextType } from '@/context/userContext'
 import { isUserLogin } from '@/validations/shared'
 import { BaseURLUsers } from '@/config/api'
+import Link from 'next/link'
+import { ToastSuccess } from './Toast'
 
 const Navbar = () => {
   let { user }: userContextType = UserState()
@@ -32,6 +35,12 @@ const Navbar = () => {
 
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  const logoutHandler = () => {
+    localStorage.removeItem('userInfo')
+    ToastSuccess('logout success')
+    router.push('/login')
+  }
 
   return (
     <nav
@@ -80,7 +89,7 @@ const Navbar = () => {
                 <Image
                   src={`${BaseURLUsers}/${user.userPic}`}
                   alt='Picture of the author'
-                  layout='fill'
+                  fill
                   objectFit='cover'
                   className='rounded-full'
                 />
@@ -101,12 +110,12 @@ const Navbar = () => {
               aria-labelledby='dropdownUserAvatarButton'
             >
               <li>
-                <a
-                  href='#'
+                <Link
+                  href='/profile'
                   className='block px-4 py-1 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white'
                 >
                   Profile
-                </a>
+                </Link>
               </li>
               <li>
                 <a
@@ -118,12 +127,13 @@ const Navbar = () => {
               </li>
             </ul>
             <div className='py-2'>
-              <a
-                href='#'
-                className='block px-4 py-1 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
+              <button
+                type='button'
+                onClick={logoutHandler}
+                className='block px-4 py-1 text-sm w-full text-left text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
               >
                 Sign out
-              </a>
+              </button>
             </div>
           </div>
         </div>

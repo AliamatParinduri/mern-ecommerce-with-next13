@@ -12,14 +12,8 @@ class OrderService {
   orderRepository = new OrderRepository()
 
   getOrders = async (req: Request) => {
-
     const keyword = { ...req.query }
-    const result = await this.orderRepository.getOrders(keyword)
-
-    if (result.length < 0) {
-      throw new UnprocessableEntityError('Failed get data order, Data not found')
-    }
-    return result
+    return await this.orderRepository.getOrders(keyword)
   }
 
   getRekapOrders = async (req: Request) => {
@@ -104,9 +98,6 @@ class OrderService {
   getOrderById = async (orderId: string) => {
     const result = await this.orderRepository.findById(orderId)
 
-    if (!result) {
-      throw new UnprocessableEntityError('Failed get data order, Data not found')
-    }
     return result
   }
 
@@ -114,9 +105,6 @@ class OrderService {
     let tmpProductDetails: any[] = []
 
     const user: any = await this.userRepository.findById(payload.user)
-    if (!user) {
-      throw new UnprocessableEntityError('User not found')
-    }
 
     for (const prod of payload.products) {
       const product: any = await this.productRepository.findOne({ _id: prod.product, 'details._id': prod.details._id })
@@ -150,10 +138,6 @@ class OrderService {
 
     const result = await this.orderRepository.createOrder(payload)
 
-    if (!result) {
-      throw new UnprocessableEntityError('Failed create data prder')
-    }
-
     for (const tmp of tmpProductDetails) {
       tmp.product.details[tmp.index].stock = tmp.newStock
       tmp.product.details[tmp.index].totalOrder = tmp.totalOrder
@@ -169,24 +153,11 @@ class OrderService {
   updateOrder = async (payload: OrderDTO, orderId: string) => {
     const order = await this.orderRepository.findById(orderId)
 
-    if (!order) {
-      throw new UnprocessableEntityError('User not found')
-    }
-    const result = await this.orderRepository.updateOrder(order, payload)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed update data order')
-    }
-    return result
+    return await this.orderRepository.updateOrder(order, payload)
   }
 
   deleteOrder = async (orderId: string) => {
-    const result = await this.orderRepository.deleteOrder(orderId)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed update data order')
-    }
-    return result
+    return await this.orderRepository.deleteOrder(orderId)
   }
 }
 

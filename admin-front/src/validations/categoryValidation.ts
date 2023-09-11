@@ -10,8 +10,8 @@ export const CategorySchema = yup.object().shape({
     .string()
     .min(3)
     .matches(
-      /^[a-zA-Z, 0-9]{3,75}$/,
-      'only allow alpha numeric, space or comma(,)'
+      /^[a-zA-Z-_/&, 0-9]{3,500}$/,
+      'only allow alpha numeric and some characters'
     )
     .required('This is Required, Please Enter your Sub Category'),
 })

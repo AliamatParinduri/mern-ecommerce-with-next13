@@ -50,7 +50,7 @@ const Profile = () => {
       }
 
       const { data } = await axios.get(
-        `${BaseURLV1}/order?userId=${user!._id}`,
+        `${BaseURLV1}/order?user=${user!._id}`,
         config
       )
 
@@ -58,7 +58,7 @@ const Profile = () => {
       let ordersDelivery: OrderDTO[] = []
       let ordersDone: OrderDTO[] = []
 
-      for (const order of orders) {
+      for (const order of data.data) {
         switch (order.paymentOrder) {
           case 'Process':
             ordersProcess = [...ordersProcess, order]
@@ -75,6 +75,7 @@ const Profile = () => {
 
       setIsLoading(false)
       setOrders(data.data)
+
       setOrdersProcess(ordersProcess)
       setOrdersDelivery(ordersDelivery)
       setOrdersDone(ordersDone)
@@ -104,7 +105,7 @@ const Profile = () => {
     getOrders()
   }, [])
 
-  const StyledTableCell = styled(TableCell)(({ theme: any }) => ({
+  const StyledTableCell = styled(TableCell)(() => ({
     [`&.${tableCellClasses.head}`]: {
       backgroundColor: theme.palette.primary.main,
     },
@@ -113,7 +114,7 @@ const Profile = () => {
     },
   }))
 
-  const StyledTableRow = styled(TableRow)(({ theme: any }) => ({
+  const StyledTableRow = styled(TableRow)(() => ({
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.action.hover,
     },
@@ -136,12 +137,14 @@ const Profile = () => {
           <Typography gutterBottom variant='h3' mb={2}>
             My Profile
           </Typography>
-          <ColorButton onClick={() => navigate('/profile/edit-profile')}>
-            Edit Profile
-          </ColorButton>
+          {user && (
+            <ColorButton onClick={() => navigate('/profile/edit-profile')}>
+              Edit Profile
+            </ColorButton>
+          )}
         </Box>
         <Box>{isLoading && <Loading value='80' />}</Box>
-        {!isLoading && orders.length <= 0 && (
+        {!isLoading && !user && (
           <Box
             bgcolor={colors.secondary[500]}
             p={2}
@@ -152,7 +155,7 @@ const Profile = () => {
             </Typography>
           </Box>
         )}
-        {!isLoading && orders.length > 0 && (
+        {!isLoading && user && (
           <Stack gap={4}>
             <Box display='flex' justifyContent='space-between' gap={3}>
               <Box
@@ -168,12 +171,12 @@ const Profile = () => {
               >
                 <Box display='flex' gap={2}>
                   <Avatar
-                    alt={user!.fullName}
-                    src={`${BaseURLUsers}/${user!.userPic}`}
+                    alt={user.fullName}
+                    src={`${BaseURLUsers}/${user.userPic}`}
                   />
                   <Stack>
-                    <Typography variant='h6'>{user!.fullName}</Typography>
-                    <Typography variant='body2'>{user!.email}</Typography>
+                    <Typography variant='h6'>{user.fullName}</Typography>
+                    <Typography variant='body2'>{user.email}</Typography>
                   </Stack>
                 </Box>
               </Box>
@@ -190,7 +193,7 @@ const Profile = () => {
                 }}
               >
                 <Typography variant='h3' color='#787eff' mb={1}>
-                  {orders.length}
+                  {orders.length > 0 ? orders.length : 0}
                 </Typography>
                 <Typography variant='h5'>All Orders</Typography>
               </Box>
@@ -207,7 +210,7 @@ const Profile = () => {
                 }}
               >
                 <Typography variant='h3' color='#787eff' mb={1}>
-                  {ordersProcess.length}
+                  {ordersProcess.length > 0 ? ordersProcess.length : 0}
                 </Typography>
                 <Typography variant='h5'> Process Orders</Typography>
               </Box>
@@ -224,7 +227,7 @@ const Profile = () => {
                 }}
               >
                 <Typography variant='h3' color='#787eff' mb={1}>
-                  {ordersDelivery.length}
+                  {ordersDelivery.length > 0 ? ordersDelivery.length : 0}
                 </Typography>
                 <Typography variant='h5'>Delivered Orders</Typography>
               </Box>
@@ -241,7 +244,7 @@ const Profile = () => {
                 }}
               >
                 <Typography variant='h3' color='#787eff' mb={1}>
-                  {ordersDone.length}
+                  {ordersDone.length > 0 ? ordersDone.length : 0}
                 </Typography>
                 <Typography variant='h5'>Done Orders</Typography>
               </Box>
@@ -260,11 +263,11 @@ const Profile = () => {
                 <TableBody>
                   <StyledTableRow>
                     <StyledTableCell component='th' scope='row'>
-                      {user!.fullName}
+                      {user.fullName}
                     </StyledTableCell>
-                    <StyledTableCell>{user!.username}</StyledTableCell>
-                    <StyledTableCell>{user!.email}</StyledTableCell>
-                    <StyledTableCell>{user!.noHP}</StyledTableCell>
+                    <StyledTableCell>{user.username}</StyledTableCell>
+                    <StyledTableCell>{user.email}</StyledTableCell>
+                    <StyledTableCell>{user.noHP}</StyledTableCell>
                   </StyledTableRow>
                 </TableBody>
               </Table>

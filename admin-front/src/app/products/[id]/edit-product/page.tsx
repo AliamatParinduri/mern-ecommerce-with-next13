@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -5,6 +6,14 @@ import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { FaArrowLeft, FaEdit, FaTimes, FaTrash } from 'react-icons/fa'
 import Image from 'next/image'
+import draftToHtml from 'draftjs-to-html'
+import {
+  EditorState,
+  ContentState,
+  convertFromHTML,
+  convertToRaw,
+  convertFromRaw,
+} from 'draft-js'
 
 import Layout from '@/components/Layout'
 import InputType from '@/components/InputType'
@@ -14,12 +23,7 @@ import InputFile from '@/components/InputFile'
 import { UserState, userContextType } from '@/context/userContext'
 import { isUserLogin } from '@/validations/shared'
 import WysiwygDescription from '@/components/WysiwygDescription'
-import {
-  EditorState,
-  ContentState,
-  convertFromHTML,
-  convertFromRaw,
-} from 'draft-js'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 type Props = {
   params: { id: string }
@@ -32,18 +36,20 @@ const EditProduct = ({ params: { id } }: Props) => {
   const [categories, setCategories] = useState<any[]>([])
   const [subCategories, setSubCategories] = useState<any[]>([])
   const [nmProduct, setNmProduct] = useState('')
-  const [category, setCategory] = useState('')
+  const [category, setCategory] = useState<any>('')
   const [subCategory, setSubCategory] = useState('')
   const [files, setFiles] = useState([])
   const [description, setDescription] = useState(() =>
     EditorState.createEmpty()
   )
+  const [capitalPrice, setCapitalPrice] = useState('')
   const [price, setPrice] = useState('')
   const [stock, setStock] = useState('')
   const [size, setSize] = useState('')
   const [color, setColor] = useState('')
   const [productDetails, setProductDetails] = useState<any[]>([])
   const [productImages, setProductImages] = useState<any[]>([])
+  const { setUser }: userContextType = UserState()
   const router = useRouter()
 
   const handleSubmit = async (e: any) => {
@@ -57,7 +63,11 @@ const EditProduct = ({ params: { id } }: Props) => {
       }
 
       formData.append('nmProduct', nmProduct)
-      formData.append('category', category)
+      formData.append(
+        'description',
+        draftToHtml(convertToRaw(description.getCurrentContent()))
+      )
+      formData.append('category', category._id)
       formData.append('subCategory', subCategory)
       formData.append('details', JSON.stringify(productDetails))
 
@@ -70,12 +80,23 @@ const EditProduct = ({ params: { id } }: Props) => {
       const {
         data: { data, token, message },
       } = await axios.put(`${BaseURLV1}/product/${id}`, formData, config)
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       router.push('/products')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -111,16 +132,19 @@ const EditProduct = ({ params: { id } }: Props) => {
 
       setCategories(data.data)
 
-      const { data: dt } = await axios.get(`${BaseURLV1}/product/${id}`, config)
+      const { data: dt }: any = await axios.get(
+        `${BaseURLV1}/product/${id}`,
+        config
+      )
+
+      const blocksFromHTML = convertFromHTML(dt.data.description)
 
       setNmProduct(dt.data.nmProduct)
       setCategory(dt.data.category)
       setSubCategory(dt.data.subCategory)
       setDescription(
         EditorState.createWithContent(
-          ContentState.createFromBlockArray(
-            convertFromHTML(dt.data.description)
-          )
+          ContentState.createFromBlockArray(blocksFromHTML.contentBlocks)
         )
       )
 
@@ -128,11 +152,23 @@ const EditProduct = ({ params: { id } }: Props) => {
       setProductImages(dt.data.pic)
 
       const subCategories = data.data.find(
-        (category: any) => category._id === dt.data.category
+        (category: any) => category._id === dt.data.category._id
       )
+
       setSubCategories(subCategories.subCategory)
     } catch (e: any) {
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -145,7 +181,7 @@ const EditProduct = ({ params: { id } }: Props) => {
       setCategory(e.target.value)
       setSubCategories(category.subCategory)
     } else {
-      alert(`didn't have sub category`)
+      ToastError(`didn't have sub category`)
     }
   }
 
@@ -168,13 +204,24 @@ const EditProduct = ({ params: { id } }: Props) => {
       )
       setProductImages(newProductImages)
     } catch (e: any) {
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
   const handleDeleteProductDetail = async (id: string) => {
     if (productDetails.length === 1) {
-      alert('failed, product detail minimal 1 record')
+      ToastError('failed, product detail minimal 1 record')
       return false
     }
 
@@ -186,6 +233,7 @@ const EditProduct = ({ params: { id } }: Props) => {
 
   useEffect(() => {
     isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
+
     getCategories()
   }, [])
 
@@ -238,7 +286,7 @@ const EditProduct = ({ params: { id } }: Props) => {
                           <option
                             key={dt._id}
                             value={dt._id}
-                            selected={dt._id === category}
+                            selected={dt._id === category._id}
                           >
                             {dt.category}
                           </option>
@@ -299,55 +347,53 @@ const EditProduct = ({ params: { id } }: Props) => {
                     ))}
                   </div>
                 </div>
-                <div className='flex gap-4'>
-                  <div className='w-1/5'>
-                    <InputType
-                      type='text'
-                      title='Price'
-                      placeholder='Enter your Price'
-                      name='price'
-                      value={price}
-                      setValue={setPrice}
-                      buttonClick={buttonClick}
-                    />
-                  </div>
-                  <div className='w-1/5'>
-                    <InputType
-                      type='text'
-                      title='Stock'
-                      placeholder='Enter your Stock'
-                      name='stock'
-                      value={stock}
-                      setValue={setStock}
-                      buttonClick={buttonClick}
-                    />
-                  </div>
-                  <div className='w-1/5'>
-                    <InputType
-                      type='text'
-                      title='Size/Type'
-                      placeholder='Ex: 128GB/M/L/XL'
-                      name='size'
-                      value={size}
-                      setValue={setSize}
-                      buttonClick={buttonClick}
-                    />
-                  </div>
-                  <div className='w-1/5'>
-                    <InputType
-                      type='text'
-                      title='Color&HexColor'
-                      placeholder='Ex: red,#880808'
-                      name='color'
-                      value={color}
-                      setValue={setColor}
-                      buttonClick={buttonClick}
-                    />
-                  </div>
-                  <div className='flex w-1/5 flex-col gap-2'>
-                    <span className='text-transparent'>
-                      Add Details Products
-                    </span>
+                <div className='grid grid-cols-2 lg:grid-cols-3 gap-4'>
+                  <InputType
+                    type='text'
+                    title='Capital Price'
+                    placeholder='Enter your Capital Price'
+                    name='capitalPrice'
+                    value={capitalPrice}
+                    setValue={setCapitalPrice}
+                    buttonClick={buttonClick}
+                  />
+                  <InputType
+                    type='text'
+                    title='Price'
+                    placeholder='Enter your Price'
+                    name='price'
+                    value={price}
+                    setValue={setPrice}
+                    buttonClick={buttonClick}
+                  />
+                  <InputType
+                    type='text'
+                    title='Stock'
+                    placeholder='Enter your Stock'
+                    name='stock'
+                    value={stock}
+                    setValue={setStock}
+                    buttonClick={buttonClick}
+                  />
+                  <InputType
+                    type='text'
+                    title='Size/Type'
+                    placeholder='Ex: 128GB/M/L/XL'
+                    name='size'
+                    value={size}
+                    setValue={setSize}
+                    buttonClick={buttonClick}
+                  />
+                  <InputType
+                    type='text'
+                    title='Color&HexColor'
+                    placeholder='Ex: red,#880808'
+                    name='color'
+                    value={color}
+                    setValue={setColor}
+                    buttonClick={buttonClick}
+                  />
+                  <div className='flex items-end pb-1'>
                     <button
                       type='button'
                       onClick={handleDetailProduct}

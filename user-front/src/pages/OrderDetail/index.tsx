@@ -42,6 +42,7 @@ import {
   OrderDTO,
   RatingsDTO,
   formatRupiah,
+  getDates,
   isUserLogin,
 } from '@/validations/shared'
 import { ToastError, ToastSuccess } from '@/components/Toast'
@@ -179,7 +180,7 @@ const OrderDetail = () => {
         komentar: comment,
       }
 
-      const { data } = await axios.post(`${BaseURLV1}/rating`, payload, config)
+      await axios.post(`${BaseURLV1}/rating`, payload, config)
 
       const newRatings = [
         ...ratings,
@@ -276,7 +277,7 @@ const OrderDetail = () => {
       (product: any) => (subTotal += parseInt(product.subTotal))
     )
 
-  const StyledTableCell = styled(TableCell)(({ theme: any }) => ({
+  const StyledTableCell = styled(TableCell)(() => ({
     [`&.${tableCellClasses.head}`]: {
       backgroundColor: theme.palette.primary.main,
     },
@@ -285,7 +286,7 @@ const OrderDetail = () => {
     },
   }))
 
-  const StyledTableRow = styled(TableRow)(({ theme: any }) => ({
+  const StyledTableRow = styled(TableRow)(() => ({
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.action.hover,
     },
@@ -406,6 +407,25 @@ const OrderDetail = () => {
                       </Typography>
                     </ColorButton>
                   )}
+                  {order.paymentOrder === 'Done' && (
+                    <Button
+                      href={`/invoice/${id}`}
+                      target='_blank'
+                      variant='contained'
+                      sx={{
+                        width: '150px',
+                        fontWeight: 'bold',
+                        color:
+                          theme.palette.mode === 'dark' ? 'white' : 'black',
+                        backgroundColor: '#787eff',
+                        '&:hover': {
+                          backgroundColor: '#484c99',
+                        },
+                      }}
+                    >
+                      See Invoice
+                    </Button>
+                  )}
                 </Box>
                 <Box
                   display='flex'
@@ -415,7 +435,7 @@ const OrderDetail = () => {
                   bgcolor='#787eff'
                 >
                   Estimated Delivery Date{' '}
-                  <b>&nbsp;{order.estimatedDeliveryDate}</b>
+                  <b>&nbsp;{getDates(order.estimatedDeliveryDate)}</b>
                 </Box>
               </Stack>
             </Stack>
@@ -426,11 +446,11 @@ const OrderDetail = () => {
                   <TableRow>
                     <StyledTableCell>Order ID: {order._id}</StyledTableCell>
                     <StyledTableCell>
-                      Ordered On {order.createdAt}
+                      Ordered on {getDates(order!.createdAt!)}
                     </StyledTableCell>
                     {order.deliveredOrder && order.paymentOrder === 'Done' && (
                       <StyledTableCell>
-                        Delivered On {order.deliveredOrder}
+                        Delivered on {getDates(order.deliveredOrder)}
                       </StyledTableCell>
                     )}
                   </TableRow>
@@ -466,8 +486,15 @@ const OrderDetail = () => {
                               <Stack>
                                 <Typography
                                   gutterBottom
-                                  variant='headline'
-                                  component='h2'
+                                  component='h5'
+                                  fontWeight='bold'
+                                  sx={{
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: '1',
+                                    WebkitBoxOrient: 'vertical',
+                                  }}
                                 >
                                   {product.product.nmProduct}
                                 </Typography>
@@ -548,17 +575,19 @@ const OrderDetail = () => {
                   borderRadius: '8px',
                 }}
               >
-                <Typography gutterBottom variant='headline' component='h3'>
+                <Typography gutterBottom variant='h5' fontWeight='bold'>
                   Shipping Address
                 </Typography>
                 {order.address && (
                   <Stack>
-                    <Typography gutterBottom variant='headline' component='h5'>
+                    <Box>
                       {`${order.address.kecamatan} -
                       ${order.address.kabKot} -
                       ${order.address.provinsi}`}
+                    </Box>
+                    <Typography gutterBottom variant='subtitle2'>
+                      {order.address.fullAddress}
                     </Typography>
-                    <Box>{order.address.fullAddress}</Box>
                   </Stack>
                 )}
               </Stack>
@@ -571,7 +600,7 @@ const OrderDetail = () => {
                   borderRadius: '8px',
                 }}
               >
-                <Typography gutterBottom variant='headline' component='h3'>
+                <Typography gutterBottom variant='h5' fontWeight='bold'>
                   Total Summary
                 </Typography>
 

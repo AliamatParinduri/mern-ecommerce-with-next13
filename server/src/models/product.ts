@@ -12,6 +12,7 @@ export const ProductSchema = new Schema(
       type: [
         {
           price: { type: Number, trim: true, required: true },
+          capitalPrice: { type: Number, trim: true, required: true },
           stock: { type: Number, trim: true, required: true },
           size: { type: String, trim: true, required: true },
           rating: { type: String, default: '0', trim: true, required: true },

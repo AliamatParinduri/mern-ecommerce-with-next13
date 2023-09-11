@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { useState } from 'react'
 import { useFormik, Form, FormikProvider } from 'formik'
 import { useNavigate } from 'react-router-dom'
 import { LoadingButton } from '@mui/lab'
@@ -22,24 +21,22 @@ const animate = {
   },
 }
 
-const ForgotPasswordForm = ({ setAuth }: any) => {
-  const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate()
+const ForgotPasswordForm = () => {
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
+  const navigate = useNavigate()
+
   const handleForgotPassword = async () => {
-    setIsLoading(true)
     try {
       const {
         data: { message },
       } = await axios.post(`${BaseURLV1}/auth/forgotPassword`, {
         email: formik.values.email,
+        from: 'user',
       })
       ToastSuccess(message)
-      setIsLoading(false)
       navigate('/login')
     } catch (e: any) {
-      setIsLoading(false)
       ToastError(e.response.data.description)
     }
   }

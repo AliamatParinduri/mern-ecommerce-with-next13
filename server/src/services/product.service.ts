@@ -96,12 +96,7 @@ class ProductService {
   }
 
   getProductById = async (productId: string) => {
-    const result = await this.productRepository.findById(productId)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed create data product')
-    }
-    return result
+    return await this.productRepository.findById(productId)
   }
 
   createProduct = async (payload: ProductDTO, files: Express.Multer.File[]) => {
@@ -120,12 +115,7 @@ class ProductService {
       return file.filename
     })
 
-    const result = await this.productRepository.createProduct(payload, productImages)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed create data product')
-    }
-    return result
+    return await this.productRepository.createProduct(payload, productImages)
   }
 
   updateProduct = async (productId: string, payload: ProductDTO, files: Express.Multer.File[]) => {
@@ -143,10 +133,6 @@ class ProductService {
 
     const product = await this.productRepository.findById(productId)
 
-    if (!product) {
-      throw new UnprocessableEntityError('Product not found')
-    }
-
     let productImages: string[] = []
     if (files.length > 0) {
       productImages = files.map((file) => {
@@ -154,40 +140,19 @@ class ProductService {
       })
     }
 
-    const result = await this.productRepository.updateProduct(product, payload, productImages)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed update data product')
-    }
-    return result
+    return await this.productRepository.updateProduct(product, payload, productImages)
   }
 
   deleteProductImage = async (productId: string, picId: string) => {
     const product = await this.productRepository.findById(productId)
 
-    if (!product) {
-      throw new UnprocessableEntityError('Product not found')
-    }
-    const result = await this.productRepository.deleteProductImage(product, picId)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed delete data product')
-    }
-    return result
+    return await this.productRepository.deleteProductImage(product, picId)
   }
 
   deleteProduct = async (productId: string) => {
     const product = await this.productRepository.findById(productId)
 
-    if (!product) {
-      throw new UnprocessableEntityError('Product not found')
-    }
-    const result = await this.productRepository.deleteProduct(product)
-
-    if (!result) {
-      throw new UnprocessableEntityError('Failed delete data product')
-    }
-    return result
+    return await this.productRepository.deleteProduct(product)
   }
 }
 

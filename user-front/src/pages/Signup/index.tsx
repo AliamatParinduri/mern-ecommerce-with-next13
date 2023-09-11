@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { Container, Typography, Link, Box, Divider } from '@mui/material'
 import styled from '@emotion/styled'
@@ -35,7 +34,7 @@ const fadeInUp = {
   },
 }
 
-const Signup = ({ setAuth }: any) => {
+const Signup = () => {
   return (
     <Box sx={{ height: '100vh', display: 'grid', placeItems: 'center' }}>
       <Container maxWidth='sm'>
@@ -58,7 +57,7 @@ const Signup = ({ setAuth }: any) => {
             </Typography>
           </Divider>
 
-          <SignupForm setAuth={setAuth} />
+          <SignupForm />
 
           <Typography
             component={motion.p}

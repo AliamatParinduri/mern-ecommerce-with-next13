@@ -13,6 +13,7 @@ import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { ForgotPasswordSchema } from '@/validations/userValidation'
 import { BaseURLV1 } from '@/config/api'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 export default function ForgotPassword() {
   const [buttonClick, setButtonClick] = useState(false)
@@ -30,13 +31,14 @@ export default function ForgotPassword() {
         data: { message },
       } = await axios.post(`${BaseURLV1}/auth/forgotPassword`, {
         email: formik.values.email,
+        from: 'admin',
       })
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       router.push('/login')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 

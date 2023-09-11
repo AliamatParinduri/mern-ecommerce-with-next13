@@ -27,7 +27,7 @@ const Footer = () => {
     },
   }))
 
-  const FooterLink = styled('span')(({ theme }) => ({
+  const FooterLink = styled('span')(() => ({
     fontSize: '16px',
     fontWeight: '300',
     cursor: 'pointer',

@@ -3,8 +3,6 @@ import { FcGoogle } from 'react-icons/fc'
 import React, { Fragment } from 'react'
 
 const LoginWithSosmed = () => {
-  // const colorSchema = window.matchMedia('(prefers-color-scheme: dark)').matches
-
   return (
     <Fragment>
       <button

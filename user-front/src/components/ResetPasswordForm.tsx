@@ -31,7 +31,6 @@ const animate = {
 }
 
 const ResetPasswordForm = ({ id }: any) => {
-  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
@@ -39,18 +38,15 @@ const ResetPasswordForm = ({ id }: any) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const handleResetPassword = async () => {
-    setIsLoading(true)
     try {
       const {
-        data: { data, token, message },
+        data: { message },
       } = await axios.put(`${BaseURLV1}/auth/${id}/createNewPassword`, {
         password: formik.values.password,
       })
       ToastSuccess(message)
-      setIsLoading(false)
       navigate('/login')
     } catch (e: any) {
-      setIsLoading(false)
       ToastError(e.response.data.description)
     }
   }

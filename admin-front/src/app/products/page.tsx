@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
@@ -10,13 +11,18 @@ import Layout from '@/components/Layout'
 import Loading from '@/components/Loading'
 import { BaseURLProduct, BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
-import { ProductsDTO } from '@/validations/shared'
+import { ProductsDTO, isUserLogin } from '@/validations/shared'
 import Image from 'next/image'
+import { ToastError, ToastSuccess } from '@/components/Toast'
+import { useRouter } from 'next/navigation'
 
 const Products = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [products, setProducts] = useState<ProductsDTO[]>([])
-  const { user }: userContextType = UserState()
+  const router = useRouter()
+  let xx: any[] = []
+  const { setUser }: userContextType = UserState()
+  let { user }: userContextType = UserState()
 
   const fetchProducts = async () => {
     setIsLoading(true)
@@ -33,11 +39,23 @@ const Products = () => {
       setProducts(data.data.products)
     } catch (e: any) {
       setIsLoading(false)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
   const handleDelete = async (id: any) => {
+    setIsLoading(true)
     try {
       const config = {
         headers: {
@@ -45,18 +63,34 @@ const Products = () => {
         },
       }
       await axios.delete(`${BaseURLV1}/product/${id}`, config)
-      const newProducts = products.filter((product) => product._id !== id)
+
+      const newProducts = xx.filter((product) => product._id !== id)
       setProducts(newProducts)
-      alert('success delete product')
+      xx = newProducts
+      setIsLoading(false)
+      ToastSuccess('success delete product')
     } catch (e: any) {
-      alert(e.response.data.description)
-      return false
+      setIsLoading(false)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
   useEffect(() => {
+    isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
+
     fetchProducts()
-  }, [])
+  }, [user])
 
   const columns = useMemo(
     () => [

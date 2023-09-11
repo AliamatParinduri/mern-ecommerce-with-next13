@@ -7,7 +7,13 @@ import { InternalServerError, logger } from '@/utils'
 class AddressRepository {
   getAddress = async (keyword: any) => {
     try {
-      return await Address.find(keyword)
+      return await Address.find(keyword).then((result) => {
+        if (result.length < 0) {
+          throw new InternalServerError('Failed get data address, Data not found')
+        }
+
+        return result
+      })
     } catch (err: any) {
       logger.error('ERR = Get address ', err.message)
       throw new InternalServerError(err.message)
@@ -23,6 +29,12 @@ class AddressRepository {
         kabKot: payload.kabKot,
         provinsi: payload.provinsi,
         isPrimary: payload.isPrimary
+      }).then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed create data address')
+        }
+
+        return result
       })
     } catch (err: any) {
       logger.error('ERR = Create new address ', err.message)
@@ -30,21 +42,18 @@ class AddressRepository {
     }
   }
 
-  findOne = async (attr: object) => {
-    try {
-      return await Address.findOne(attr)
-    } catch (err: any) {
-      logger.error('ERR = Find one address ', err.message)
-      throw new InternalServerError(err.message)
-    }
-  }
-
   findById = async (addressId: string) => {
     try {
-      return await Address.findById(addressId)
+      return await Address.findById(addressId).then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed get data address, Data not found')
+        }
+
+        return result
+      })
     } catch (err: any) {
-      logger.error('ERR = Find address by id ', err.message)
-      throw new InternalServerError(err.message)
+      logger.error('ERR = Find address by id ', err.description)
+      throw new InternalServerError(err.description)
     }
   }
 
@@ -56,18 +65,30 @@ class AddressRepository {
       address.provinsi = payload.provinsi
       address.isPrimary = payload.isPrimary
 
-      return await address.save()
+      return await address.save().then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed update data address')
+        }
+
+        return result
+      })
     } catch (err: any) {
-      logger.error('ERR = Update data category ', err.message)
+      logger.error('ERR = Update data address ', err.message)
       throw new InternalServerError(err.message)
     }
   }
 
   deleteAddress = async (addressId: string) => {
     try {
-      return await Address.findByIdAndRemove(addressId)
+      return await Address.findByIdAndRemove(addressId).then((result) => {
+        if (!result) {
+          throw new InternalServerError('Failed update data address')
+        }
+
+        return result
+      })
     } catch (err: any) {
-      logger.error('ERR = Update data category ', err.message)
+      logger.error('ERR = Delete data address ', err.message)
       throw new InternalServerError(err.message)
     }
   }

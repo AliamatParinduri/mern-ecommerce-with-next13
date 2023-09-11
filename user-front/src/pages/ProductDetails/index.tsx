@@ -137,15 +137,8 @@ const ProductDetails = () => {
 
   const getProductsRelevant = async (categoryId: string) => {
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user!.token}`,
-        },
-      }
-
       const { data } = await axios.get(
-        `${BaseURLV1}/product?categories=${categoryId}`,
-        config
+        `${BaseURLV1}/product?categories=${categoryId}`
       )
 
       setProductsRelevant(data.data.products)
@@ -160,15 +153,8 @@ const ProductDetails = () => {
     setDetailIndex(i)
 
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user!.token}`,
-        },
-      }
-
       const { data } = await axios.get(
-        `${BaseURLV1}/rating?detailsId=${product.details[i]._id}`,
-        config
+        `${BaseURLV1}/rating?detailsId=${product.details[i]._id}`
       )
 
       setRatings(data.data)
@@ -179,7 +165,7 @@ const ProductDetails = () => {
     }
   }
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
 
@@ -240,8 +226,8 @@ const ProductDetails = () => {
             <Stack flexGrow={1} mt={2} gap={1}>
               <Typography
                 gutterBottom
-                variant='headline'
-                component='h1'
+                variant='h3'
+                fontWeight='bold'
                 sx={{
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -309,7 +295,7 @@ const ProductDetails = () => {
                 mt={3}
                 justifyContent='space-between'
               >
-                <Typography variant='headline' component='h1' color='#787eff'>
+                <Typography variant='h3' fontWeight='bold' color='#787eff'>
                   {formatRupiah(product.details[detailIndex].price, 'Rp. ')}
                 </Typography>
                 <Typography variant='h6'>
@@ -322,7 +308,7 @@ const ProductDetails = () => {
                     handleAddToCart(product.details[detailIndex]._id)
                   }
                 >
-                  <Typography variant='headline' component='h3'>
+                  <Typography variant='h6' fontWeight='bold'>
                     Add To Cart
                   </Typography>
                 </ColorButton>
@@ -372,7 +358,7 @@ const ProductDetails = () => {
                               component='img'
                               image={
                                 product &&
-                                `${BaseURLUsers}/${rating.user.userPic}`
+                                `${BaseURLUsers}/${rating!.user!.userPic}`
                               }
                               alt='Paella dish'
                               sx={{
@@ -385,7 +371,7 @@ const ProductDetails = () => {
                             />
                             <Stack>
                               <Typography variant='h6'>
-                                {rating.user.fullName}
+                                {rating!.user!.fullName}
                               </Typography>
                               <Rating
                                 name='half-rating-read'

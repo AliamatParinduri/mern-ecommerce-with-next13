@@ -1,4 +1,4 @@
-import { Stack, Button, IconButton } from '@mui/material'
+import { Stack, IconButton } from '@mui/material'
 import { Twitter, Facebook, Google } from '@mui/icons-material'
 
 const SocialAuth = () => {

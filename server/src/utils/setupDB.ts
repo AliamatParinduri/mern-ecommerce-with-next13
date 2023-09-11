@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 import { DBUri } from '@config/index'
 
-import { logger } from '.'
+import { InternalServerError, logger } from '.'
 
 export const connectDB = async () => {
   try {
@@ -10,8 +10,8 @@ export const connectDB = async () => {
     logger.info('Success - connect to database mongoose')
   } catch (err) {
     logger.error('Error - connect to database mongoose ', err)
-    // process.exit()
     await closeDB()
+    throw new InternalServerError('Error - connect to database mongoose')
   }
 }
 

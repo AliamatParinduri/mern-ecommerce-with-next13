@@ -9,10 +9,6 @@ class AuthService {
   verifyAccount = async (userId: string) => {
     const userExists = await this.userRepository.findById(userId)
 
-    if (!userExists) {
-      throw new UnprocessableEntityError('User not found')
-    }
-
     userExists.isActive = true
     return await userExists.save()
   }
@@ -58,9 +54,6 @@ class AuthService {
 
   createNewPassword = async (userId: string, password: string) => {
     const user = await this.userRepository.findById(userId)
-    if (!user) {
-      throw new UnprocessableEntityError('User not found')
-    }
     const newPassword = await generatePassword(password)
 
     return await this.userRepository.createNewPassword(user, newPassword)

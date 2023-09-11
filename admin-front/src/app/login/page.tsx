@@ -17,6 +17,7 @@ import AuthLayout from '@/components/AuthLayout'
 import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { UserState, userContextType } from '@/context/userContext'
 import { BaseURLV1 } from '@/config/api'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 export default function Login() {
   const [buttonClick, setButtonClick] = useState(false)
@@ -36,14 +37,14 @@ export default function Login() {
         data: { data, token, message },
       } = await axios.post(`${BaseURLV1}/auth/login`, payload)
 
-      alert(message)
+      ToastSuccess(message)
       setIsLoading(false)
       localStorage.setItem('userInfo', JSON.stringify({ ...data, token }))
       setUser({ ...data, token })
       router.push('/')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
+      ToastError(e.response.data.description)
     }
   }
 
@@ -82,6 +83,7 @@ export default function Login() {
           <InputType
             type='password'
             title='Password'
+            passwordIcon={true}
             placeholder='Enter your Password'
             formik={formik}
             name='password'

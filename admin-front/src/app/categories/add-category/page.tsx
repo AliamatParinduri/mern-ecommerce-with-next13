@@ -14,11 +14,13 @@ import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { CategorySchema } from '@/validations/categoryValidation'
 import { CategoriesDTO, ucWords } from '@/validations/shared'
+import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const AddCategory = () => {
   const [buttonClick, setButtonClick] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { user }: userContextType = UserState()
+  const { setUser }: userContextType = UserState()
+  let { user }: userContextType = UserState()
   const router = useRouter()
 
   const handleSubmit = async () => {
@@ -41,12 +43,22 @@ const AddCategory = () => {
       await axios.post(`${BaseURLV1}/category`, payload, config)
 
       setIsLoading(false)
-      alert('success add categories')
+      ToastSuccess('success add categories')
       router.push('/categories')
     } catch (e: any) {
       setIsLoading(false)
-      alert(e.response.data.description)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
