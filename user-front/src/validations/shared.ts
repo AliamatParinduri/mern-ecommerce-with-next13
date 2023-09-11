@@ -7,6 +7,7 @@ export type RegisterDTO = LoginDTO & {
   fullName: string
   email: string
   noHP: string
+  birthday: string
   confirmPassword?: string
 }
 

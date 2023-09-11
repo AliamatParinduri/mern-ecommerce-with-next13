@@ -40,7 +40,7 @@ const Cart = () => {
       }
 
       const { data } = await axios.get(
-        `${BaseURLV1}/address?isPrimary=true`,
+        `${BaseURLV1}/address?userId=${user?._id}&isPrimary=true`,
         config
       )
 
@@ -155,7 +155,6 @@ const Cart = () => {
         )
         setAddress(data.data)
         newAddress = data.data._id
-        console.log(data.data)
       }
 
       let totalProfit = 0

@@ -239,7 +239,7 @@ const Navbar = () => {
                       key={setting.title}
                       onClick={() => {
                         return setting.link === '/logout'
-                          ? logoutHandler
+                          ? logoutHandler()
                           : navigate(setting.link)
                       }}
                     >

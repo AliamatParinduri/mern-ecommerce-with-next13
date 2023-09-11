@@ -41,9 +41,10 @@ const SignupForm = () => {
   const handleSignupUser = async () => {
     const payload = {
       fullName: formik.values.fullName,
-      username: formik.values.username,
+      username: formik.values.username.toLowerCase(),
       email: formik.values.email.toLowerCase(),
       noHP: formik.values.noHP,
+      dateOfBirth: formik.values.birthday,
       password: formik.values.password,
     }
     try {
@@ -62,6 +63,7 @@ const SignupForm = () => {
     username: '',
     email: '',
     noHP: '',
+    birthday: '',
     password: '',
     confirmPassword: '',
   }
@@ -128,6 +130,16 @@ const SignupForm = () => {
               {...getFieldProps('noHP')}
               error={Boolean(touched.noHP && errors.noHP)}
               helperText={touched.noHP && errors.noHP}
+            />
+
+            <TextField
+              fullWidth
+              autoComplete='Birthday'
+              type='date'
+              label=''
+              {...getFieldProps('birthday')}
+              error={Boolean(touched.birthday && errors.birthday)}
+              helperText={touched.birthday && errors.birthday}
             />
 
             <TextField
