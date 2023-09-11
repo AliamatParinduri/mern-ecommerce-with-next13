@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { FaRegBell, FaBars, FaSearch } from 'react-icons/fa'
@@ -88,7 +89,7 @@ const Navbar = () => {
                 <Image
                   src={`${BaseURLUsers}/${user.userPic}`}
                   alt='Picture of the author'
-                  layout='fill'
+                  fill
                   objectFit='cover'
                   className='rounded-full'
                 />

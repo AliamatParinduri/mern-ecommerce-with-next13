@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { useState } from 'react'
 import { ReactSortable } from 'react-sortablejs'
 import Loading from './Loading'

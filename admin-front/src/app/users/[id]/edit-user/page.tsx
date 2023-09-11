@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -14,7 +15,7 @@ import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { RegisterUserByAdminSchema } from '@/validations/userValidation'
-import { RegisterDTO } from '@/validations/shared'
+import { RegisterDTO, isUserLogin } from '@/validations/shared'
 import { ToastError, ToastSuccess } from '@/components/Toast'
 
 type Props = {
@@ -24,8 +25,9 @@ type Props = {
 const EditUser = ({ params: { id } }: Props) => {
   const [buttonClick, setButtonClick] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { user }: userContextType = UserState()
   const router = useRouter()
+  const { setUser }: userContextType = UserState()
+  let { user }: userContextType = UserState()
 
   const initialValues: RegisterDTO = {
     fullName: '',
@@ -48,8 +50,9 @@ const EditUser = ({ params: { id } }: Props) => {
 
       const payload = {
         fullName: formik.values.fullName,
-        username: formik.values.username,
+        username: formik.values.username.toLowerCase(),
         email: formik.values.email.toLowerCase(),
+        dateOfBirth: formik.values.birthday,
         noHP: formik.values.noHP,
       }
 
@@ -60,8 +63,18 @@ const EditUser = ({ params: { id } }: Props) => {
       router.push('/users')
     } catch (e: any) {
       setIsLoading(false)
-      ToastError(e.response.data.description)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -86,17 +99,35 @@ const EditUser = ({ params: { id } }: Props) => {
       formik.setFieldValue('fullName', data.data.fullName)
       formik.setFieldValue('username', data.data.username)
       formik.setFieldValue('email', data.data.email)
-      formik.setFieldValue('noHP', data.data.noHP)
+      formik.setFieldValue(
+        'birthday',
+        `${new Date(data.data.dateOfBirth).getDay()}/${new Date(
+          data.data.dateOfBirth
+        ).getMonth()}/${new Date(data.data.dateOfBirth).getFullYear()}`
+      )
       formik.setFieldValue('noHP', data.data.noHP)
 
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
   useEffect(() => {
+    isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
+
     handleData()
   }, [])
 

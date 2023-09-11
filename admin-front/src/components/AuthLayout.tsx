@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { ReactNode, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'

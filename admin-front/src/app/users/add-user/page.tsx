@@ -14,32 +14,46 @@ import { BaseURLV1 } from '@/config/api'
 import { RegisterUserByAdminSchema } from '@/validations/userValidation'
 import { RegisterDTO } from '@/validations/shared'
 import { ToastError, ToastSuccess } from '@/components/Toast'
+import { UserState, userContextType } from '@/context/userContext'
 
 const AddUser = () => {
   const [buttonClick, setButtonClick] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { setUser }: userContextType = UserState()
 
   const handleSubmit = async () => {
     setIsLoading(true)
     const payload = {
       fullName: formik.values.fullName,
-      username: formik.values.username,
+      username: formik.values.username.toLowerCase(),
       email: formik.values.email.toLowerCase(),
+      dateOfBirth: formik.values.birthday,
       noHP: formik.values.noHP,
-      password: 'Testing123.',
+      password: 'Password123.',
       isActive: true,
     }
     try {
       const {
-        data: { data, token, message },
+        data: { message },
       } = await axios.post(`${BaseURLV1}/auth/register`, payload)
       ToastSuccess(message)
       setIsLoading(false)
       router.push('/users')
     } catch (e: any) {
       setIsLoading(false)
-      ToastError(e.response.data.description)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 

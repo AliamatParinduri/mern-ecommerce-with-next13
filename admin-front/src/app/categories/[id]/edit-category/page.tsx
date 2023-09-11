@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -14,7 +15,7 @@ import ErrorInputMessage from '@/components/ErrorInputMessage'
 import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { CategorySchema } from '@/validations/categoryValidation'
-import { CategoriesDTO, ucWords } from '@/validations/shared'
+import { CategoriesDTO, isUserLogin, ucWords } from '@/validations/shared'
 import { ToastError, ToastSuccess } from '@/components/Toast'
 
 type Props = {
@@ -24,8 +25,9 @@ type Props = {
 const EditCategory = ({ params: { id } }: Props) => {
   const [buttonClick, setButtonClick] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { user }: userContextType = UserState()
+  const { setUser }: userContextType = UserState()
   const router = useRouter()
+  let { user }: userContextType = UserState()
 
   const initialValues: CategoriesDTO = {
     category: '',
@@ -56,8 +58,18 @@ const EditCategory = ({ params: { id } }: Props) => {
       router.push('/categories')
     } catch (e: any) {
       setIsLoading(false)
-      ToastError(e.response.data.description)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -85,11 +97,24 @@ const EditCategory = ({ params: { id } }: Props) => {
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
-      ToastError(e.response.data.description)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
   useEffect(() => {
+    isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
+
     getCategoryById()
   }, [])
 

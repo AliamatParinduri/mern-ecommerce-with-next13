@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -21,10 +22,11 @@ type Props = {
 }
 
 const EditOrder = ({ params: { id } }: Props) => {
-  let { user }: userContextType = UserState()
+  const { setUser }: userContextType = UserState()
   const [buttonClick, setButtonClick] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  let { user }: userContextType = UserState()
 
   const initialValues: any = {
     order: {},
@@ -55,8 +57,18 @@ const EditOrder = ({ params: { id } }: Props) => {
       router.push('/orders')
     } catch (e: any) {
       setIsLoading(false)
-      ToastError(e.response.data.description)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -89,12 +101,24 @@ const EditOrder = ({ params: { id } }: Props) => {
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
-      ToastError(e.response.data.description)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
   useEffect(() => {
     isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
+
     getOrderById()
   }, [])
 

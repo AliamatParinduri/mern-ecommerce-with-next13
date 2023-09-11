@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -48,6 +49,7 @@ const EditProduct = ({ params: { id } }: Props) => {
   const [color, setColor] = useState('')
   const [productDetails, setProductDetails] = useState<any[]>([])
   const [productImages, setProductImages] = useState<any[]>([])
+  const { setUser }: userContextType = UserState()
   const router = useRouter()
 
   const handleSubmit = async (e: any) => {
@@ -65,7 +67,7 @@ const EditProduct = ({ params: { id } }: Props) => {
         'description',
         draftToHtml(convertToRaw(description.getCurrentContent()))
       )
-      formData.append('category', category)
+      formData.append('category', category._id)
       formData.append('subCategory', subCategory)
       formData.append('details', JSON.stringify(productDetails))
 
@@ -83,7 +85,18 @@ const EditProduct = ({ params: { id } }: Props) => {
       router.push('/products')
     } catch (e: any) {
       setIsLoading(false)
-      ToastError(e.response.data.description)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -119,16 +132,19 @@ const EditProduct = ({ params: { id } }: Props) => {
 
       setCategories(data.data)
 
-      const { data: dt } = await axios.get(`${BaseURLV1}/product/${id}`, config)
+      const { data: dt }: any = await axios.get(
+        `${BaseURLV1}/product/${id}`,
+        config
+      )
+
+      const blocksFromHTML = convertFromHTML(dt.data.description)
 
       setNmProduct(dt.data.nmProduct)
       setCategory(dt.data.category)
       setSubCategory(dt.data.subCategory)
       setDescription(
         EditorState.createWithContent(
-          ContentState.createFromBlockArray(
-            convertFromHTML(dt.data.description)
-          )
+          ContentState.createFromBlockArray(blocksFromHTML.contentBlocks)
         )
       )
 
@@ -141,7 +157,18 @@ const EditProduct = ({ params: { id } }: Props) => {
 
       setSubCategories(subCategories.subCategory)
     } catch (e: any) {
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -177,7 +204,18 @@ const EditProduct = ({ params: { id } }: Props) => {
       )
       setProductImages(newProductImages)
     } catch (e: any) {
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -195,6 +233,7 @@ const EditProduct = ({ params: { id } }: Props) => {
 
   useEffect(() => {
     isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
+
     getCategories()
   }, [])
 

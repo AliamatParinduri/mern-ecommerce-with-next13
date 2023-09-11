@@ -1,9 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
 import Link from 'next/link'
-import { FaPlus } from 'react-icons/fa'
 
 import Datatable from '@/components/Datatable'
 import Layout from '@/components/Layout'
@@ -18,6 +18,7 @@ const Orders = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [orders, setOrders] = useState([])
   const router = useRouter()
+  const { setUser }: userContextType = UserState()
   let { user }: userContextType = UserState()
 
   const fetchOrders = async () => {
@@ -35,7 +36,18 @@ const Orders = () => {
       setOrders(data.data)
     } catch (e: any) {
       setIsLoading(false)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -57,8 +69,18 @@ const Orders = () => {
       ToastSuccess('success delete order')
     } catch (e: any) {
       setIsLoading(false)
-      ToastError(e.response.data.description)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 

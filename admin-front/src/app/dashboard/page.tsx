@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
@@ -21,6 +22,7 @@ import Link from 'next/link'
 import Datatable from '@/components/Datatable'
 import MultipleCharts from '@/components/MultipleChart'
 import Carousel from '@/components/Carousel'
+import { ToastError } from '@/components/Toast'
 
 const BasketSvg = () => (
   <svg
@@ -87,6 +89,7 @@ const Dashboard = () => {
   const [newProducts, setNewProducts] = useState<any>()
   const [weeklyTotalSales, setWeeklyTotalSales] = useState<multipleOrdersType>()
   const [weeklyDetailsAgeUsers, setWeeklyDetailsAgeUsers] = useState<any>()
+  const { setUser }: userContextType = UserState()
 
   let { user }: userContextType = UserState()
   const router = useRouter()
@@ -106,26 +109,18 @@ const Dashboard = () => {
       setUsers(data.data.users)
     } catch (e: any) {
       setIsLoading(false)
-      return false
-    }
-  }
-
-  const fetchOrders = async () => {
-    setIsLoading(true)
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user!.token}`,
-        },
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
       }
-
-      const { data } = await axios.get(`${BaseURLV1}/order`, config)
-
-      setIsLoading(false)
-      setOrders(data.data)
-    } catch (e: any) {
-      setIsLoading(false)
-      return false
     }
   }
 
@@ -265,6 +260,18 @@ const Dashboard = () => {
       setIsLoading(false)
     } catch (e: any) {
       setIsLoading(false)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
       return false
     }
   }
@@ -317,9 +324,15 @@ const Dashboard = () => {
     []
   )
 
-  type Props = { type: string; title: string; elId: any; data: any }
+  type Props = {
+    type: string
+    title: string
+    title2: string
+    elId: any
+    data: any
+  }
 
-  const Card1 = ({ type, title, elId, data }: Props) => {
+  const Card1 = ({ type, title, title2, elId, data }: Props) => {
     return (
       <div className='relative flex flex-col overflow-x-auto justify-around bg-clip-border rounded-xl w-full lg:w-1/5 bg-white dark:bg-boxDark-500 text-gray-700 shadow-md'>
         <div className='flex'>
@@ -346,18 +359,16 @@ const Dashboard = () => {
         </div>
         <div className='p-4'>
           <p className='block antialiased font-sans text-base leading-relaxed font-normal text-blue-gray-600 dark:text-white'>
-            {dailyOrders && (
+            {data && (
               <strong
                 className={`text-${
-                  dailyOrders.ordersPercentage.charAt(0) === '+'
-                    ? 'green'
-                    : 'red'
+                  data.ordersPercentage.charAt(0) === '+' ? 'green' : 'red'
                 }-500`}
               >
-                {dailyOrders.ordersPercentage}
+                {data.ordersPercentage}
               </strong>
             )}
-            &nbsp; than yesterday
+            &nbsp; than {title2}
           </p>
         </div>
       </div>
@@ -422,22 +433,21 @@ const Dashboard = () => {
         <div className='relative flex flex-col bg-clip-border rounded-xl w-full lg:w-2/5 bg-white dark:bg-boxDark-500 text-gray-700 shadow-md'>
           <div className='p-4'>
             <div className='card-body flex flex-row'>
-              <div className='img-wrapper w-40 h-40 flex justify-center items-center'>
+              <div className='img-wrapper relative w-40 h-40 flex justify-center items-center'>
                 <Image
                   src={HappySvg.src}
                   alt='Picture of the author'
-                  width={0}
-                  height={0}
+                  width={150}
+                  height={150}
+                  priority={true}
                   style={{
-                    minWidth: '100%',
-                    minHeight: '100%',
+                    objectFit: 'cover',
                   }}
-                  objectFit='cover'
-                  className='rounded-full'
+                  className='absolute left-0'
                 />
               </div>
 
-              <div className='py-2 ml-10'>
+              <div className='flex flex-col flex-grow py-2'>
                 <h1 className='h6 truncate text-black dark:text-white'>
                   Good Job, {user?.fullName}
                 </h1>
@@ -467,6 +477,7 @@ const Dashboard = () => {
         <Card1
           type='line'
           title='Daily Orders'
+          title2='yesterday'
           elId='dailyOrder'
           data={dailyOrders}
         />
@@ -474,6 +485,7 @@ const Dashboard = () => {
         <Card1
           type='line'
           title='Weekly Orders'
+          title2='last week'
           elId='weeklyOrder'
           data={weeklyOrders}
         />
@@ -481,6 +493,7 @@ const Dashboard = () => {
         <Card1
           type='line'
           title='Monthly Orders'
+          title2='last month'
           elId='monthlyOrder'
           data={monthlyOrders}
         />
@@ -488,7 +501,7 @@ const Dashboard = () => {
 
       <div className='flex flex-col lg:flex-row gap-3 w-full'>
         {weeklyUserTopPurchases.length === 0 && (
-          <div className='bg-white dark:bg-boxDark-500 p-4 w-full lg:w-1/3 rounded-lg shadow-lg'>
+          <div className='bg-white dark:bg-boxDark-500 p-4 w-full lg:w-[37.5%] rounded-lg shadow-lg'>
             <h3 className='text-base font-bold'>No Data</h3>
           </div>
         )}
@@ -503,7 +516,7 @@ const Dashboard = () => {
         )}
 
         {weeklyTopCategorySales.length === 0 && (
-          <div className='bg-white dark:bg-boxDark-500 p-4 w-full lg:w-1/3 rounded-lg shadow-lg'>
+          <div className='bg-white dark:bg-boxDark-500 p-4 w-full lg:w-[37.5%] rounded-lg shadow-lg'>
             <h3 className='text-base font-bold'>No Data</h3>
           </div>
         )}
@@ -539,8 +552,18 @@ const Dashboard = () => {
                       className='h-10 w-10 rounded-full'
                     />
                   </div>
-                  <div className='ml-2 truncate'>
-                    <div className='leading-5 text-sm'>
+                  <div className='ml-2'>
+                    <div
+                      className='leading-5 text-sm'
+                      style={{
+                        fontWeight: 'bold',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: '1',
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                    >
                       {product.nmProduct[0]}
                     </div>
                     <div className='text-xs leading-5 text-gray-500'>

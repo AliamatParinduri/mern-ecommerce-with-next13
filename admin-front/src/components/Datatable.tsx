@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { useMemo } from 'react'

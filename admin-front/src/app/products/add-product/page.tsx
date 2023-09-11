@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -36,6 +37,7 @@ const AddProduct = () => {
   const [size, setSize] = useState('')
   const [color, setColor] = useState('')
   const [productDetails, setProductDetails] = useState<any[]>([])
+  const { setUser }: userContextType = UserState()
   const router = useRouter()
 
   const handleSubmit = async (e: any) => {
@@ -77,7 +79,18 @@ const AddProduct = () => {
       router.push('/products')
     } catch (e: any) {
       setIsLoading(false)
-      ToastError(e.response.data.description)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -114,7 +127,18 @@ const AddProduct = () => {
 
       setCategories(data.data)
     } catch (e: any) {
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 

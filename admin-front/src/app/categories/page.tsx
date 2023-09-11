@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
@@ -10,13 +11,17 @@ import Layout from '@/components/Layout'
 import Loading from '@/components/Loading'
 import { BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
-import { CategoriesDTO } from '@/validations/shared'
+import { CategoriesDTO, isUserLogin } from '@/validations/shared'
 import { ToastError, ToastSuccess } from '@/components/Toast'
+import { useRouter } from 'next/navigation'
 
 const Categories = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [categories, setCategories] = useState<CategoriesDTO[]>([])
-  const { user }: userContextType = UserState()
+  const router = useRouter()
+  let xx: any[] = []
+  const  { setUser }: userContextType = UserState()
+  let { user }: userContextType = UserState()
 
   const fetchCategories = async () => {
     setIsLoading(true)
@@ -31,9 +36,21 @@ const Categories = () => {
 
       setIsLoading(false)
       setCategories(data.data)
+      xx = data.data
     } catch (e: any) {
       setIsLoading(false)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
@@ -48,19 +65,31 @@ const Categories = () => {
 
       await axios.delete(`${BaseURLV1}/category/${id}`, config)
 
-      const newCategory = categories.filter((category) => category._id !== id)
+      const newCategory = xx.filter((category) => category._id !== id)
       setCategories(newCategory)
-
+      xx = newCategory
       setIsLoading(false)
       ToastSuccess('success delete category')
     } catch (e: any) {
       setIsLoading(false)
-      ToastError(e.response.data.description)
-      return false
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userInfo')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        router.push('/login')
+      } else {
+        ToastError(e.response?.data?.message)
+      }
     }
   }
 
   useEffect(() => {
+    isUserLogin(user) ? (user = isUserLogin(user)) : router.push('/login')
+
     fetchCategories()
   }, [user])
 
