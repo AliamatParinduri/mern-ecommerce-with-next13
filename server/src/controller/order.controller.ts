@@ -31,6 +31,18 @@ class OrderController {
     }
   }
 
+  getReportOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.orderService.getReportOrders(req)
+
+      const message = 'Success get data report orders'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
   getOrderById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const addressId = req.params.id

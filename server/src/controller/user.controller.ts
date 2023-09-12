@@ -63,6 +63,18 @@ class UserController {
     }
   }
 
+  getReportUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.userService.getReportUsers(req)
+
+      const message = 'Success get user data'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
   addToCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params

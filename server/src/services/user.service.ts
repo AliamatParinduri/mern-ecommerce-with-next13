@@ -1,12 +1,13 @@
 import { Request } from 'express'
 
 import { UserDTO } from '@/dto'
-import { ProductRepository, UserRepository } from '@/repository'
-import { NotFoundError, UnprocessableEntityError } from '@/utils'
+import { OrderRepository, ProductRepository, UserRepository } from '@/repository'
+import { NotFoundError, UnprocessableEntityError, getDates } from '@/utils'
 
 class UserService {
-  userRepository = new UserRepository()
+  orderRepository = new OrderRepository()
   productRepository = new ProductRepository()
+  userRepository = new UserRepository()
 
   getUsers = async (req: Request, page: number, limit: number) => {
     const keyword = req.query.search
@@ -55,6 +56,97 @@ class UserService {
 
   getUserById = async (id: string) => {
     return await this.userRepository.findById(id)
+  }
+
+  getReportUsers = async (req: Request) => {
+    let labelsDaily: string[] = []
+    let dataDaily: number[] = []
+    let labelsWeekly: string[] = []
+    let dataWeekly: number[] = []
+    let labelsMonthly: string[] = []
+    let dataMonthly: number[] = []
+    let labelsYearly: string[] = []
+    let dataYearly: number[] = []
+    const keyword = { ...req.query }
+
+    const d1 = getDates(1, 'daily')[0]
+    const w1 = getDates(1, 'weekly')[0]
+    const m1 = getDates(1, 'monthly')[0]
+    const y1 = getDates(1, 'yearly')[0]
+
+    const dailyUserTopPurchases: any = await this.orderRepository.getUserTopPurchases(d1, keyword)
+    const weeklyUserTopPurchases: any = await this.orderRepository.getUserTopPurchases(w1, keyword)
+    const monthlyUserTopPurchases: any = await this.orderRepository.getUserTopPurchases(m1, keyword)
+    const yearlyUserTopPurchases: any = await this.orderRepository.getUserTopPurchases(y1, keyword)
+
+    if (dailyUserTopPurchases.length > 0) {
+      for (const daily of dailyUserTopPurchases) {
+        labelsDaily = [daily.fullName, ...labelsDaily]
+        dataDaily = [daily.count, ...dataDaily]
+      }
+    }
+
+    if (weeklyUserTopPurchases.length > 0) {
+      for (const weekly of weeklyUserTopPurchases) {
+        labelsWeekly = [weekly.fullName, ...labelsWeekly]
+        dataWeekly = [weekly.count, ...dataWeekly]
+      }
+    }
+
+    if (monthlyUserTopPurchases.length > 0) {
+      for (const monthly of monthlyUserTopPurchases) {
+        labelsMonthly = [monthly.fullName, ...labelsMonthly]
+        dataMonthly = [monthly.count, ...dataMonthly]
+      }
+    }
+
+    if (yearlyUserTopPurchases.length > 0) {
+      for (const yearly of yearlyUserTopPurchases) {
+        labelsYearly = [yearly.fullName, ...labelsYearly]
+        dataYearly = [yearly.count, ...dataYearly]
+      }
+    }
+
+    const dailyUserTopDescriptionPurchases: any = await this.orderRepository.getUserTopDescriptionPurchases(d1, keyword)
+    const weeklyUserTopDescriptionPurchases: any = await this.orderRepository.getUserTopDescriptionPurchases(
+      w1,
+      keyword
+    )
+    const monthlyUserTopDescriptionPurchases: any = await this.orderRepository.getUserTopDescriptionPurchases(
+      m1,
+      keyword
+    )
+    const yearlyUserTopDescriptionPurchases: any = await this.orderRepository.getUserTopDescriptionPurchases(
+      y1,
+      keyword
+    )
+
+    return {
+      topUserPurchases: {
+        daily: {
+          labels: labelsDaily,
+          data: dataDaily
+        },
+        weekly: {
+          labels: labelsWeekly,
+          data: dataWeekly
+        },
+        monthly: {
+          labels: labelsMonthly,
+          data: dataMonthly
+        },
+        yearly: {
+          labels: labelsYearly,
+          data: dataYearly
+        }
+      },
+      topDescriptionUsers: {
+        daily: dailyUserTopDescriptionPurchases,
+        weekly: weeklyUserTopDescriptionPurchases,
+        monthly: monthlyUserTopDescriptionPurchases,
+        yearly: yearlyUserTopDescriptionPurchases
+      }
+    }
   }
 
   updateUser = async (id: string, payload: UserDTO) => {

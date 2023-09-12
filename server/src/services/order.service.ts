@@ -95,10 +95,54 @@ class OrderService {
     }
   }
 
-  getOrderById = async (orderId: string) => {
-    const result = await this.orderRepository.findById(orderId)
+  getReportOrders = async (req: Request) => {
+    const keyword = { ...req.query }
 
-    return result
+    const daily = getDates(7, 'daily')
+    const weekly = getDates(6, 'weekly')
+    const monthly = getDates(12, 'monthly')
+    const yearly = getDates(6, 'yearly')
+
+    const dailyOrders = await this.orderRepository.getDifferentOrdersThanBefore(daily, keyword, 'daily')
+    const weeklyOrders = await this.orderRepository.getDifferentOrdersThanBefore(weekly, keyword, 'weekly')
+    const monthlyOrders = await this.orderRepository.getDifferentOrdersThanBefore(monthly, keyword, 'monthly')
+    const yearlyOrders = await this.orderRepository.getDifferentOrdersThanBefore(yearly, keyword, 'yearly')
+
+    const dailyTotalSales = await this.orderRepository.getDifferentTotalSalesThanBefore(daily, keyword)
+    const weeklyTotalSales = await this.orderRepository.getDifferentTotalSalesThanBefore(weekly, keyword)
+    const monthlyTotalSales = await this.orderRepository.getDifferentTotalSalesThanBefore(monthly, keyword)
+    const yearlyTotalSales = await this.orderRepository.getDifferentTotalSalesThanBefore(yearly, keyword)
+
+    return {
+      orders: {
+        daily: dailyOrders,
+        weekly: weeklyOrders,
+        monthly: monthlyOrders,
+        yearly: yearlyOrders
+      },
+      totalSales: {
+        daily: {
+          ...dailyTotalSales,
+          labels: dailyOrders.labels
+        },
+        weekly: {
+          ...weeklyTotalSales,
+          labels: weeklyOrders.labels
+        },
+        monthly: {
+          ...monthlyTotalSales,
+          labels: monthlyOrders.labels
+        },
+        yearly: {
+          ...yearlyTotalSales,
+          labels: yearlyOrders.labels
+        }
+      }
+    }
+  }
+
+  getOrderById = async (orderId: string) => {
+    return await this.orderRepository.findById(orderId)
   }
 
   createOrder = async (payload: any) => {

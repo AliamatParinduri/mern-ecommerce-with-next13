@@ -8,7 +8,8 @@ export const DefaultPicture = process.env.DefaultPicture ?? images
 export const DBUri = process.env.DBUri ?? 'your uri'
 export const privateKey = process.env.privateKey ?? 'your key'
 export const publicKey = process.env.publicKey ?? 'your key'
-export const LinkForgotPassword = process.env.LinkForgotPassword ?? 'http://localhost'
+export const LinkForgotPasswordUser = process.env.LinkForgotPasswordUser ?? 'http://localhost'
+export const LinkForgotPasswordAdmin = process.env.LinkForgotPasswordAdmin ?? 'http://localhost'
 
 export const SMTP_HOST = process.env.SMTP_HOST ?? 'your host'
 export const SMTP_PORT = process.env.SMTP_PORT ?? 587

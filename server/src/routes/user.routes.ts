@@ -9,6 +9,7 @@ class UserRoutes extends BaseRoutes {
     const userController = new UserController()
 
     this.router.get('/', userController.getUsers)
+    this.router.get('/reportUsers', requireLogin, userController.getReportUsers)
     this.router.get('/:id', requireLogin, userController.getUserById)
     this.router.get('/:id/getCarts', requireLogin, userController.getCarts)
     this.router.get('/:id/getWishlists', requireLogin, userController.getWishlists)

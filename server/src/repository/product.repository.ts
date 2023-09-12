@@ -44,12 +44,13 @@ class ProductRepository {
           .countDocuments()
 
         const dateSplit = date.start.split(' ')
+        const dateSplit2 = date.end.split(' ')
         switch (type) {
           case 'daily':
             label = `${dateSplit[1]} ${dateSplit[2]} ${dateSplit[3]}`
             break
           case 'weekly':
-            label = `${dateSplit[1]} ${dateSplit[2]} ${dateSplit[3]}`
+            label = `${dateSplit[1]} ${dateSplit[2]} - ${dateSplit2[1]} ${dateSplit2[2]}`
             break
           case 'monthly':
             label = `${dateSplit[1]} ${dateSplit[3]}`
