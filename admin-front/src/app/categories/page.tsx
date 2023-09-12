@@ -20,7 +20,7 @@ const Categories = () => {
   const [categories, setCategories] = useState<CategoriesDTO[]>([])
   const router = useRouter()
   let xx: any[] = []
-  const  { setUser }: userContextType = UserState()
+  const { setUser }: userContextType = UserState()
   let { user }: userContextType = UserState()
 
   const fetchCategories = async () => {

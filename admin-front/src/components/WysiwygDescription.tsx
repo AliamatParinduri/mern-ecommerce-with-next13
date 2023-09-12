@@ -1,13 +1,16 @@
-import { Editor } from 'react-draft-wysiwyg'
-
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import '../app/app.css'
+import dynamic from 'next/dynamic'
+import { EditorProps } from 'react-draft-wysiwyg'
 
 type Props = {
   title: string
   editorState: any
   setEditorState: any
 }
+
+const Editor = dynamic<EditorProps>(
+  () => import('react-draft-wysiwyg').then((mod) => mod.Editor),
+  { ssr: false }
+)
 
 const WysiwygDescription = ({ title, editorState, setEditorState }: Props) => {
   return (
@@ -17,7 +20,6 @@ const WysiwygDescription = ({ title, editorState, setEditorState }: Props) => {
       <Editor
         editorState={editorState}
         onEditorStateChange={setEditorState}
-        // wrapperClassName='wrapper-class'
         editorClassName='editor-class'
         toolbarClassName='toolbar-class'
       />
