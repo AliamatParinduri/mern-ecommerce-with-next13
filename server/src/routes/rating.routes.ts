@@ -7,8 +7,8 @@ class RatingRoutes extends BaseRoutes {
   async routes() {
     const ratingController = new RatingController()
 
-    this.router.get('/', requireLogin, ratingController.getRatings)
-    this.router.get('/:id', requireLogin, ratingController.getRatingById)
+    this.router.get('/', ratingController.getRatings)
+    this.router.get('/:id', ratingController.getRatingById)
     this.router.post('/', requireLogin, ratingController.addRating)
   }
 }

@@ -9,6 +9,7 @@ class OrderRoutes extends BaseRoutes {
 
     this.router.get('/', requireLogin, orderController.getOrders)
     this.router.get('/rekapOrders', requireAdmin, orderController.getRekapOrders)
+    this.router.get('/reportOrders', requireAdmin, orderController.getReportOrders)
     this.router.get('/:id', requireLogin, orderController.getOrderById)
     this.router.post('/', requireLogin, orderController.createOrder)
     this.router.put('/:id', requireAdmin, orderController.updateOrder)

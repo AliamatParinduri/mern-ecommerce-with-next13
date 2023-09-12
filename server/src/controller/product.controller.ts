@@ -33,6 +33,18 @@ class ProductController {
     }
   }
 
+  getReportProducts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.productService.getReportProducts(req)
+
+      const message = 'Success get user data'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
   createProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const body = req.body

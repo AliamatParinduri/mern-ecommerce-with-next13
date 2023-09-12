@@ -63,11 +63,11 @@ class AuthController {
 
   forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email } = req.body
+      const { email, from } = req.body
 
-      const user = await this.authService.forgotPassword(email)
+      const user = await this.authService.forgotPassword(email, from)
 
-      await this.sendEmail(user._id, user.email, 'forgot password', next)
+      await this.sendEmail(user._id, user.email, 'forgot password', next, from)
 
       const message = 'Success send email, please check email for update your password'
       logger.info(message)
@@ -77,9 +77,9 @@ class AuthController {
     }
   }
 
-  sendEmail = async (userId: string, email: string, info: string, next: NextFunction) => {
+  sendEmail = async (userId: string, email: string, info: string, next: NextFunction, from: string = '') => {
     try {
-      await sendEmail(userId, email, info)
+      await sendEmail(userId, email, info, from)
 
       logger.info(`Success send ${info} Email`)
     } catch (err: any) {

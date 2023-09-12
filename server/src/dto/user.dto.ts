@@ -34,7 +34,7 @@ export const UserSchema = Joi.object({
   password: Joi.string()
     .min(8)
     .max(20)
-    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})'))
+    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$.%^&*])(?=.{8,})'))
     .required(),
   noHP: Joi.string().min(11).max(13).required(),
   dateOfBirth: Joi.date().required(),

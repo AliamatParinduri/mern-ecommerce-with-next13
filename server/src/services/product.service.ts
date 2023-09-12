@@ -1,16 +1,18 @@
 import { Request } from 'express'
 
 import { ProductDTO } from '@/dto'
-import { ProductRepository } from '@/repository'
-import { UnprocessableEntityError } from '@/utils'
+import { OrderRepository, ProductRepository } from '@/repository'
+import { UnprocessableEntityError, getDates } from '@/utils'
 
 class ProductService {
+  orderRepository = new OrderRepository()
   productRepository = new ProductRepository()
 
   getProducts = async (req: Request, page: number, limit: number) => {
     const categories = req.query.categories
     const subCategory = req.query.subCategory
     const price = req.query.price as string
+    const rating = req.query.rating
     const displayOrder = req.query.displayOrder
     let categoryRegex: any[] = []
 
@@ -33,7 +35,7 @@ class ProductService {
         }
       : {}
 
-    let keywordPrice
+    let keywordPrice = {}
     if (price) {
       const splitPrice = price.split('-')
 
@@ -48,15 +50,22 @@ class ProductService {
             }
           ]
         }
-      } else {
-        keywordPrice = {}
       }
-    } else {
-      keywordPrice = {}
+    }
+
+    let keywordRating = {}
+    if (rating) {
+      keywordRating = {
+        $or: [
+          {
+            'details.rating': { $gte: rating }
+          }
+        ]
+      }
     }
 
     const keyword = {
-      $and: [keywordCategories, keywordSubCategory, keywordPrice]
+      $and: [keywordCategories, keywordSubCategory, keywordPrice, keywordRating]
     }
 
     let sort
@@ -99,6 +108,84 @@ class ProductService {
     return await this.productRepository.findById(productId)
   }
 
+  getReportProducts = async (req: Request) => {
+    const keyword = { ...req.query }
+
+    const daily = getDates(7, 'daily')
+    const weekly = getDates(6, 'weekly')
+    const monthly = getDates(12, 'monthly')
+    const yearly = getDates(6, 'yearly')
+
+    const dailyDifferentProducts: any = await this.productRepository.getDifferentProductsThanBefore(
+      daily,
+      keyword,
+      'daily'
+    )
+
+    const weeklyDifferentProducts: any = await this.productRepository.getDifferentProductsThanBefore(
+      weekly,
+      keyword,
+      'weekly'
+    )
+
+    const monthlyDifferentProducts: any = await this.productRepository.getDifferentProductsThanBefore(
+      monthly,
+      keyword,
+      'monthly'
+    )
+
+    const yearlyDifferentProducts: any = await this.productRepository.getDifferentProductsThanBefore(
+      yearly,
+      keyword,
+      'yearly'
+    )
+
+    const labelsDaily: string[] = dailyDifferentProducts.labels
+    const dataDaily: number[] = dailyDifferentProducts.products
+    const labelsWeekly: string[] = weeklyDifferentProducts.labels
+    const dataWeekly: number[] = weeklyDifferentProducts.products
+    const labelsMonthly: string[] = monthlyDifferentProducts.labels
+    const dataMonthly: number[] = monthlyDifferentProducts.products
+    const labelsYearly: string[] = yearlyDifferentProducts.labels
+    const dataYearly: number[] = yearlyDifferentProducts.products
+
+    const d1 = getDates(1, 'daily')[0]
+    const w1 = getDates(1, 'weekly')[0]
+    const m1 = getDates(1, 'monthly')[0]
+    const y1 = getDates(1, 'yearly')[0]
+    const dailyTopSalesProducts = await this.orderRepository.getTopSalesProduct(d1, keyword)
+    const weeklyTopSalesProducts = await this.orderRepository.getTopSalesProduct(w1, keyword)
+    const monthlyTopSalesProducts = await this.orderRepository.getTopSalesProduct(m1, keyword)
+    const yearlyTopSalesProducts = await this.orderRepository.getTopSalesProduct(y1, keyword)
+
+    return {
+      newProducts: {
+        daily: {
+          labels: labelsDaily,
+          data: dataDaily
+        },
+        weekly: {
+          labels: labelsWeekly,
+          data: dataWeekly
+        },
+        monthly: {
+          labels: labelsMonthly,
+          data: dataMonthly
+        },
+        yearly: {
+          labels: labelsYearly,
+          data: dataYearly
+        }
+      },
+      topSalesProducts: {
+        daily: dailyTopSalesProducts,
+        weekly: weeklyTopSalesProducts,
+        monthly: monthlyTopSalesProducts,
+        yearly: yearlyTopSalesProducts
+      }
+    }
+  }
+
   createProduct = async (payload: ProductDTO, files: Express.Multer.File[]) => {
     const productExists = await this.productRepository.findOne({
       nmProduct: payload.nmProduct
@@ -111,9 +198,14 @@ class ProductService {
       payload.details = JSON.parse(payload.details)
     }
 
-    const productImages = files.map((file) => {
-      return file.filename
-    })
+    let productImages
+    if (files.length > 0) {
+      productImages = files.map((file) => {
+        return file.filename
+      })
+    } else {
+      productImages = ['product.png']
+    }
 
     return await this.productRepository.createProduct(payload, productImages)
   }

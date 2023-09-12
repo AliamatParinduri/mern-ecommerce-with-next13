@@ -7,14 +7,7 @@ class AddressService {
   userRepository = new UserRepository()
 
   getAddress = async (req: Request) => {
-    const { isPrimary, userId }: any = req.params
-    let keyword = {}
-
-    if (userId) {
-      keyword = { ...keyword, user: userId }
-    } else if (isPrimary) {
-      keyword = { ...keyword, isPrimary }
-    }
+    const keyword = { ...req.query }
 
     return await this.addressRepository.getAddress(keyword)
   }

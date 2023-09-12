@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 
 import { OrderDTO } from '@/dto'
 import { Order } from '@/models'
-import { InternalServerError, logger } from '@/utils'
+import { InternalServerError, UnprocessableEntityError, logger } from '@/utils'
 
 class OrderRepository {
   getOrders = async (keyword: any) => {
@@ -32,35 +32,33 @@ class OrderRepository {
       let label
 
       for (const [i, date] of dates.entries()) {
-        if (i !== 0) {
-          const order = await Order.find({
-            ...keyword,
-            createdAt: { $gte: dates[i].start, $lte: dates[i].end }
-          })
-            .sort({ createdAt: 'desc' })
-            .countDocuments()
+        const order = await Order.find({
+          ...keyword,
+          createdAt: { $gte: dates[i].start, $lte: dates[i].end }
+        })
+          .sort({ createdAt: 'desc' })
+          .countDocuments()
 
-          const dateSplit = date.start.split(' ')
-          const dateSplit2 = date.end.split(' ')
-          switch (type) {
-            case 'daily':
-              label = `${dateSplit[1]} ${dateSplit[2]} ${dateSplit[3]}`
-              break
-            case 'weekly':
-              label = `${dateSplit[1]} ${dateSplit[2]} - ${dateSplit2[1]} ${dateSplit2[2]}`
-              break
-            case 'monthly':
-              label = `${dateSplit[1]} ${dateSplit[3]}`
-              break
+        const dateSplit = date.start.split(' ')
+        const dateSplit2 = date.end.split(' ')
+        switch (type) {
+          case 'daily':
+            label = `${dateSplit[1]} ${dateSplit[2]} ${dateSplit[3]}`
+            break
+          case 'weekly':
+            label = `${dateSplit[1]} ${dateSplit[2]} - ${dateSplit2[1]} ${dateSplit2[2]}`
+            break
+          case 'monthly':
+            label = `${dateSplit[1]} ${dateSplit[3]}`
+            break
 
-            default:
-              label = dateSplit[3]
-              break
-          }
-
-          orders = [...orders, order]
-          labels = [...labels, label]
+          default:
+            label = dateSplit[3]
+            break
         }
+
+        orders = [...orders, order]
+        labels = [...labels, label]
       }
 
       return { labels, orders }
@@ -124,6 +122,71 @@ class OrderRepository {
     }
 
     return result
+  }
+
+  getUserTopDescriptionPurchases = async (date: any, keyword: any) => {
+    let age1 = 0
+    let age2 = 0
+    let age3 = 0
+
+    const aggregatorOpts: any = [
+      {
+        $match: {
+          $and: [
+            {
+              ...keyword,
+              createdAt: { $gte: new Date(date.start), $lte: new Date(date.end) }
+            }
+          ]
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $group: {
+          _id: '$user._id',
+          fullName: { $first: '$user.fullName' },
+          age: { $first: '$user.dateOfBirth' },
+          userPic: { $first: '$user.userPic' },
+          count: { $sum: '$totalPrice' }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]
+
+    const getRankUserPurchases = await Order.aggregate(aggregatorOpts).exec()
+
+    for (const data of getRankUserPurchases) {
+      const userAge = data.age[0].getFullYear()
+
+      const year = new Date().getFullYear()
+      const diffAge = year - userAge
+
+      if (diffAge < 18) {
+        age1 += 1
+      } else if (diffAge >= 18 && diffAge <= 40) {
+        age2 += 1
+      } else if (diffAge > 40) {
+        age3 += 1
+      } else {
+        throw new UnprocessableEntityError('Failed your age not valid!')
+      }
+    }
+
+    return {
+      labels: ['<17', '18-40', '>40'],
+      data: [
+        Number(((age1 / getRankUserPurchases.length) * 100).toFixed(2)),
+        Number(((age2 / getRankUserPurchases.length) * 100).toFixed(2)),
+        Number(((age3 / getRankUserPurchases.length) * 100).toFixed(2))
+      ]
+    }
   }
 
   getTopCategorySales = async (date: any, keyword: any) => {
@@ -302,7 +365,7 @@ class OrderRepository {
 
       const getRankUserPurchases = await Order.aggregate(aggregatorOpts).exec()
 
-      totalSales = [...totalSales, getRankUserPurchases.length === 0 ? '0' : getRankUserPurchases[0].count]
+      totalSales = [...totalSales, getRankUserPurchases.length === 0 ? 0 : getRankUserPurchases[0].count]
       const dateSplit = date.start.split(' ')
       labels = [...labels, dateSplit[0]]
     }
@@ -392,7 +455,6 @@ class OrderRepository {
 
   updateOrder = async (order: OrderDTO, payload: OrderDTO) => {
     try {
-      order.address = payload.address
       order.products = payload.products
       order.discount = payload.discount
       order.paymentStatus = payload.paymentStatus

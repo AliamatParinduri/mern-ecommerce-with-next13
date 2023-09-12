@@ -75,8 +75,8 @@ class UserRepository {
     try {
       return await User.create({
         fullName: payload.fullName,
-        username: payload.username,
-        email: payload.email,
+        username: payload.username.toLowerCase(),
+        email: payload.email.toLowerCase(),
         noHP: payload.noHP,
         dateOfBirth: payload.dateOfBirth,
         password: payload.password

@@ -12,12 +12,12 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-export const sendEmail = async (userId: string, email: string, info: string) => {
+export const sendEmail = async (userId: string, email: string, info: string, from: string) => {
   const mailOptions = {
     from: SMTP_MAIL,
     to: email,
     subject: info === 'verify user' ? 'Verify Registration User' : 'Forgot Password',
-    html: SendEmail(userId, info)
+    html: SendEmail(userId, info, from)
   }
 
   return await transporter.sendMail(mailOptions)

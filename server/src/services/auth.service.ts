@@ -13,8 +13,8 @@ class AuthService {
     return await userExists.save()
   }
 
-  forgotPassword = async (email: string) => {
-    const userExists = await this.userRepository.findOne({ email })
+  forgotPassword = async (email: string, from: string) => {
+    const userExists = await this.userRepository.findOne({ email, isActive: true, isAdmin: from === 'admin' ? 1 : 0 })
 
     if (!userExists) {
       throw new UnprocessableEntityError('Email not found')
@@ -24,8 +24,8 @@ class AuthService {
   }
 
   register = async (payload: RegisterDTO) => {
-    const userExists = await this.userRepository.findOne({ username: payload.username })
-    const emailExists = await this.userRepository.findOne({ email: payload.email })
+    const userExists = await this.userRepository.findOne({ username: payload.username.toLowerCase() })
+    const emailExists = await this.userRepository.findOne({ email: payload.email.toLowerCase() })
     if (emailExists || userExists) {
       throw new UnprocessableEntityError(`${emailExists ? 'Email' : 'Username'} already exists`)
     }

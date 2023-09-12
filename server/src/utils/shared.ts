@@ -1,6 +1,6 @@
 /* eslint-disable no-unneeded-ternary */
 import { ProductDTO } from '@/dto'
-import { BaseURL, LinkForgotPassword } from '@config/index'
+import { BaseURL, LinkForgotPasswordAdmin, LinkForgotPasswordUser } from '@config/index'
 
 export type UserToken = {
   _id: string
@@ -20,13 +20,15 @@ export type Wishlist = {
   product: ProductDTO
 }
 
-export const SendEmail = (userId: string, info: string) => {
+export const SendEmail = (userId: string, info: string, from: string) => {
   return `
   ${HeaderEmail()}
   ${Content(
     info === 'verify user' ? 'Confirm your email address' : 'Create new Password',
     info === 'verify user' ? `didn't create an account` : 'not forgot your password',
-    info === 'verify user' ? `${BaseURL}/api/v1/auth/${userId}/verifyAccount` : `${LinkForgotPassword}/reset/${userId}`,
+    info === 'verify user'
+      ? `${BaseURL}/api/v1/auth/${userId}/verifyAccount`
+      : `${from === 'admin' ? LinkForgotPasswordAdmin : LinkForgotPasswordUser}/reset-password/${userId}`,
     info === 'verify user' ? 'Activate your Account' : 'Create new Password'
   )}  
   ${FooterEmail()}
@@ -106,10 +108,11 @@ export const getDates = (diff: number, type: string, diff2?: number) => {
     default:
       for (let i = 0; i < diff; i++) {
         const date = new Date()
-        const firstDay = new Date(date.getFullYear() - i + d, 1)
+        const firstDay = new Date(date.getFullYear() - i + d, 0)
         const lastDay = new Date(date.getFullYear() + 1 - i + d, 0)
         firstDay.setUTCHours(17, 0, 0, 0)
-        lastDay.setUTCHours(40, 59, 59, 999)
+        lastDay.setUTCHours(16, 59, 59, 999)
+
 
         dates = [
           {
