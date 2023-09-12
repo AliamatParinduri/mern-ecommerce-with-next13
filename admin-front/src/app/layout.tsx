@@ -1,5 +1,7 @@
 /* eslint-disable @next/next/no-sync-scripts */
 import 'react-toastify/dist/ReactToastify.css'
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
+import './app.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ToastContainer } from 'react-toastify'

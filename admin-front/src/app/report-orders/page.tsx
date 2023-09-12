@@ -1,14 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 import Layout from '@/components/Layout'
 import {
   formatAliasesNumber,
   getPercentage,
   isUserLogin,
-  userDTO,
 } from '@/validations/shared'
 import { useRouter } from 'next/navigation'
 import { UserState, userContextType } from '@/context/userContext'
@@ -17,9 +16,10 @@ import Chart from '@/components/Chart'
 import axios from 'axios'
 import { BaseURLV1 } from '@/config/api'
 import { ToastError } from '@/components/Toast'
+import Loading from '@/components/Loading'
 
 const ReportOrders = () => {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [selectTypeOrders, setSelectTypeOrders] = useState<string>('daily')
   const [selectTypeSales, setSelectTypeSales] = useState<string>('daily')
   const [orders, setOrders] = useState<any>()
@@ -31,7 +31,6 @@ const ReportOrders = () => {
   let { user }: userContextType = UserState()
 
   const getReportOrders = async () => {
-    setIsLoading(true)
     try {
       const config = {
         headers: {
@@ -49,7 +48,6 @@ const ReportOrders = () => {
 
       setIsLoading(false)
     } catch (e: any) {
-      setIsLoading(false)
       if (
         e.message === `Cannot read properties of undefined (reading 'token')` ||
         e.response?.data?.message === 'jwt expired' ||
@@ -176,108 +174,117 @@ const ReportOrders = () => {
 
   return (
     <Layout>
-      <div className='flex flex-row gap-3'>
-        {ordersDetails && (
-          <Card1
-            type='line'
-            title={`${selectTypeOrders
-              .charAt(0)
-              .toUpperCase()}${selectTypeOrders.slice(1)} Orders`}
-            title2='yesterday'
-            elId='OrdersTrx'
-            data={ordersDetails}
-          />
-        )}
-        {salesDetails && (
-          <Card1
-            type='line'
-            title={`${selectTypeSales
-              .charAt(0)
-              .toUpperCase()}${selectTypeSales.slice(1)} Orders`}
-            title2='yesterday'
-            elId='OrdersSales'
-            data={salesDetails}
-          />
-        )}
-      </div>
-
-      <div className='flex gap-3'>
-        <div className='flex-shrink max-w-full w-full lg:w-1/2 '>
-          <div className='p-6 bg-white dark:bg-boxDark-500 rounded-lg shadow-lg h-full'>
-            <div className='flex flex-row justify-between pb-6'>
-              <h3 className='text-base font-bold'>
-                {`${selectTypeOrders
+      {isLoading && (
+        <div className='flex items-center justify-center h-screen'>
+          <Loading />
+        </div>
+      )}
+      {!isLoading && (
+        <Fragment>
+          <div className='flex flex-row gap-3'>
+            {ordersDetails && (
+              <Card1
+                type='line'
+                title={`${selectTypeOrders
                   .charAt(0)
-                  .toUpperCase()}${selectTypeOrders.slice(1)}`}{' '}
-                Orders (Trx)
-              </h3>
-              <div className='flex flex-col'>
-                <select
-                  value={selectTypeOrders}
-                  onChange={(e) => {
-                    setSelectTypeOrders(e.target.value)
-                  }}
-                  className='inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-2 dark:bg-boxDark-500 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 cursor-pointer'
-                >
-                  {['daily', 'weekly', 'monthly', 'yearly'].map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            {orders && (
-              <div className='relative'>
-                <Chart
-                  type='line'
-                  value={orders[selectTypeOrders].orders}
-                  labels={orders[selectTypeOrders].labels}
-                  elId={`${selectTypeOrders} orders (trx)`}
-                />
-              </div>
+                  .toUpperCase()}${selectTypeOrders.slice(1)} Orders`}
+                title2='yesterday'
+                elId='OrdersTrx'
+                data={ordersDetails}
+              />
+            )}
+            {salesDetails && (
+              <Card1
+                type='line'
+                title={`${selectTypeSales
+                  .charAt(0)
+                  .toUpperCase()}${selectTypeSales.slice(1)} Orders`}
+                title2='yesterday'
+                elId='OrdersSales'
+                data={salesDetails}
+              />
             )}
           </div>
-        </div>
 
-        <div className='flex-shrink max-w-full w-full lg:w-1/2 '>
-          <div className='p-6 bg-white dark:bg-boxDark-500 rounded-lg shadow-lg h-full'>
-            <div className='flex flex-row justify-between pb-6'>
-              <h3 className='text-base font-bold'>
-                {`${selectTypeSales
-                  .charAt(0)
-                  .toUpperCase()}${selectTypeSales.slice(1)}`}{' '}
-                Orders
-              </h3>
-              <div className='flex flex-col'>
-                <select
-                  value={selectTypeSales}
-                  onChange={(e) => {
-                    setSelectTypeSales(e.target.value)
-                  }}
-                  className='inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-2 dark:bg-boxDark-500 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 cursor-pointer'
-                >
-                  {['daily', 'weekly', 'monthly', 'yearly'].map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
+          <div className='flex gap-3'>
+            <div className='flex-shrink max-w-full w-full lg:w-1/2 '>
+              <div className='p-6 bg-white dark:bg-boxDark-500 rounded-lg shadow-lg h-full'>
+                <div className='flex flex-row justify-between pb-6'>
+                  <h3 className='text-base font-bold'>
+                    {`${selectTypeOrders
+                      .charAt(0)
+                      .toUpperCase()}${selectTypeOrders.slice(1)}`}{' '}
+                    Orders (Trx)
+                  </h3>
+                  <div className='flex flex-col'>
+                    <select
+                      value={selectTypeOrders}
+                      onChange={(e) => {
+                        setSelectTypeOrders(e.target.value)
+                      }}
+                      className='inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-2 dark:bg-boxDark-500 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 cursor-pointer'
+                    >
+                      {['daily', 'weekly', 'monthly', 'yearly'].map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                {orders && (
+                  <div className='relative'>
+                    <Chart
+                      type='line'
+                      value={orders[selectTypeOrders].orders}
+                      labels={orders[selectTypeOrders].labels}
+                      elId={`${selectTypeOrders} orders (trx)`}
+                    />
+                  </div>
+                )}
               </div>
             </div>
-            {orders && sales && (
-              <div className='relative'>
-                <Chart
-                  type='line'
-                  value={sales[selectTypeSales].totalSales}
-                  labels={orders[selectTypeSales].labels}
-                  elId={`${selectTypeSales} orders`}
-                />
+
+            <div className='flex-shrink max-w-full w-full lg:w-1/2 '>
+              <div className='p-6 bg-white dark:bg-boxDark-500 rounded-lg shadow-lg h-full'>
+                <div className='flex flex-row justify-between pb-6'>
+                  <h3 className='text-base font-bold'>
+                    {`${selectTypeSales
+                      .charAt(0)
+                      .toUpperCase()}${selectTypeSales.slice(1)}`}{' '}
+                    Orders
+                  </h3>
+                  <div className='flex flex-col'>
+                    <select
+                      value={selectTypeSales}
+                      onChange={(e) => {
+                        setSelectTypeSales(e.target.value)
+                      }}
+                      className='inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-2 dark:bg-boxDark-500 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 cursor-pointer'
+                    >
+                      {['daily', 'weekly', 'monthly', 'yearly'].map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                {orders && sales && (
+                  <div className='relative'>
+                    <Chart
+                      type='line'
+                      value={sales[selectTypeSales].totalSales}
+                      labels={orders[selectTypeSales].labels}
+                      elId={`${selectTypeSales} orders`}
+                    />
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
-        </div>
-      </div>
+        </Fragment>
+      )}
     </Layout>
   )
 }
