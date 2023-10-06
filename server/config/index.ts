@@ -3,7 +3,7 @@ import 'dotenv/config'
 const images = 'user-default.png'
 
 export const PORT = process.env.PORT ?? 8000
-export const BaseURL = `http://localhost:${PORT}`
+export const BaseURL = process.env.BASE_URL ?? `http://localhost:${PORT}`
 export const DefaultPicture = process.env.DefaultPicture ?? images
 export const DBUri = process.env.DBUri ?? 'your uri'
 export const privateKey = process.env.privateKey ?? 'your key'
