@@ -3,7 +3,7 @@ import 'dotenv/config'
 const images = 'user-default.png'
 
 export const PORT = process.env.PORT ?? 8000
-export const BaseURL = `http://localhost:${PORT}`
+export const BaseURL = process.env.BASE_URL ?? `http://localhost:${PORT}`
 export const DefaultPicture = process.env.DefaultPicture ?? images
 export const DBUri = process.env.DBUri ?? 'your uri'
 export const privateKey = process.env.privateKey ?? 'your key'
@@ -15,3 +15,6 @@ export const SMTP_HOST = process.env.SMTP_HOST ?? 'your host'
 export const SMTP_PORT = process.env.SMTP_PORT ?? 587
 export const SMTP_MAIL = process.env.SMTP_MAIL ?? 'your mail'
 export const SMTP_PASSWORD = process.env.SMTP_PASSWORD ?? 'your password'
+
+export const serverKey = process.env.serverKey ?? 'your key'
+export const clientKey = process.env.clientKey ?? 'your key'

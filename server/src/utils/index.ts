@@ -1,6 +1,7 @@
 export * from './errors'
 export * from './hashing'
 export * from './logger'
+export * from './midtrans'
 export * from './setupDB'
 export * from './shared'
 export * from './tokens'

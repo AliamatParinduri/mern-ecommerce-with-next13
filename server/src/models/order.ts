@@ -5,7 +5,7 @@ import { OrderDTO } from '@/dto'
 const OrderSchema = new Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: 'User', trim: true },
-    address: { type: Schema.Types.ObjectId, ref: 'Address', trim: true, required: true },
+    address: { type: Object, trim: true },
     products: {
       type: [
         {
