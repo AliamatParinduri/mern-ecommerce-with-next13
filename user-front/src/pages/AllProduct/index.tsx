@@ -299,7 +299,7 @@ const AllProduct = () => {
                   }}
                 >
                   <MenuItem value='' selected>
-                    <em>None</em>
+                    All
                   </MenuItem>
                   {subCategories.length > 0 &&
                     subCategories.map((sc) => (
@@ -324,9 +324,7 @@ const AllProduct = () => {
                 height: 45,
               }}
             >
-              <MenuItem value=''>
-                <em>None</em>
-              </MenuItem>
+              <MenuItem value=''>Default</MenuItem>
               <MenuItem value='A-Z'>A to Z</MenuItem>
               <MenuItem value='Z-A'>Z to A</MenuItem>
               <MenuItem value='Low-High'>Price Low to High</MenuItem>
@@ -425,6 +423,7 @@ const AllProduct = () => {
                 justifyItems='center'
                 alignItems='center'
                 gap={0.3}
+                key={i}
               >
                 <input
                   type='radio'
