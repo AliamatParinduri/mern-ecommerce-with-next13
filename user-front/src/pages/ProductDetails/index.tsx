@@ -339,7 +339,7 @@ const ProductDetails = () => {
               </Tabs>
             </Box>
             <CustomTabPanel value={value} index={0}>
-              <Box>{parse(product.description)}</Box>
+              <Box>{/* {parse(product.description)} */}</Box>
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1}>
               {product.details[detailIndex].totalRating < 1 ? (

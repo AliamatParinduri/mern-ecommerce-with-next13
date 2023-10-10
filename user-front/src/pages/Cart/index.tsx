@@ -7,7 +7,6 @@ import {
   CardMedia,
   IconButton,
   Stack,
-  TextField,
   Typography,
   useTheme,
 } from '@mui/material'
@@ -20,51 +19,27 @@ import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const Cart = () => {
   const [isLoading, setIsLoading] = useState(false)
-  const [address, setAddress]: any = useState({})
-  const [kecamatan, setKecamatan] = useState('')
-  const [kabKot, setKabKot] = useState('')
-  const [provinsi, setProvinsi] = useState('')
-  const [fullAddress, setFullAddress] = useState('')
   const { user, setUser }: userContextType = UserState()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
   const navigate = useNavigate()
   let orderTotal = 0
-
-  const getAddress = async () => {
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user!.token}`,
-        },
-      }
-
-      const { data } = await axios.get(
-        `${BaseURLV1}/address?userId=${user?._id}&isPrimary=true`,
-        config
-      )
-
-      if (data.data.length > 0) {
-        setAddress(data.data[0])
-        setKecamatan(data.data[0].kecamatan)
-        setKabKot(data.data[0].kabKot)
-        setProvinsi(data.data[0].provinisi)
-        setFullAddress(data.data[0].fullAddress)
-      }
-    } catch (e: any) {
-      return false
-    }
-  }
+  let subTotal = 0
 
   useEffect(() => {
     if (user && user.cart.length < 1) {
       ToastError('Cart Product empty!')
       navigate(-1)
     }
-
-    getAddress()
   }, [user])
-  user && user.cart.map((cart: any) => (orderTotal += parseInt(cart.subTotal)))
+
+  user &&
+    user.cart.map((cart: any) => {
+      {
+        subTotal += parseInt(cart.qty)
+        orderTotal += parseInt(cart.subTotal)
+      }
+    })
 
   const handleUpdateCart = async (detailsId: string, qty: number) => {
     try {
@@ -126,81 +101,19 @@ const Cart = () => {
     }
   }
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault()
-
-    setIsLoading(true)
-    try {
-      let newAddress
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user!.token}`,
-        },
-      }
-
-      if (Object.keys(address).length < 1) {
-        const payload = {
-          userId: user!._id,
-          fullAddress,
-          kecamatan,
-          kabKot,
-          provinsi,
-          isPrimary: true,
-        }
-
-        const { data } = await axios.post(
-          `${BaseURLV1}/address`,
-          payload,
-          config
-        )
-        setAddress(data.data)
-        newAddress = data.data._id
-      }
-
-      let totalProfit = 0
-      const products = user?.cart.map((cart: any) => {
-        totalProfit +=
-          (cart.details.price - cart.details.capitalPrice) * cart.qty
-
-        return {
-          product: cart.product._id,
-          details: cart.details,
-          subTotal: cart.subTotal,
-          qty: cart.qty,
-        }
-      })
-
-      const today = new Date()
-      const nextThreeDays = new Date(today.setDate(today.getDate() + 3))
-
-      const payload = {
-        user: user!._id,
-        address: newAddress ?? address._id,
-        products,
-        totalProfit,
-        discount: 0,
-        paymentStatus: 'Paid',
-        estimatedDeliveryDate: nextThreeDays,
-        ongkir: 0,
-        totalPrice: orderTotal,
-      }
-
-      const { data } = await axios.post(`${BaseURLV1}/order`, payload, config)
-
-      const updateUser = {
-        ...user,
-        ...data.data.user,
-      }
-      setUser(updateUser)
-      localStorage.setItem('userLogin', JSON.stringify(updateUser))
-
-      ToastSuccess('Success create order')
-      setIsLoading(false)
-      navigate('/dashboard')
-    } catch (e: any) {
-      setIsLoading(false)
-      return false
+  const handleCheckout = async () => {
+    const userOrders = {
+      products: user?.cart,
+      discount: 0,
+      totalPriceProduct: orderTotal,
+      subtotal: subTotal + ' Item',
     }
+
+    navigate('/shipping', {
+      state: {
+        orders: userOrders,
+      },
+    })
   }
 
   return (
@@ -322,86 +235,41 @@ const Cart = () => {
         <Typography gutterBottom variant='h3' fontWeight='bold' mb={2}>
           Order Information
         </Typography>
-        <Box
+        <Stack
           bgcolor={colors.secondary[500]}
           width='100%'
           p={2}
           mt={1}
+          gap={3}
           display='flex'
           alignItems='flex-start'
           justifyContent='space-between'
           borderRadius='8px'
         >
-          <Typography variant='h5' fontWeight='bold'>
-            Order Total: {formatRupiah(orderTotal.toString(), 'Rp. ')}
-          </Typography>
-        </Box>
-        <form autoComplete='off' noValidate onSubmit={handleSubmit}>
-          <Box
-            bgcolor={colors.secondary[500]}
-            width='100%'
-            p={2}
-            mt={1}
-            display='flex'
-            alignItems='flex-start'
-            justifyContent='space-between'
-            borderRadius='8px'
-            flexDirection='column'
-            gap={2}
+          <table cellPadding={4} style={{ fontSize: '16px' }}>
+            <tr>
+              <td>Sub Total</td>
+              <td>:</td>
+              <td style={{ fontWeight: 'bold' }}>{subTotal + ' Item'}</td>
+            </tr>
+            <tr>
+              <td>Order Total</td>
+              <td>:</td>
+              <td style={{ fontWeight: 'bold' }}>
+                {formatRupiah(orderTotal.toString(), 'Rp. ')}
+              </td>
+            </tr>
+          </table>
+
+          <Button
+            fullWidth
+            onClick={handleCheckout}
+            type='button'
+            variant='contained'
           >
-            <TextField
-              fullWidth
-              autoComplete='Name'
-              type='text'
-              label=''
-              value={user && user.fullName}
-            />
-            <TextField
-              fullWidth
-              autoComplete='email'
-              type='text'
-              label=''
-              value={user && user.email}
-            />
-            <Box display='flex' gap={1}>
-              <TextField
-                fullWidth
-                autoComplete='kecamatan'
-                type='text'
-                placeholder='Kecamatan'
-                onChange={(e) => setKecamatan(e.target.value)}
-                value={address ? address.kecamatan : kecamatan}
-              />
-              <TextField
-                fullWidth
-                autoComplete='kabupaten/kota'
-                type='text'
-                placeholder='kabupaten/kota'
-                onChange={(e) => setKabKot(e.target.value)}
-                value={address ? address.kabKot : kabKot}
-              />
-              <TextField
-                fullWidth
-                autoComplete='provinsi'
-                type='text'
-                placeholder='provinsi'
-                onChange={(e) => setProvinsi(e.target.value)}
-                value={address ? address.provinsi : provinsi}
-              />
-            </Box>
-            <TextField
-              fullWidth
-              autoComplete='fullAddress'
-              type='text'
-              placeholder='full Address'
-              onChange={(e) => setFullAddress(e.target.value)}
-              value={address ? address.fullAddress : fullAddress}
-            />
-            <Button fullWidth type='submit' variant='contained'>
-              {isLoading ? 'loading...' : 'Create order'}
-            </Button>
-          </Box>
-        </form>
+            {isLoading ? 'loading...' : 'Checkout'}
+          </Button>
+        </Stack>
       </Box>
     </Stack>
   )

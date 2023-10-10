@@ -4,7 +4,7 @@ services:
     image: mongo
     ports:
       - '27017:27017'
-    container_name: app_mongodb
+    container_name: app_ecommerce_mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo
@@ -17,8 +17,8 @@ services:
   server:
     build:
       dockerfile: Dockerfile
-      context: .
-    container_name: app_server
+      context: ./server
+    container_name: app_ecommerce_server
     ports:
       - '5000:5000'
     volumes:
@@ -30,7 +30,39 @@ services:
       - network-data
     restart: always
     env_file:
-      - ./.env
+      - ./server/.env
+
+  admin-front:
+    build:
+      dockerfile: Dockerfile
+      context: ./admin-front
+    container_name: app_ecommerce_admin_front
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app/admin-front
+      - /app/admin-front/node_modules
+    depends_on:
+      - mongodb
+    networks:
+      - network-data
+    restart: always
+
+  user-front:
+    build:
+      dockerfile: Dockerfile
+      context: ./user-front
+    container_name: app_ecommerce_user_front
+    ports:
+      - '5173:5173'
+    volumes:
+      - .:/app/user-front
+      - /app/user-front/node_modules
+    depends_on:
+      - mongodb
+    networks:
+      - network-data
+    restart: always
 
 volumes:
   db-data:
