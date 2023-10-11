@@ -1,8 +1,9 @@
 /* eslint-disable no-unreachable */
+import { createTransactionDTO } from '@/dto'
 import { InternalServerError, logger, setupMidtrans } from '@/utils'
 
 class PaymentRepository {
-  createPayment = async (params: any) => {
+  createPayment = async (params: createTransactionDTO) => {
     try {
       return await setupMidtrans.createTransaction(params)
     } catch (err: any) {

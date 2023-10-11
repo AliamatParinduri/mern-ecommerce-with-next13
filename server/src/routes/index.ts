@@ -5,6 +5,7 @@ import { userRoutes } from './user.routes'
 import { productRoutes } from './product.routes'
 import { paymentRoutes } from './payment.routes'
 import { addressRoutes } from './address.routes'
+import { rajaOngkirRoutes } from './rajaongkir.routes'
 import { ratingRoutes } from './rating.routes'
 import { orderRoutes } from './order.routes'
 
@@ -17,6 +18,7 @@ const routes = (app: Application) => {
   app.use(`${v1}/product`, productRoutes)
   app.use(`${v1}/payment`, paymentRoutes)
   app.use(`${v1}/order`, orderRoutes)
+  app.use(`${v1}/rajaongkir`, rajaOngkirRoutes)
   app.use(`${v1}/rating`, ratingRoutes)
   app.use(`${v1}/users`, userRoutes)
 }

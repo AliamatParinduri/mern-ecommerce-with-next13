@@ -18,3 +18,8 @@ export const SMTP_PASSWORD = process.env.SMTP_PASSWORD ?? 'your password'
 
 export const serverKey = process.env.serverKey ?? 'your key'
 export const clientKey = process.env.clientKey ?? 'your key'
+
+export const RAJAONGKIR_ENDPOINT = process.env.RAJAONGKIR_ENDPOINTAPI ?? 'your uri'
+export const RAJAONGKIR_APIKEY = process.env.RAJAONGKIR_APIKEY ?? 'your key'
+export const originKecamatanId = '1062'
+export const originKecamatanType = 'subdistrict'

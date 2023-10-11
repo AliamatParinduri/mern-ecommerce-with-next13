@@ -1,5 +1,6 @@
+import { PaymentSchema } from '@/dto'
 import { PaymentService } from '@/services'
-import { logger } from '@/utils'
+import { logger, validate } from '@/utils'
 import { NextFunction, Request, Response } from 'express'
 
 class PaymentController {
@@ -9,7 +10,7 @@ class PaymentController {
     try {
       const body = req.body
 
-      // validate(body, CategorySchema)
+      validate(body, PaymentSchema)
 
       const result = await this.paymentService.createPayment(body)
 

@@ -1,10 +1,11 @@
 // eslint-disable-next-line array-callback-return
+import { PaymentDTO, createTransactionDTO } from '@/dto'
 import { PaymentRepository } from '@/repository'
 
 class PaymentService {
   paymentRepository = new PaymentRepository()
 
-  createPayment = async (payload: any) => {
+  createPayment = async (payload: PaymentDTO) => {
     const params = {
       transaction_details: {
         order_id: payload.orderId,
@@ -17,7 +18,7 @@ class PaymentService {
       }
     }
 
-    return await this.paymentRepository.createPayment(params)
+    return await this.paymentRepository.createPayment(params as createTransactionDTO)
   }
 }
 
