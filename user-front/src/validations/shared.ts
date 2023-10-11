@@ -130,7 +130,7 @@ export const isUserLogin = (user: any) => {
   return userLogin
 }
 
-export function formatRupiah(angka: string, prefix: string) {
+export function formatRupiah(angka: string, prefix?: string) {
   let separator
   const number_string = angka.toString().replace(/[^,\d]/g, '')
   const split = number_string.split(',')

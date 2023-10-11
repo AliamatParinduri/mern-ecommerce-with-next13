@@ -52,9 +52,6 @@ const Confirm = () => {
   return (
     <Stack p={2} justifyContent='space-around' gap={4}>
       <Box sx={{ width: '100%' }}>
-        <Typography gutterBottom variant='h3' fontWeight='bold' mb={2}>
-          Purchased Items
-        </Typography>
         <Box
           bgcolor={colors.secondary[500]}
           width='100%'
@@ -67,6 +64,9 @@ const Confirm = () => {
           flexDirection='column'
           gap={2}
         >
+          <Typography gutterBottom variant='h3' fontWeight='bold'>
+            Purchased Items
+          </Typography>
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 700 }} aria-label='customized table'>
               <TableHead>
@@ -149,31 +149,6 @@ const Confirm = () => {
                         </Box>
                       </StyledTableCell>
                       <StyledTableCell>{`Product properties: ${product.details.size} (${product.details.color})`}</StyledTableCell>
-                      {/* {order.deliveredOrder && order.paymentOrder === 'Done' && (
-                      <StyledTableCell>
-                        <Box
-                          onClick={() => {
-                            ratingExists &&
-                            ratingExists.includes(product.details._id)
-                              ? seeReview(product.details._id)
-                              : writeReview(
-                                  product.product._id,
-                                  product.details._id
-                                )
-                          }}
-                          sx={{
-                            cursor: 'pointer',
-                            textDecoration: 'underline',
-                            color: '#787eff',
-                          }}
-                        >
-                          {ratingExists &&
-                          ratingExists.includes(product.details._id)
-                            ? 'See a Review'
-                            : 'Write a Review'}
-                        </Box>
-                      </StyledTableCell>
-                    )} */}
                     </StyledTableRow>
                   ))}
               </TableBody>
@@ -183,9 +158,6 @@ const Confirm = () => {
       </Box>
       <Stack flexDirection={{ xs: 'column', md: 'row' }} gap={2}>
         <Box sx={{ width: { xs: '100%', md: 2 / 3 } }}>
-          <Typography gutterBottom variant='h3' fontWeight='bold' mb={2}>
-            Delivery Address Details
-          </Typography>
           <Box
             bgcolor={colors.secondary[500]}
             width='100%'
@@ -198,6 +170,9 @@ const Confirm = () => {
             flexDirection='column'
             gap={2}
           >
+            <Typography gutterBottom variant='h3' fontWeight='bold'>
+              Delivery Address Details
+            </Typography>
             <table cellPadding={4} style={{ fontSize: '16px' }}>
               <tr>
                 <td>Name</td>
@@ -250,9 +225,6 @@ const Confirm = () => {
           </Box>
         </Box>
         <Box sx={{ width: { xs: '100%', md: 1 / 3 } }}>
-          <Typography gutterBottom variant='h3' fontWeight='bold' mb={2}>
-            Order Details
-          </Typography>
           <Box
             bgcolor={colors.secondary[500]}
             width='100%'
@@ -265,37 +237,42 @@ const Confirm = () => {
             flexDirection='column'
             gap={2}
           >
-            <table cellPadding={4} style={{ fontSize: '16px' }}>
+            <Typography gutterBottom variant='h3' fontWeight='bold'>
+              Order Details
+            </Typography>
+            <table cellPadding={4} style={{ fontSize: '16px' }} width='100%'>
               <tr>
                 <td>Quantity Item</td>
                 <td>:</td>
-                <td style={{ fontWeight: 'bold' }}>{state.orders.subtotal}</td>
+                <td style={{ fontWeight: 'bold' }}>{`${
+                  state.orders.subtotal
+                } (${(state.orders.totalWeight / 1000).toFixed(2)} KG)`}</td>
               </tr>
               <tr>
                 <td>Discount</td>
                 <td>:</td>
-                <td style={{ fontWeight: 'bold' }}>
-                  {formatRupiah(state.orders.discount, 'Rp. ')}
+                <td style={{ fontWeight: 'bold', textAlign: 'right' }}>
+                  {formatRupiah(state.orders.discount)}
                 </td>
               </tr>
               <tr>
                 <td>Sub Total</td>
                 <td>:</td>
-                <td style={{ fontWeight: 'bold' }}>
-                  {formatRupiah(state.orders.totalPriceProduct, 'Rp. ')}
+                <td style={{ fontWeight: 'bold', textAlign: 'right' }}>
+                  {formatRupiah(state.orders.totalPriceProduct)}
                 </td>
               </tr>
               <tr>
                 <td>Ongkir</td>
                 <td>:</td>
-                <td style={{ fontWeight: 'bold' }}>
-                  {formatRupiah(state.kurir, 'Rp. ')}
+                <td style={{ fontWeight: 'bold', textAlign: 'right' }}>
+                  {formatRupiah(state.kurirDetails.ongkir)}
                 </td>
               </tr>
               <tr>
                 <td>Total Payment</td>
                 <td>:</td>
-                <td style={{ fontWeight: 'bold' }}>
+                <td style={{ fontWeight: 'bold', textAlign: 'right' }}>
                   {formatRupiah(state.orders.totalPrice, 'Rp. ')}
                 </td>
               </tr>

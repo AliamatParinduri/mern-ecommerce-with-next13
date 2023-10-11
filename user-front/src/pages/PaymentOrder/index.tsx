@@ -42,9 +42,12 @@ const Payment = () => {
         const payload = {
           userId: user!._id,
           fullAddress: state.shippingAddress.fullAddress,
-          kecamatan: state.shippingAddress.kecamatan.toString(),
-          kabKot: state.shippingAddress.kabKot.toString(),
           provinsi: state.shippingAddress.provinsi.toString(),
+          provinsiId: state.shippingAddress.provinsiId.toString(),
+          kabKot: state.shippingAddress.kabKot.toString(),
+          kabKotId: state.shippingAddress.kabKotId.toString(),
+          kecamatan: state.shippingAddress.kecamatan.toString(),
+          kecamatanId: state.shippingAddress.kecamatanId.toString(),
           isPrimary: true,
         }
 
@@ -74,7 +77,16 @@ const Payment = () => {
       })
 
       const today = new Date()
-      const nextThreeDays = new Date(today.setDate(today.getDate() + 3))
+      let etd = state.kurirDetails.kurirType.cost[0].etd
+      if (etd === '') {
+        etd = 7
+      }
+      etd = etd.split(' ')[0]
+      etd = etd.split('-')
+
+      const estimatedDeliveryDate = new Date(
+        today.setDate(today.getDate() + Number(etd[etd.length - 1]))
+      )
 
       const payload = {
         user: user!._id,
@@ -82,8 +94,8 @@ const Payment = () => {
         products,
         totalProfit,
         discount: 0,
-        estimatedDeliveryDate: nextThreeDays,
-        ongkir: 0,
+        estimatedDeliveryDate,
+        ongkir: state.kurirDetails.ongkir,
         totalPrice: state.orders.totalPrice,
       }
 
@@ -96,7 +108,7 @@ const Payment = () => {
       setUser(updateUser)
       localStorage.setItem('userLogin', JSON.stringify(updateUser))
 
-      handlePayment(data.data.order._id)
+      // handlePayment(data.data.order._id)
       return false
     } catch (e: any) {
       setIsLoading(false)
@@ -179,9 +191,6 @@ const Payment = () => {
       my={3}
     >
       <Box sx={{ width: { xs: '100%', md: 1 / 2 } }}>
-        <Typography gutterBottom variant='h3' fontWeight='bold' mb={2}>
-          Payment Process
-        </Typography>
         <form autoComplete='off' noValidate onSubmit={handleSubmit}>
           <Box
             bgcolor={colors.secondary[500]}
@@ -195,6 +204,9 @@ const Payment = () => {
             flexDirection='column'
             gap={2}
           >
+            <Typography gutterBottom variant='h3' fontWeight='bold'>
+              Payment Process
+            </Typography>
             <TextField
               fullWidth
               autoComplete='Name'

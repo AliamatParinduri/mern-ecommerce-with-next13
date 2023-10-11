@@ -23,8 +23,9 @@ const Cart = () => {
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
   const navigate = useNavigate()
-  let orderTotal = 0
+  let totalOrder = 0
   let subTotal = 0
+  let totalWeight = 0
 
   useEffect(() => {
     if (user && user.cart.length < 1) {
@@ -36,8 +37,9 @@ const Cart = () => {
   user &&
     user.cart.map((cart: any) => {
       {
+        totalWeight += parseInt(cart.details.weight) * parseInt(cart.qty)
         subTotal += parseInt(cart.qty)
-        orderTotal += parseInt(cart.subTotal)
+        totalOrder += parseInt(cart.subTotal)
       }
     })
 
@@ -105,7 +107,8 @@ const Cart = () => {
     const userOrders = {
       products: user?.cart,
       discount: 0,
-      totalPriceProduct: orderTotal,
+      totalPriceProduct: totalOrder,
+      totalWeight,
       subtotal: subTotal + ' Item',
     }
 
@@ -250,13 +253,15 @@ const Cart = () => {
             <tr>
               <td>Sub Total</td>
               <td>:</td>
-              <td style={{ fontWeight: 'bold' }}>{subTotal + ' Item'}</td>
+              <td style={{ fontWeight: 'bold' }}>{`${subTotal} Item (${(
+                totalWeight / 1000
+              ).toFixed(2)} KG)`}</td>
             </tr>
             <tr>
               <td>Order Total</td>
               <td>:</td>
               <td style={{ fontWeight: 'bold' }}>
-                {formatRupiah(orderTotal.toString(), 'Rp. ')}
+                {formatRupiah(totalOrder.toString(), 'Rp. ')}
               </td>
             </tr>
           </table>
