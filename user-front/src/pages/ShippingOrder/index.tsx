@@ -18,6 +18,7 @@ import { BaseURLV1 } from '@/config/api'
 import axios from 'axios'
 import { formatRupiah } from '@/validations/shared'
 import Loading from '@/assets/svg/Loading'
+import { ToastError } from '@/components/Toast'
 
 const Shipping = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -180,6 +181,18 @@ const Shipping = () => {
   }
 
   const confirmOrder = async () => {
+    if (
+      provinsi === '#' ||
+      kabKot === '#' ||
+      kecamatan === '#' ||
+      kurir === '#' ||
+      kurirType === '#' ||
+      fullAddress === ''
+    ) {
+      ToastError('All Data is Required')
+      return false
+    }
+
     const totalPrice =
       state.orders.totalPriceProduct - state.orders.discount + Number(ongkir)
 

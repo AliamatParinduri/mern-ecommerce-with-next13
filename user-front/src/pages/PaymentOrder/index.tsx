@@ -14,6 +14,8 @@ import axios from 'axios'
 import { BaseURLV1, SnapMidtrans } from '@/config/api'
 import { formatRupiah } from '@/validations/shared'
 
+declare const window: any
+
 const Payment = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [token, setToken] = useState('')
@@ -108,7 +110,7 @@ const Payment = () => {
       setUser(updateUser)
       localStorage.setItem('userLogin', JSON.stringify(updateUser))
 
-      // handlePayment(data.data.order._id)
+      handlePayment(data.data.order._id)
       return false
     } catch (e: any) {
       setIsLoading(false)
