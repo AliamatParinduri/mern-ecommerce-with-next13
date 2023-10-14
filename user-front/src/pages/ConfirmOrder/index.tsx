@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { UserState, userContextType } from '@/context/userContext'
 import {
   Box,
@@ -21,10 +21,10 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { tokens } from '@/theme'
 import { formatRupiah } from '@/validations/shared'
 import { BaseURLProduct } from '@/config/api'
+import { ToastError } from '@/components/Toast'
 
 const Confirm = () => {
-  const [isLoading, setIsLoading] = useState(false)
-  const { user, setUser }: userContextType = UserState()
+  const { user }: userContextType = UserState()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
   const navigate = useNavigate()
@@ -48,6 +48,13 @@ const Confirm = () => {
       border: 0,
     },
   }))
+
+  useEffect(() => {
+    if (!state) {
+      ToastError(`your order can't found!`)
+      navigate(-1)
+    }
+  }, [])
 
   return (
     <Stack p={2} justifyContent='space-around' gap={4}>
@@ -78,7 +85,7 @@ const Confirm = () => {
               <TableBody>
                 {state.orders.products &&
                   state.orders.products.map((product: any) => (
-                    <StyledTableRow key={product._id}>
+                    <StyledTableRow key={product.details._id}>
                       <StyledTableCell component='th' scope='row'>
                         <Box
                           key={product._id}

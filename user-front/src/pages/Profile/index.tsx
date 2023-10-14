@@ -91,7 +91,7 @@ const Profile = () => {
         ToastError('Your session has ended, Please login again')
         navigate('/login')
       } else {
-        ToastError(e.response?.data?.message)
+        ToastError(e.response?.data?.description)
       }
       return false
     }

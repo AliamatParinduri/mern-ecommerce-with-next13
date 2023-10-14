@@ -101,7 +101,7 @@ const OrderDetail = () => {
         ToastError('Your session has ended, Please login again')
         navigate('/login')
       } else {
-        ToastError(e.response?.data?.message)
+        ToastError(e.response?.data?.description)
       }
       return false
     }
@@ -249,7 +249,6 @@ const OrderDetail = () => {
 
       const payload = {
         ...order,
-        address: order!.address._id,
         user: order!.user._id,
         paymentOrder,
         deliveredOrder: new Date(),
@@ -434,8 +433,8 @@ const OrderDetail = () => {
                   borderRadius='4px'
                   bgcolor='#787eff'
                 >
-                  Estimated Delivery Date{' '}
-                  <b>&nbsp;{getDates(order.estimatedDeliveryDate)}</b>
+                  Estimated Delivery Date:{' '}
+                  <b>&nbsp;{getDates(order.estimatedDeliveryDate, true)}</b>
                 </Box>
               </Stack>
             </Stack>
@@ -446,7 +445,7 @@ const OrderDetail = () => {
                   <TableRow>
                     <StyledTableCell>Order ID: {order._id}</StyledTableCell>
                     <StyledTableCell>
-                      Ordered on {getDates(order!.createdAt!)}
+                      Ordered on: {getDates(order!.createdAt!)}
                     </StyledTableCell>
                     {order.deliveredOrder && order.paymentOrder === 'Done' && (
                       <StyledTableCell>
@@ -611,7 +610,7 @@ const OrderDetail = () => {
                 >
                   <span>SubTotal</span>
                   <span>
-                    <b>{formatRupiah(subTotal.toString(), 'Rp. ')}</b>
+                    <b>{formatRupiah(subTotal.toString())}</b>
                   </span>
                 </Stack>
                 <Stack
@@ -621,7 +620,7 @@ const OrderDetail = () => {
                 >
                   <span>Shipping fee</span>
                   <span>
-                    <b>{formatRupiah(order.ongkir.toString(), 'Rp. ')}</b>
+                    <b>{formatRupiah(order.ongkir.toString())}</b>
                   </span>
                 </Stack>
                 <Stack
@@ -631,7 +630,7 @@ const OrderDetail = () => {
                 >
                   <span>Discount</span>
                   <span>
-                    <b>{formatRupiah(order.discount.toString(), 'Rp. ')}</b>
+                    <b>{formatRupiah(order.discount.toString())}</b>
                   </span>
                 </Stack>
                 <Divider

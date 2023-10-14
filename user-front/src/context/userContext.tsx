@@ -10,7 +10,7 @@ export type userContextType = {
 
 const UserContext = createContext({})
 
-const UserProvider = (props: any) => {
+const UserProvider = ({ children }: any) => {
   const [user, setUser] = useState()
   const navigate = useNavigate()
 
@@ -25,7 +25,7 @@ const UserProvider = (props: any) => {
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
-      {props.children}
+      {children}
     </UserContext.Provider>
   )
 }

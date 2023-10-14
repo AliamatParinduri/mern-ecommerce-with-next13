@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormLabel,
   InputLabel,
   MenuItem,
   Select,
@@ -16,7 +17,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { tokens } from '@/theme'
 import { BaseURLV1 } from '@/config/api'
 import axios from 'axios'
-import { formatRupiah } from '@/validations/shared'
+import { formatRupiah, isUserLogin } from '@/validations/shared'
 import Loading from '@/assets/svg/Loading'
 import { ToastError } from '@/components/Toast'
 
@@ -38,11 +39,12 @@ const Shipping = () => {
   const [listOfKabKot, setListOfKabKot] = useState([])
   const [listOfKecamatan, setListOfKecamatan] = useState([])
   const [listOfOngkir, setListOfOngkir] = useState([])
-  const { user }: userContextType = UserState()
+  const { setUser }: userContextType = UserState()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
   const navigate = useNavigate()
   const { state } = useLocation()
+  let { user }: userContextType = UserState()
 
   const getAddress = async () => {
     if (state.shippingAddress || state.kurirDetails) {
@@ -90,6 +92,19 @@ const Shipping = () => {
         }
         setIsLoading(false)
       } catch (e: any) {
+        if (
+          e.message ===
+            `Cannot read properties of undefined (reading 'token')` ||
+          e.response?.data?.message === 'jwt expired' ||
+          e.response?.data?.message === 'invalid signature'
+        ) {
+          localStorage.removeItem('userLogin')
+          setUser(null)
+          ToastError('Your session has ended, Please login again')
+          navigate('/login')
+        } else {
+          ToastError(e.response?.data?.description)
+        }
         return false
       }
     }
@@ -235,6 +250,17 @@ const Shipping = () => {
   }
 
   useEffect(() => {
+    if (isUserLogin(user)) {
+      user = isUserLogin(user)
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (!state) {
+      ToastError(`your order can't found!`)
+      navigate(-1)
+    }
+
     getAddress()
 
     if (state.kurirDetails && state.kurirDetails.listOfProvinsi) {
@@ -481,14 +507,16 @@ const Shipping = () => {
                 placeholder='No. Handphone'
                 value={user && user.noHP}
               />
-              <TextField
-                fullWidth
-                autoComplete='fullAddress'
-                type='text'
-                placeholder='Full Address'
-                onChange={(e) => setFullAddress(e.target.value)}
-                value={fullAddress}
-              />
+              <Stack mb={1}>
+                <FormLabel>Full Address</FormLabel>
+                <TextField
+                  multiline
+                  rows={4}
+                  variant='outlined'
+                  onChange={(e) => setFullAddress(e.target.value)}
+                  value={fullAddress}
+                />
+              </Stack>
               <Button
                 fullWidth
                 onClick={confirmOrder}

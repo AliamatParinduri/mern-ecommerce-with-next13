@@ -152,7 +152,7 @@ export function onlyGetNumberValue(value: string) {
   return Number(value.replace(/[^0-9]/g, ''))
 }
 
-export function getDates(date: string) {
+export function getDates(date: string, onlyDate?: boolean) {
   const monthNames = [
     'January',
     'February',
@@ -176,8 +176,12 @@ export function getDates(date: string) {
   const h = newDate.getHours().toString()
   const i = newDate.getMinutes().toString()
   const s = newDate.getSeconds().toString()
+  const day = `${d.length === 1 ? '0' + d : d} ${monthNames[m]} ${y}`
 
-  return `${d.length === 1 ? '0' + d : d} ${monthNames[m]} ${y} ${
-    h.length === 1 ? '0' + h : h
-  }:${i.length === 1 ? '0' + i : i}:${s.length === 1 ? '0' + s : s}`
+  if (onlyDate) {
+    return day
+  }
+  return `${day} ${h.length === 1 ? '0' + h : h}:${
+    i.length === 1 ? '0' + i : i
+  }:${s.length === 1 ? '0' + s : s}`
 }

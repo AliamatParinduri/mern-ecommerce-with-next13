@@ -12,18 +12,20 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { tokens } from '@/theme'
 import axios from 'axios'
 import { BaseURLV1, SnapMidtrans } from '@/config/api'
-import { formatRupiah } from '@/validations/shared'
+import { formatRupiah, isUserLogin } from '@/validations/shared'
+import { ToastError, ToastInfo } from '@/components/Toast'
 
 declare const window: any
 
 const Payment = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [token, setToken] = useState('')
-  const { user, setUser }: userContextType = UserState()
+  const { setUser }: userContextType = UserState()
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
   const navigate = useNavigate()
   const { state } = useLocation()
+  let { user }: userContextType = UserState()
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
@@ -81,10 +83,11 @@ const Payment = () => {
       const today = new Date()
       let etd = state.kurirDetails.kurirType.cost[0].etd
       if (etd === '') {
-        etd = 7
+        etd = [7]
+      } else {
+        etd = etd.split(' ')[0]
+        etd = etd.split('-')
       }
-      etd = etd.split(' ')[0]
-      etd = etd.split('-')
 
       const estimatedDeliveryDate = new Date(
         today.setDate(today.getDate() + Number(etd[etd.length - 1]))
@@ -114,6 +117,18 @@ const Payment = () => {
       return false
     } catch (e: any) {
       setIsLoading(false)
+      if (
+        e.message === `Cannot read properties of undefined (reading 'token')` ||
+        e.response?.data?.message === 'jwt expired' ||
+        e.response?.data?.message === 'invalid signature'
+      ) {
+        localStorage.removeItem('userLogin')
+        setUser(null)
+        ToastError('Your session has ended, Please login again')
+        navigate('/login')
+      } else {
+        ToastError(e.response?.data?.description)
+      }
       return false
     }
   }
@@ -123,6 +138,8 @@ const Payment = () => {
       const payload = {
         orderId,
         name: user?.fullName,
+        email: user?.email,
+        noHP: user?.noHP,
         total: state.orders.totalPrice,
       }
       const config = {
@@ -144,6 +161,12 @@ const Payment = () => {
   }
 
   useEffect(() => {
+    if (isUserLogin(user)) {
+      user = isUserLogin(user)
+    }
+  }, [user])
+
+  useEffect(() => {
     if (token) {
       window.snap.pay(token, {
         onSuccess: (result: any) => {
@@ -158,10 +181,13 @@ const Payment = () => {
         },
         onError: (err: any) => {
           console.log(err)
+          ToastError('Anda belum menyelesaikan pembayaran')
+          navigate('/dashboard')
           setToken('')
         },
         onClose: () => {
-          console.log('Anda belum menyelesaikan pembayaran')
+          ToastInfo('Anda belum menyelesaikan pembayaran')
+          navigate('/success')
           setToken('')
         },
       })

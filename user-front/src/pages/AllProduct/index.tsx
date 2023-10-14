@@ -269,12 +269,14 @@ const AllProduct = () => {
         p={1}
         display='flex'
         justifyContent='space-between'
-        alignItems='center'
+        alignItems={{ xs: 'start', md: 'center' }}
         bgcolor={colors.secondary[500]}
         sx={{ borderRadius: '8px' }}
+        flexDirection={{ xs: 'column', md: 'row' }}
+        gap={2}
       >
         <Box display='flex' flexDirection='column'>
-          <Typography component='h2'>Searching for mobile phone</Typography>
+          <Typography component='h2'>Searching for all products</Typography>
           <Typography component='small'>
             {products.length} results found
           </Typography>
@@ -334,9 +336,16 @@ const AllProduct = () => {
         </Box>
       </Box>
 
-      <Box display='flex' gap={2}>
+      <Box display='flex' flexDirection={{ xs: 'column', md: 'row' }} gap={2}>
         <Stack
-          width={{ minWidth: '250px', maxWidth: '250px' }}
+          maxWidth={{
+            xs: '100%',
+            md: '250px',
+          }}
+          minWidth={{
+            xs: '100%',
+            md: '250px',
+          }}
           bgcolor={colors.secondary[500]}
           p={2}
           gap={3}

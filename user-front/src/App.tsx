@@ -24,6 +24,7 @@ import Invoice from './pages/Invoice'
 import Shipping from './pages/ShippingOrder'
 import Confirm from './pages/ConfirmOrder'
 import Payment from './pages/PaymentOrder'
+import SuccessOrder from './pages/SuccessOrder'
 
 function App() {
   const [theme, colorMode]: any = useMode()
@@ -52,6 +53,7 @@ function App() {
               <Route path='/addresses' element={<Addresses />} />
               <Route path='/addresses/create' element={<CreateAddress />} />
               <Route path='/addresses/:id/edit' element={<EditAddress />} />
+              <Route path='/success' element={<SuccessOrder />} />
             </Route>
             <Route path='/login' element={<Login />} />
             <Route path='/signup' element={<Signup />} />

@@ -9,12 +9,12 @@ export type ProductsContextType = {
 
 const ProductsContext = createContext({})
 
-const ProductsProvider = (props: any) => {
+const ProductsProvider = ({ children }: any) => {
   const [products, setProducts] = useState([])
 
   return (
     <ProductsContext.Provider value={{ products, setProducts }}>
-      {props.children}
+      {children}
     </ProductsContext.Provider>
   )
 }

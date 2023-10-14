@@ -20,7 +20,6 @@ import { tokens } from '@/theme'
 import { ToastError, ToastSuccess } from '@/components/Toast'
 
 const Cart = () => {
-  const [isLoading, setIsLoading] = useState(false)
   const [initialCheckStock, setInitialCheckStock] = useState(false)
   const [totalOrder, setTotalOrder] = useState(0)
   const [subTotalItem, setSubTotalItem] = useState(0)
@@ -182,6 +181,20 @@ const Cart = () => {
         ...newUserCart,
       })
 
+      let tmpProductActive: any[] = []
+      let tmpProductEmpty: any[] = []
+
+      data.data.cart.map((cart: any) => {
+        if (cart.details.stock > 0) {
+          tmpProductActive = [...tmpProductActive, cart]
+        } else {
+          tmpProductEmpty = [...tmpProductEmpty, cart]
+        }
+      })
+
+      setProductActive(tmpProductActive)
+      setProductEmpty(tmpProductEmpty)
+
       ToastSuccess('Success delete cart')
     } catch (e: any) {
       return false
@@ -314,7 +327,7 @@ const Cart = () => {
             </Box>
             {productActive.map((cart: any) => (
               <Box
-                key={cart._id}
+                key={cart.details._id}
                 display='flex'
                 alignItems='flex-start'
                 justifyContent='space-between'
@@ -450,7 +463,7 @@ const Cart = () => {
             </Typography>
             {productEmpty.map((cart: any) => (
               <Box
-                key={cart._id}
+                key={cart.details._id}
                 display='flex'
                 alignItems='flex-start'
                 justifyContent='space-between'
@@ -543,7 +556,7 @@ const Cart = () => {
             type='button'
             variant='contained'
           >
-            {isLoading ? 'loading...' : 'Checkout'}
+            Checkout
           </Button>
         </Stack>
       </Box>
