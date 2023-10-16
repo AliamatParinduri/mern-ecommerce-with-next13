@@ -25,7 +25,20 @@ class ProductController {
       const { id } = req.params
       const result = await this.productService.getProductById(id)
 
-      const message = 'Success get product By ID'
+      const message = 'Success get product by ID'
+      logger.info(message)
+      return res.status(200).json({ message, data: result })
+    } catch (err: any) {
+      next(err)
+    }
+  }
+
+  getProductDetailsById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id, detailsId } = req.params
+      const result = await this.productService.getProductDetailsById(id, detailsId)
+
+      const message = 'Success get product details by ID'
       logger.info(message)
       return res.status(200).json({ message, data: result })
     } catch (err: any) {

@@ -108,6 +108,12 @@ class ProductService {
     return await this.productRepository.findById(productId)
   }
 
+  getProductDetailsById = async (productId: string, detailsId: string) => {
+    const keyword: any = { _id: productId, 'details._id': detailsId }
+
+    return await this.productRepository.getProductDetailsById(keyword)
+  }
+
   getReportProducts = async (req: Request) => {
     const keyword = { ...req.query }
 

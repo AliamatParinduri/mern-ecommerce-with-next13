@@ -10,6 +10,7 @@ export interface AddressDTO extends Document {
   kabKot: string
   kabKotId: string
   provinsi: string
+  provinsiId: string
   isPrimary: boolean
 }
 
@@ -21,5 +22,6 @@ export const AddressSchema = Joi.object({
   kabKot: Joi.string().required(),
   kabKotId: Joi.string().required(),
   provinsi: Joi.string().required(),
+  provinsiId: Joi.string().required(),
   isPrimary: Joi.boolean().required()
 })

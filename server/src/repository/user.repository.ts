@@ -183,6 +183,7 @@ class UserRepository {
       )
 
       const newDetails: any = [...product.details]
+
       if (!detailsInProductCart) {
         const newProductToCart = {
           product,
@@ -196,7 +197,8 @@ class UserRepository {
 
       const cartIndex = user.cart.findIndex((product: any) => product.details._id.equals(detailsId))
 
-      user.cart[cartIndex].subTotal += newDetails[0].price * qty
+      user.cart[cartIndex].details = newDetails[0]
+      user.cart[cartIndex].subTotal = newDetails[0].price * (user.cart[cartIndex].qty + qty)
       user.cart[cartIndex].qty += qty
       return await user.save()
     } catch (err: any) {

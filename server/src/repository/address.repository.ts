@@ -30,6 +30,7 @@ class AddressRepository {
         kabKot: payload.kabKot,
         kabKotId: payload.kabKotId,
         provinsi: payload.provinsi,
+        provinsiId: payload.provinsiId,
         isPrimary: payload.isPrimary
       }).then((result) => {
         if (!result) {
@@ -61,10 +62,14 @@ class AddressRepository {
 
   updateAddress = async (address: AddressDTO, payload: AddressDTO) => {
     try {
+      address.userId = payload.userId
       address.fullAddress = payload.fullAddress
       address.kecamatan = payload.kecamatan
+      address.kecamatanId = payload.kecamatanId
       address.kabKot = payload.kabKot
+      address.kabKotId = payload.kabKotId
       address.provinsi = payload.provinsi
+      address.provinsiId = payload.provinsiId
       address.isPrimary = payload.isPrimary
 
       return await address.save().then((result) => {
