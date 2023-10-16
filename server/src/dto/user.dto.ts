@@ -16,6 +16,7 @@ export interface UserDTO extends Document {
   cart: [
     {
       product: ProductDTO
+      details: object
       subTotal: number
       qty: number
     }

@@ -11,6 +11,7 @@ const AddressSchema = new Schema(
     kabKot: { type: String, trim: true, required: true },
     kabKotId: { type: String, trim: true, required: true },
     provinsi: { type: String, trim: true, required: true },
+    provinsiId: { type: String, trim: true, required: true },
     isPrimary: { type: Boolean, default: false, trim: true }
   },
   { timestamps: true }

@@ -9,7 +9,7 @@ export interface PaymentDTO extends Document {
   noHP: string
 }
 
-export interface createTransactionDTO extends Document   {
+export interface createTransactionDTO extends Document {
   transaction_details: {
     order_id: string
     gross_amount: number

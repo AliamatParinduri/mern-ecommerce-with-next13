@@ -2,11 +2,12 @@
 import Joi from 'joi'
 import { Document } from 'mongoose'
 import { UserDTO } from './user.dto'
+import { AddressDTO } from './address.dto'
 import { ProductDTO } from './product.dto'
 
 export interface OrderDTO extends Document {
   user: UserDTO
-  address: object
+  address?: AddressDTO
   products: [
     {
       product: ProductDTO

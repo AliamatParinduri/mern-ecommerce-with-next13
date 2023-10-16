@@ -72,6 +72,15 @@ class ProductRepository {
     }
   }
 
+  getProductDetailsById = async (keyword: any) => {
+    try {
+      return await Product.find(keyword)
+    } catch (err: any) {
+      logger.error('ERR = Get Product Details By ID ', err.message)
+      throw new InternalServerError(err.message)
+    }
+  }
+
   createProduct = async (payload: ProductDTO, pic: string[]) => {
     try {
       return await Product.create({

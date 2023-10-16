@@ -10,6 +10,7 @@ class ProductRoutes extends BaseRoutes {
     this.router.get('/', productController.getProducts)
     this.router.get('/reportProducts', requireAdmin, productController.getReportProducts)
     this.router.get('/:id', productController.getProductById)
+    this.router.get('/:id/:detailsId', productController.getProductDetailsById)
     this.router.post('/', requireAdmin, upload.array('images'), productController.createProduct)
     this.router.put('/:id', requireAdmin, upload.array('images'), productController.updateProduct)
     this.router.put('/:id/deleteProductImage', requireAdmin, productController.deleteProductImage)
