@@ -70,7 +70,7 @@ const Invoice = () => {
         ToastError('Your session has ended, Please login again')
         navigate('/login')
       } else {
-        ToastError(e.response?.data?.message)
+        ToastError(e.response?.data?.description)
       }
       return false
     }
@@ -164,7 +164,7 @@ const Invoice = () => {
                     My E-Commerce Store
                   </Typography>
                   <Typography color='text.secondary'>
-                    Ciomas - Kab. Bogor - Jawa Barat
+                    Bogor Barat - Kota Bogor - Jawa Barat
                   </Typography>
                   <Typography
                     variant='body2'

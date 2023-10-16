@@ -95,10 +95,11 @@ const Dashboard = () => {
           />
         </Box>
       </Box>
+
       <Stack>
         <Box display='flex' justifyContent='space-between' py={1}>
           <Typography gutterBottom variant='h3' fontWeight='bold' mb={2}>
-            New Arrival {isLoading}
+            New Arrival
           </Typography>
           <Typography
             gutterBottom

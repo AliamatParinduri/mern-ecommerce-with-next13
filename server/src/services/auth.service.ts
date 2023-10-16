@@ -42,7 +42,7 @@ class AuthService {
 
     const compared = await comparePassword(payload.password, userExists.password)
     if (!compared) {
-      throw new UnprocessableEntityError('Incorrect email or password')
+      throw new UnprocessableEntityError('Incorrect username or password')
     }
 
     if (!userExists.isActive) {

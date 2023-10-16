@@ -11,7 +11,6 @@ class OrderRepository {
       return await Order.find(keyword)
         .sort({ createdAt: 'desc' })
         .populate('products.product')
-        .populate('address')
         .then((result) => {
           if (result.length < 0) {
             throw new InternalServerError('Failed get data order, Data not found')
@@ -437,7 +436,6 @@ class OrderRepository {
   findById = async (OrderId: string) => {
     try {
       return await Order.findById(OrderId)
-        .populate('address')
         .populate('user')
         .populate('products.product')
         .then((result) => {

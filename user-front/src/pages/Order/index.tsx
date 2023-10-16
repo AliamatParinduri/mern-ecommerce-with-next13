@@ -64,7 +64,7 @@ const Orders = () => {
         ToastError('Your session has ended, Please login again')
         navigate('/login')
       } else {
-        ToastError(e.response?.data?.message)
+        ToastError(e.response?.data?.description)
       }
       return false
     }
@@ -126,7 +126,7 @@ const Orders = () => {
                 <TableBody>
                   {orders &&
                     orders.map((order: any) => (
-                      <StyledTableRow key={order.name}>
+                      <StyledTableRow key={order._id}>
                         <StyledTableCell component='th' scope='row'>
                           {order._id}
                         </StyledTableCell>

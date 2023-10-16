@@ -51,11 +51,7 @@ const EditProfile = () => {
         email,
       }
 
-       await axios.put(
-        `${BaseURLV1}/users/${user!._id}`,
-        payload,
-        config
-      )
+      await axios.put(`${BaseURLV1}/users/${user!._id}`, payload, config)
 
       const newUser = {
         ...user,

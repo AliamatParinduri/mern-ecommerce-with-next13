@@ -28,7 +28,7 @@ export const CheckToken = async (req: Request, next: NextFunction) => {
       throw new UnauthorizedError('user not found!')
     }
 
-    return user
+    return { user, token }
   } catch (err: any) {
     logger.error('ERR = Auth - ', err.message)
     next(err)
@@ -37,8 +37,9 @@ export const CheckToken = async (req: Request, next: NextFunction) => {
 
 export const requireLogin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = await CheckToken(req, next)
+    const { user, token }: any = await CheckToken(req, next)
     res.locals.user = user
+    res.locals.token = token
     next()
   } catch (err: any) {
     logger.error('ERR = Auth Require Login - ', err.message)
@@ -48,13 +49,14 @@ export const requireLogin = async (req: Request, res: Response, next: NextFuncti
 
 export const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = await CheckToken(req, next)
+    const { user, token }: any = await CheckToken(req, next)
 
-    if (!user!.isAdmin) {
+    if (!user.isAdmin) {
       logger.error(`ERR = Auth - Access Denied, you're not admin!`)
       next({ statusCode: 401, message: 'Unauthorized', description: `Access Denied, you're not admin!` })
     }
     res.locals.user = user
+    res.locals.tpken = token
     next()
   } catch (err: any) {
     logger.error('ERR = Auth Require Admin - ', err.message)

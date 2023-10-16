@@ -1,17 +1,16 @@
 'use client'
 
-import { userLogin } from '@/validations/shared'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export type userContextType = {
-  user?: userLogin
+  user?: any
   setUser?: any
 }
 
 const UserContext = createContext({})
 
-const UserProvider = (props: any) => {
+const UserProvider = ({ children }: any) => {
   const [user, setUser] = useState()
   const navigate = useNavigate()
 
@@ -26,7 +25,7 @@ const UserProvider = (props: any) => {
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
-      {props.children}
+      {children}
     </UserContext.Provider>
   )
 }

@@ -269,12 +269,14 @@ const AllProduct = () => {
         p={1}
         display='flex'
         justifyContent='space-between'
-        alignItems='center'
+        alignItems={{ xs: 'start', md: 'center' }}
         bgcolor={colors.secondary[500]}
         sx={{ borderRadius: '8px' }}
+        flexDirection={{ xs: 'column', md: 'row' }}
+        gap={2}
       >
         <Box display='flex' flexDirection='column'>
-          <Typography component='h2'>Searching for mobile phone</Typography>
+          <Typography component='h2'>Searching for all products</Typography>
           <Typography component='small'>
             {products.length} results found
           </Typography>
@@ -299,7 +301,7 @@ const AllProduct = () => {
                   }}
                 >
                   <MenuItem value='' selected>
-                    <em>None</em>
+                    All
                   </MenuItem>
                   {subCategories.length > 0 &&
                     subCategories.map((sc) => (
@@ -324,9 +326,7 @@ const AllProduct = () => {
                 height: 45,
               }}
             >
-              <MenuItem value=''>
-                <em>None</em>
-              </MenuItem>
+              <MenuItem value=''>Default</MenuItem>
               <MenuItem value='A-Z'>A to Z</MenuItem>
               <MenuItem value='Z-A'>Z to A</MenuItem>
               <MenuItem value='Low-High'>Price Low to High</MenuItem>
@@ -336,9 +336,16 @@ const AllProduct = () => {
         </Box>
       </Box>
 
-      <Box display='flex' gap={2}>
+      <Box display='flex' flexDirection={{ xs: 'column', md: 'row' }} gap={2}>
         <Stack
-          width={{ minWidth: '250px', maxWidth: '250px' }}
+          maxWidth={{
+            xs: '100%',
+            md: '250px',
+          }}
+          minWidth={{
+            xs: '100%',
+            md: '250px',
+          }}
           bgcolor={colors.secondary[500]}
           p={2}
           gap={3}
@@ -425,6 +432,7 @@ const AllProduct = () => {
                 justifyItems='center'
                 alignItems='center'
                 gap={0.3}
+                key={i}
               >
                 <input
                   type='radio'

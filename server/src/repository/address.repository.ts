@@ -26,7 +26,9 @@ class AddressRepository {
         userId: payload.userId,
         fullAddress: payload.fullAddress,
         kecamatan: payload.kecamatan,
+        kecamatanId: payload.kecamatanId,
         kabKot: payload.kabKot,
+        kabKotId: payload.kabKotId,
         provinsi: payload.provinsi,
         isPrimary: payload.isPrimary
       }).then((result) => {

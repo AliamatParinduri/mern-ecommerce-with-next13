@@ -8,7 +8,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <BrowserRouter>
     <UserProvider>
       <ProductsProvider>
-        <App />
+          <App />
       </ProductsProvider>
     </UserProvider>
   </BrowserRouter>

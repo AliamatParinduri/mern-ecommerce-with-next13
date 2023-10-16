@@ -116,15 +116,12 @@ const Navbar = () => {
               >
                 {pages.map((page) => {
                   const menuItem = (
-                    <MenuItem
-                      key={page.link}
-                      onClick={() => navigate(page.link)}
-                    >
+                    <MenuItem onClick={() => navigate(page.link)}>
                       <Typography textAlign='center'>{page.title}</Typography>
                     </MenuItem>
                   )
                   return (
-                    <Box>
+                    <Box key={page.link}>
                       {!page.auth && menuItem}
                       {user && page.auth && menuItem}
                     </Box>
@@ -159,7 +156,6 @@ const Navbar = () => {
             {pages.map((page) => {
               const btn = (
                 <Button
-                  key={page.link}
                   onClick={() => navigate(page.link)}
                   sx={{
                     my: 2,
@@ -170,7 +166,7 @@ const Navbar = () => {
                 </Button>
               )
               return (
-                <Box>
+                <Box key={page.link}>
                   {!page.auth && btn}
                   {user && page.auth && btn}
                 </Box>

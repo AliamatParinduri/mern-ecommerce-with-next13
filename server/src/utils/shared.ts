@@ -113,7 +113,6 @@ export const getDates = (diff: number, type: string, diff2?: number) => {
         firstDay.setUTCHours(17, 0, 0, 0)
         lastDay.setUTCHours(16, 59, 59, 999)
 
-
         dates = [
           {
             start: firstDay.toString(),

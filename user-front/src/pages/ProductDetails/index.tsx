@@ -4,7 +4,12 @@ import { ToastError, ToastSuccess } from '@/components/Toast'
 import { BaseURLProduct, BaseURLUsers, BaseURLV1 } from '@/config/api'
 import { UserState, userContextType } from '@/context/userContext'
 import { tokens } from '@/theme'
-import { ProductsDTO, RatingsDTO, formatRupiah } from '@/validations/shared'
+import {
+  ProductsDTO,
+  RatingsDTO,
+  formatRupiah,
+  isUserLogin,
+} from '@/validations/shared'
 import { Star } from '@mui/icons-material'
 import {
   Box,
@@ -21,7 +26,7 @@ import {
 import parse from 'html-react-parser'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import CardComponent from '@/components/Card'
 
 const ProductDetails = () => {
@@ -33,10 +38,12 @@ const ProductDetails = () => {
   const [productsRelevant, setProductsRelevant] = useState<ProductsDTO[]>([])
   const [value, setValue] = useState(0)
 
-  const { user, setUser }: userContextType = UserState()
+  const { setUser }: userContextType = UserState()
   const { id } = useParams()
   const theme = useTheme()
+  const navigate = useNavigate()
   const colors = tokens(theme.palette.mode)
+  let { user }: userContextType = UserState()
 
   const getProduct = async () => {
     try {
@@ -86,12 +93,29 @@ const ProductDetails = () => {
 
         ToastSuccess('Success Add Product to Cart')
       } catch (e: any) {
-        const description = e.response?.data?.description
-        ToastError(description ? description : 'Failed Add Products to Cart')
+        if (
+          e.message ===
+            `Cannot read properties of undefined (reading 'token')` ||
+          e.response?.data?.message === 'jwt expired' ||
+          e.response?.data?.message === 'invalid signature'
+        ) {
+          localStorage.removeItem('userLogin')
+          setUser(null)
+          ToastError('Your session has ended, Please login again')
+          navigate('/login')
+        } else {
+          ToastError(e.response?.data?.description)
+        }
         return false
       }
     }
   }
+
+  useEffect(() => {
+    if (isUserLogin(user)) {
+      user = isUserLogin(user)
+    }
+  }, [user])
 
   useEffect(() => {
     getProduct()
@@ -339,7 +363,7 @@ const ProductDetails = () => {
               </Tabs>
             </Box>
             <CustomTabPanel value={value} index={0}>
-              <Box>{parse(product.description)}</Box>
+              <Box>{parse(product.description)} </Box>
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1}>
               {product.details[detailIndex].totalRating < 1 ? (
