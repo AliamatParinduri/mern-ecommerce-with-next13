@@ -16,7 +16,7 @@ export const LoginSchema = yup.object().shape({
     .max(20)
     .required('This is Required, Please Enter your Password')
     .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\.$%\^&\*])(?=.{8,})/,
       'The password must contain uppercase, lowercase, numbers and special characters'
     ),
 })
@@ -54,7 +54,7 @@ export const RegisterSchema = yup.object().shape({
     .max(20)
     .required('This is Required, Please Enter your Password')
     .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\.$%\^&\*])(?=.{8,})/,
       'The password must contain uppercase, lowercase, numbers and special characters'
     ),
   confirmPassword: yup
@@ -104,7 +104,7 @@ export const NewPasswordSchema = yup.object().shape({
     .string()
     .required('This is Required, Please Enter your Password')
     .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\.$%\^&\*])(?=.{8,})/,
       'The password must contain uppercase, lowercase, numbers and special characters'
     ),
   confirmPassword: yup

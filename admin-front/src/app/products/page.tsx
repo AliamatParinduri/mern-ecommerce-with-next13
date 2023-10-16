@@ -49,7 +49,7 @@ const Products = () => {
         ToastError('Your session has ended, Please login again')
         router.push('/login')
       } else {
-        ToastError(e.response?.data?.message)
+        ToastError(e.response?.data?.description)
       }
     }
   }
@@ -81,7 +81,7 @@ const Products = () => {
         ToastError('Your session has ended, Please login again')
         router.push('/login')
       } else {
-        ToastError(e.response?.data?.message)
+        ToastError(e.response?.data?.description)
       }
     }
   }

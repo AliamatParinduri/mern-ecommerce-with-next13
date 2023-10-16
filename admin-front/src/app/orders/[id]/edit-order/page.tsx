@@ -31,6 +31,7 @@ const EditOrder = ({ params: { id } }: Props) => {
   const initialValues: any = {
     order: {},
     paymentOrder: '',
+    paymentStatus: '',
   }
 
   const handleSubmit = async () => {
@@ -38,6 +39,7 @@ const EditOrder = ({ params: { id } }: Props) => {
     try {
       const order = formik.values.order
       const paymentOrder = formik.values.paymentOrder
+      const paymentStatus = formik.values.paymentStatus
 
       const config = {
         headers: {
@@ -47,7 +49,9 @@ const EditOrder = ({ params: { id } }: Props) => {
 
       const payload = {
         ...order,
+        user: user?._id,
         paymentOrder,
+        paymentStatus,
       }
 
       await axios.put(`${BaseURLV1}/order/${id}`, payload, config)
@@ -67,7 +71,7 @@ const EditOrder = ({ params: { id } }: Props) => {
         ToastError('Your session has ended, Please login again')
         router.push('/login')
       } else {
-        ToastError(e.response?.data?.message)
+        ToastError(e.response?.data?.description)
       }
     }
   }
@@ -97,6 +101,7 @@ const EditOrder = ({ params: { id } }: Props) => {
 
       formik.setFieldValue('order', data.data)
       formik.setFieldValue('paymentOrder', data.data.paymentOrder)
+      formik.setFieldValue('paymentStatus', data.data.paymentStatus)
 
       setIsLoading(false)
     } catch (e: any) {
@@ -111,7 +116,7 @@ const EditOrder = ({ params: { id } }: Props) => {
         ToastError('Your session has ended, Please login again')
         router.push('/login')
       } else {
-        ToastError(e.response?.data?.message)
+        ToastError(e.response?.data?.description)
       }
     }
   }
@@ -149,6 +154,21 @@ const EditOrder = ({ params: { id } }: Props) => {
                   onSubmit={formik.handleSubmit}
                   className='flex flex-col gap-5'
                 >
+                  <label>Payment Status</label>
+                  <select
+                    value={formik.values['paymentStatus']}
+                    name='paymentStatus'
+                    onChange={(e) => {
+                      formik.setFieldValue(e.target.name, e.target.value)
+                    }}
+                    className='inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-4 dark:bg-boxDark-500 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 cursor-pointer'
+                  >
+                    {['UnPaid', 'Paid'].map((pageSize) => (
+                      <option key={pageSize} value={pageSize}>
+                        {pageSize}
+                      </option>
+                    ))}
+                  </select>
                   <label>Payment Order</label>
                   <select
                     value={formik.values['paymentOrder']}
